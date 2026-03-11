@@ -2,319 +2,247 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Sinfonía de Granos</title>
+<meta charset="UTF-8">
+<title>Login - Sinfonía de Granos</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #f4f1ee, #e8e2dc);
-        }
+<style>
 
-        /* HEADER */
-        .header {
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            text-align: center;
-            padding: 18px;
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
-        /* CONTENEDOR */
-        .contenedor {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 40px 80px;
-            gap: 50px;
-        }
+body{
+font-family:'Segoe UI',sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+}
 
-        /* IZQUIERDA */
-        .descripcion {
-            width: 42%;
-        }
+.login-container{
+background:white;
+width:380px;
+padding:40px;
+border-radius:20px;
+box-shadow:0 15px 40px rgba(0,0,0,0.25);
+text-align:center;
+}
 
-        .descripcion h2 {
-            font-size: 32px;
-            color: #3b2a1e;
-            margin-bottom: 10px;
-        }
+.login-container h1{
+color:#3b2a1e;
+margin-bottom:5px;
+}
 
-        .descripcion p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #5a4636;
-            margin-bottom: 15px;
-        }
+.eslogan{
+font-style:italic;
+color:#7a5c47;
+margin-bottom:25px;
+}
 
-        /* PRODUCTO */
-        .producto {
-            background: white;
-            padding: 30px;
-            border-radius: 18px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            margin-top: 25px;
-            text-align: center;
-            transition: 0.3s ease;
-        }
+.input-group{
+text-align:left;
+margin-bottom:18px;
+}
 
-        .producto:hover {
-            transform: translateY(-5px);
-        }
+.input-group label{
+font-size:14px;
+color:#5a4636;
+}
 
-        .producto h3 {
-            margin-bottom: 15px;
-        }
+.input-group input{
+width:100%;
+padding:10px;
+margin-top:6px;
+border-radius:8px;
+border:1px solid #ccc;
+transition:0.3s;
+}
 
-        .precio {
-            font-size: 24px;
-            color: #2e7d32;
-            font-weight: bold;
-            margin: 15px 0;
-        }
+.input-group input:focus{
+border-color:#4b2e2e;
+outline:none;
+}
 
-        .contador {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 15px 0;
-        }
+.btn-login{
+width:100%;
+padding:12px;
+background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+margin-top:10px;
+}
 
-        .contador button {
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
-            background-color: #4b2e2e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+.divider{
+margin:20px 0;
+display:flex;
+align-items:center;
+text-align:center;
+color:#aaa;
+}
 
-        .contador span {
-            margin: 0 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+.divider::before,
+.divider::after{
+content:"";
+flex:1;
+border-bottom:1px solid #ddd;
+}
 
-        .boton {
-            display: inline-block;
-            padding: 12px 25px;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s ease;
-        }
+.divider:not(:empty)::before{
+margin-right:.75em;
+}
 
-        .boton:hover {
-            opacity: 0.85;
-        }
+.divider:not(:empty)::after{
+margin-left:.75em;
+}
 
-        /* LOGO */
-        .logo-grande {
-            width: 220px;
-            height: 220px;
-            object-fit: contain;
-            margin: 20px auto 0;
-            display: block;
-        }
+.btn-google{
+width:100%;
+padding:10px;
+border:1px solid #ddd;
+border-radius:8px;
+background:white;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+font-weight:500;
+}
 
-        /* SLIDER */
-        .slider-container {
-            width: 55%;
-        }
+.btn-google:hover{
+background:#f5f5f5;
+}
 
-        .slider {
-            position: relative;
-            width: 100%;
-            height: 480px;
-            overflow: hidden;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
+.extra{
+margin-top:20px;
+font-size:13px;
+color:#777;
+}
 
-        .slides {
-            display: flex;
-            transition: transform 0.6s ease-in-out;
-        }
+.extra a{
+color:#4b2e2e;
+text-decoration:none;
+font-weight:600;
+}
 
-        .slides img {
-            width: 100%;
-            height: 480px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .btn-slide {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            cursor: pointer;
-            font-size: 20px;
-            border-radius: 50%;
-            transition: 0.3s ease;
-        }
-
-        .prev {
-            left: 20px;
-        }
-
-        .next {
-            right: 20px;
-        }
-
-        .btn-slide:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        /* FOOTER */
-        .footer-bar {
-            margin-top: 50px;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            padding: 30px;
-            text-align: center;
-        }
-
-        .redes h3 {
-            color: white;
-            margin-bottom: 10px;
-        }
-
-        .redes a {
-            color: #f4f1ee;
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .redes a:hover {
-            opacity: 0.7;
-        }
-    </style>
+</style>
 </head>
-<div class="header">
-    Sinfonía de Granos "De la semilla a la taza"
-</div>
 
 <body>
 
-    <div class="contenedor">
+<div class="login-container">
 
-        <!-- IZQUIERDA -->
-        <div class="descripcion">
+<h1>Sinfonía de Granos</h1>
+<div class="eslogan">"De la semilla a la taza"</div>
 
-            <h2>Café de Tanetze de Zaragoza</h2>
+<form id="loginForm">
 
-            <p>
-                Nuestro café molido proviene de Tanetze de Zaragoza, una región
-                reconocida por su tradición cafetalera y su cultivo artesanal.
-            </p>
+<div class="input-group">
+<label>Correo electrónico</label>
+<input type="email" id="email" required>
+</div>
 
-            <p>
-                Cultivado por productores locales, este café representa calidad,
-                tradición y el auténtico sabor de la sierra oaxaqueña.
-            </p>
+<div class="input-group">
+<label>Contraseña</label>
+<input type="password" id="password" required>
+</div>
 
-            <!-- PRODUCTO DEBAJO DEL TEXTO -->
-            <div class="producto">
-                <h3>Café Molido - Medio Kilo</h3>
+<button type="submit" class="btn-login">
+Iniciar Sesión
+</button>
 
-                <div class="precio">$200 MXN</div>
+</form>
 
-                <div class="contador">
-                    <button onclick="disminuir()">-</button>
-                    <span id="cantidad">1</span>
-                    <button onclick="aumentar()">+</button>
-                </div>
+<div class="divider">o</div>
 
-                <div class="boton">Comprar Ahora</div>
+<button type="button" class="btn-google" onclick="loginGoogle()">
+<img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" width="18">
+Continuar con Google
+</button>
 
-                <!-- LOGO ABAJO CUADRADO -->
-                <img src="LOGO.png" alt="Logo del Café" class="logo-grande">
-            </div>
+<div class="extra">
+¿No tienes cuenta? <a href="#">Regístrate</a>
+</div>
 
-        </div>
+</div>
 
-        <!-- DERECHA (SLIDER GRANDE) -->
-        <div class="slider-container">
-
-            <div class="slider">
-                <div class="slides" id="slides">
-                    <img src="galeria/img1.jpg">
-                    <img src="galeria/img2.jpg">
-                    <img src="galeria/img3.jpg">
-                    <img src="galeria/img4.jpg">
-                </div>
-
-                <button class="btn-slide prev" onclick="moverSlide(-1)">❮</button>
-                <button class="btn-slide next" onclick="moverSlide(1)">❯</button>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- FOOTER -->
-    <div class="footer-bar">
-        <div class="redes">
-            <h3>Síguenos en redes sociales</h3>
-            <a href="https://www.instagram.com/sinfoniadegranos00/">Instagram</a>
-            <a href="https://www.facebook.com/profile.php?id=61555563284916">Facebook</a>
-        </div>
-    </div>
-
-</body>
 
 <script>
-    let indiceSlide = 0;
 
-    function moverSlide(direccion) {
-        const slides = document.getElementById("slides");
-        const totalSlides = slides.children.length;
+const supabaseUrl = "https://ibftxwnyyxxvouymdcxu.supabase.co";
+const supabaseKey = "TU_ANON_PUBLIC_KEY";
 
-        indiceSlide += direccion;
+const supabase = window.supabase.createClient(
+supabaseUrl,
+supabaseKey
+);
 
-        if (indiceSlide < 0) {
-            indiceSlide = totalSlides - 1;
-        }
-
-        if (indiceSlide >= totalSlides) {
-            indiceSlide = 0;
-        }
-
-        slides.style.transform = `translateX(-${indiceSlide * 100}%)`;
-    }
-
-    function aumentar() {
-        let cantidad = document.getElementById("cantidad");
-        cantidad.innerText = parseInt(cantidad.innerText) + 1;
-    }
-
-    function disminuir() {
-        let cantidad = document.getElementById("cantidad");
-        if (parseInt(cantidad.innerText) > 1) {
-            cantidad.innerText = parseInt(cantidad.innerText) - 1;
-        }
-    }
-
-    setInterval(() => {
-        moverSlide(1);
-    }, 4000);
 </script>
 
+
+<script>
+
+/* LOGIN CON EMAIL */
+
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+const {data,error}=await supabase.auth.signInWithPassword({
+email:email,
+password:password
+});
+
+if(error){
+alert("Error: "+error.message);
+return;
+}
+
+window.location.href="principal.html";
+
+});
+
+
+/* LOGIN CON GOOGLE */
+
+async function loginGoogle(){
+
+const {data,error}=await supabase.auth.signInWithOAuth({
+provider:"google",
+options:{
+redirectTo: window.location.origin + "/principal.html"
+}
+});
+
+if(error){
+console.log(error);
+}
+
+}
+
+
+/* DETECTAR SESION EXISTENTE */
+
+supabase.auth.getSession().then(({data})=>{
+
+if(data.session){
+window.location.href="principal.html";
+}
+
+});
+
+</script>
+
+</body>
 </html>
