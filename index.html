@@ -1,179 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>Login - Sinfonía de Granos</title>
+    <meta charset="UTF-8">
+    <title>Login - Sinfonía de Granos</title>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body{
-    font-family:'Segoe UI',sans-serif;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(to right,#4b2e2e,#2e1b1b);
-}
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+        }
 
-/* TARJETA LOGIN */
-.login-container{
-    background:white;
-    width:380px;
-    padding:40px;
-    border-radius:20px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.25);
-    text-align:center;
-}
+        /* TARJETA LOGIN */
+        .login-container {
+            background: white;
+            width: 380px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
 
-.login-container h1{
-    color:#3b2a1e;
-    margin-bottom:5px;
-}
+        .login-container h1 {
+            color: #3b2a1e;
+            margin-bottom: 5px;
+        }
 
-.eslogan{
-    font-style:italic;
-    color:#7a5c47;
-    margin-bottom:25px;
-}
+        .eslogan {
+            font-style: italic;
+            color: #7a5c47;
+            margin-bottom: 25px;
+        }
 
-/* INPUTS */
-.input-group{
-    text-align:left;
-    margin-bottom:18px;
-}
+        /* INPUTS */
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
 
-.input-group label{
-    font-size:14px;
-    color:#5a4636;
-}
+        .input-group label {
+            font-size: 14px;
+            color: #5a4636;
+        }
 
-.input-group input{
-    width:100%;
-    padding:10px;
-    margin-top:6px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    transition:0.3s;
-}
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: 0.3s;
+        }
 
-.input-group input:focus{
-    border-color:#4b2e2e;
-    outline:none;
-}
+        .input-group input:focus {
+            border-color: #4b2e2e;
+            outline: none;
+        }
 
-/* BOTON LOGIN */
-.btn-login{
-    width:100%;
-    padding:12px;
-    background:linear-gradient(to right,#4b2e2e,#2e1b1b);
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:15px;
-    margin-top:10px;
-    transition:0.3s;
-}
+        /* BOTON LOGIN */
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
 
-.btn-login:hover{
-    opacity:0.9;
-}
+        .btn-login:hover {
+            opacity: 0.9;
+        }
 
-/* DIVISOR */
-.divider{
-    margin:20px 0;
-    display:flex;
-    align-items:center;
-    text-align:center;
-    color:#aaa;
-}
+        /* DIVISOR */
+        .divider {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #aaa;
+        }
 
-.divider::before,
-.divider::after{
-    content:"";
-    flex:1;
-    border-bottom:1px solid #ddd;
-}
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
 
-.divider:not(:empty)::before{
-    margin-right:.75em;
-}
+        .divider:not(:empty)::before {
+            margin-right: .75em;
+        }
 
-.divider:not(:empty)::after{
-    margin-left:.75em;
-}
+        .divider:not(:empty)::after {
+            margin-left: .75em;
+        }
 
-/* GOOGLE BUTTON */
-.btn-google{
-    width:100%;
-    padding:10px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    background:white;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    font-weight:500;
-    transition:0.3s;
-}
+        /* GOOGLE BUTTON */
+        .btn-google {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
 
-.btn-google:hover{
-    background:#f5f5f5;
-}
+        .btn-google:hover {
+            background: #f5f5f5;
+        }
 
-/* FOOTER TEXT */
-.extra{
-    margin-top:20px;
-    font-size:13px;
-    color:#777;
-}
+        /* FOOTER TEXT */
+        .extra {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #777;
+        }
 
-.extra a{
-    color:#4b2e2e;
-    text-decoration:none;
-    font-weight:600;
-}
-</style>
+        .extra a {
+            color: #4b2e2e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body>
 
-<div class="login-container">
-    <h1>Sinfonía de Granos</h1>
-    <div class="eslogan">"De la semilla a la taza"</div>
+    <div class="login-container">
+        <h1>Sinfonía de Granos</h1>
+        <div class="eslogan">"De la semilla a la taza"</div>
 
-    <form>
-        <div class="input-group">
-            <label>Correo electrónico</label>
-            <input type="email" required>
+        <form>
+            <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" required>
+            </div>
+
+            <button class="btn-login">Iniciar Sesión</button>
+        </form>
+
+        <div class="divider">o</div>
+
+        <button class="btn-google" onclick="loginGoogle()">
+            <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" width="18">
+            Continuar con Google
+        </button>
+
+        <div class="extra">
+            ¿No tienes cuenta? <a href="#">Regístrate</a>
         </div>
-
-        <div class="input-group">
-            <label>Contraseña</label>
-            <input type="password" required>
-        </div>
-
-        <button class="btn-login">Iniciar Sesión</button>
-    </form>
-
-    <div class="divider">o</div>
-
-    <button class="btn-google">
-        <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" width="18">
-        Continuar con Google
-    </button>
-
-    <div class="extra">
-        ¿No tienes cuenta? <a href="#">Regístrate</a>
     </div>
-</div>
+    <script>
 
+        const supabaseUrl = "TU_PROJECT_URL";
+        const supabaseKey = "TU_PUBLISHABLE_KEY";
+
+        const supabase = window.supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+        );
+
+    </script>
+    <script>
+
+        async function loginGoogle() {
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: "google"
+            });
+
+            if (error) {
+                console.log(error);
+            }
+
+        }
+
+    </script>
 </body>
+
 </html>
