@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sinfonía de Granos</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #f4f1ee, #e8e2dc);
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            text-align: center;
+            padding: 18px;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* CONTENEDOR */
+        .contenedor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 80px;
+            gap: 50px;
+        }
+
+        /* IZQUIERDA */
+        .descripcion {
+            width: 42%;
+        }
+
+        .descripcion h2 {
+            font-size: 32px;
+            color: #3b2a1e;
+            margin-bottom: 10px;
+        }
+
+        .descripcion p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #5a4636;
+            margin-bottom: 15px;
+        }
+
+        /* PRODUCTO */
+        .producto {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            margin-top: 25px;
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        .producto:hover {
+            transform: translateY(-5px);
+        }
+
+        .producto h3 {
+            margin-bottom: 15px;
+        }
+
+        .precio {
+            font-size: 24px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .contador {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .contador button {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            background-color: #4b2e2e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .contador span {
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s ease;
+        }
+
+        .boton:hover {
+            opacity: 0.85;
+        }
+
+        /* LOGO */
+        .logo-grande {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            margin: 20px auto 0;
+            display: block;
+        }
+
+        /* SLIDER */
+        .slider-container {
+            width: 55%;
+        }
+
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            overflow: hidden;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .slides img {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .btn-slide {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 50%;
+            transition: 0.3s ease;
+        }
+
+        .prev {
+            left: 20px;
+        }
+
+        .next {
+            right: 20px;
+        }
+
+        .btn-slide:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* FOOTER */
+        .footer-bar {
+            margin-top: 50px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .redes h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .redes a {
+            color: #f4f1ee;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .redes a:hover {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<div class="header">
+    Sinfonía de Granos "De la semilla a la taza"
+</div>
+
+<body>
+
+    <div class="contenedor">
+
+        <!-- IZQUIERDA -->
+        <div class="descripcion">
+
+            <h2>Café de Tanetze de Zaragoza</h2>
+
+            <p>
+                Nuestro café molido proviene de Tanetze de Zaragoza, una región
+                reconocida por su tradición cafetalera y su cultivo artesanal.
+            </p>
+
+            <p>
+                Cultivado por productores locales, este café representa calidad,
+                tradición y el auténtico sabor de la sierra oaxaqueña.
+            </p>
+
+            <!-- PRODUCTO DEBAJO DEL TEXTO -->
+            <div class="producto">
+                <h3>Café Molido - Medio Kilo</h3>
+
+                <div class="precio">$200 MXN</div>
+
+                <div class="contador">
+                    <button onclick="disminuir()">-</button>
+                    <span id="cantidad">1</span>
+                    <button onclick="aumentar()">+</button>
+                </div>
+
+                <div class="boton">Comprar Ahora</div>
+
+                <!-- LOGO ABAJO CUADRADO -->
+                <img src="LOGO.png" alt="Logo del Café" class="logo-grande">
+            </div>
+
+        </div>
+
+        <!-- DERECHA (SLIDER GRANDE) -->
+        <div class="slider-container">
+
+            <div class="slider">
+                <div class="slides" id="slides">
+                    <img src="galeria/img1.jpg">
+                    <img src="galeria/img2.jpg">
+                    <img src="galeria/img3.jpg">
+                    <img src="galeria/img4.jpg">
+                </div>
+
+                <button class="btn-slide prev" onclick="moverSlide(-1)">❮</button>
+                <button class="btn-slide next" onclick="moverSlide(1)">❯</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar">
+        <div class="redes">
+            <h3>Síguenos en redes sociales</h3>
+            <a href="https://www.instagram.com/sinfoniadegranos00/">Instagram</a>
+            <a href="https://www.facebook.com/profile.php?id=61555563284916">Facebook</a>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    let indiceSlide = 0;
+
+    function moverSlide(direccion) {
+        const slides = document.getElementById("slides");
+        const totalSlides = slides.children.length;
+
+        indiceSlide += direccion;
+
+        if (indiceSlide < 0) {
+            indiceSlide = totalSlides - 1;
+        }
+
+        if (indiceSlide >= totalSlides) {
+            indiceSlide = 0;
+        }
+
+        slides.style.transform = `translateX(-${indiceSlide * 100}%)`;
+    }
+
+    function aumentar() {
+        let cantidad = document.getElementById("cantidad");
+        cantidad.innerText = parseInt(cantidad.innerText) + 1;
+    }
+
+    function disminuir() {
+        let cantidad = document.getElementById("cantidad");
+        if (parseInt(cantidad.innerText) > 1) {
+            cantidad.innerText = parseInt(cantidad.innerText) - 1;
+        }
+    }
+
+    setInterval(() => {
+        moverSlide(1);
+    }, 4000);
+</script>
+
+</html>

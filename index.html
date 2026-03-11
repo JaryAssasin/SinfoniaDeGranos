@@ -1,253 +1,179 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Login - Sinfonía de Granos</title>
 
-    <title>Iniciar Sesión</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    <!-- Iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+body{
+    font-family:'Segoe UI',sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+}
 
-    <!-- Tus estilos -->
-    <link rel="stylesheet" href="Cliente/css/cliente.css">
-    <style>
-        /* === Fondo tipo mosaico con tu imagen === */
-        body {
-            margin: 0;
-            font-family: Inter, Segoe UI, Arial;
+/* TARJETA LOGIN */
+.login-container{
+    background:white;
+    width:380px;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
+    text-align:center;
+}
 
-            /* Fondo principal */
-            background:
-                linear-gradient(180deg, rgba(7, 17, 34, 0.88), rgba(15, 23, 36, 0.88)),
-                url("img/fondo1.jpg") repeat;
+.login-container h1{
+    color:#3b2a1e;
+    margin-bottom:5px;
+}
 
-            background-size: 380px;
-            background-attachment: fixed;
+.eslogan{
+    font-style:italic;
+    color:#7a5c47;
+    margin-bottom:25px;
+}
 
-            color: #e6eef6;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+/* INPUTS */
+.input-group{
+    text-align:left;
+    margin-bottom:18px;
+}
 
-        /* === Estilo igual que catálogo === */
-        :root {
-            --bg: #0f1724;
-            --card: #0b1220;
-            --accent: #6ee7b7;
-            --muted: #9aa4b2;
-        }
+.input-group label{
+    font-size:14px;
+    color:#5a4636;
+}
 
-        /* Tarjeta del login */
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            background: rgba(20, 30, 45, 0.55);
-            backdrop-filter: blur(6px);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45);
-            animation: fadeIn .6s ease;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
+.input-group input{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    transition:0.3s;
+}
 
-        /* Animación */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
+.input-group input:focus{
+    border-color:#4b2e2e;
+    outline:none;
+}
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* BOTON LOGIN */
+.btn-login{
+    width:100%;
+    padding:12px;
+    background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    margin-top:10px;
+    transition:0.3s;
+}
 
-        /* Títulos */
-        .login-title {
-            text-align: center;
-            font-size: 1.7rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
+.btn-login:hover{
+    opacity:0.9;
+}
 
-        .login-sub {
-            text-align: center;
-            color: var(--muted);
-            margin-bottom: 20px;
-        }
+/* DIVISOR */
+.divider{
+    margin:20px 0;
+    display:flex;
+    align-items:center;
+    text-align:center;
+    color:#aaa;
+}
 
-        /* Inputs estilo catálogo */
-        .login-input {
-            width: 100%;
-            padding: 12px;
-            background: #0b1a2a;
-            color: #e6eef6;
-            border: 1px solid #162232;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            outline: none;
-            font-size: 15px;
-            transition: .25s;
-        }
+.divider::before,
+.divider::after{
+    content:"";
+    flex:1;
+    border-bottom:1px solid #ddd;
+}
 
-        .login-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 8px rgba(110, 231, 183, 0.35);
-        }
+.divider:not(:empty)::before{
+    margin-right:.75em;
+}
 
-        /* Botón */
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: #0b1220;
-            font-weight: 700;
-            font-size: 16px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: .25s;
-        }
+.divider:not(:empty)::after{
+    margin-left:.75em;
+}
 
-        .login-btn:hover {
-            filter: brightness(1.15);
-            transform: translateY(-2px);
-        }
+/* GOOGLE BUTTON */
+.btn-google{
+    width:100%;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:white;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:500;
+    transition:0.3s;
+}
 
-        /* Links */
-        .login-footer {
-            margin-top: 14px;
-            text-align: center;
-        }
+.btn-google:hover{
+    background:#f5f5f5;
+}
 
-        .login-footer a {
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 14px;
-        }
+/* FOOTER TEXT */
+.extra{
+    margin-top:20px;
+    font-size:13px;
+    color:#777;
+}
 
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Mensajes */
-        .alert {
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .alert-info {
-            background: #0b1a2a;
-            color: var(--muted);
-            border: 1px solid #1a2a3b;
-        }
-
-        .alert-danger {
-            background: #311820;
-            color: #ff8080;
-            border: 1px solid #5c1f29;
-        }
-
-        .alert-success {
-            background: #0f2a1f;
-            color: #6ee7b7;
-            border: 1px solid #245c4a;
-        }
-    </style>
-
+.extra a{
+    color:#4b2e2e;
+    text-decoration:none;
+    font-weight:600;
+}
+</style>
 </head>
 
 <body>
 
-    <div class="login-container">
-        <h1 class="login-title">Bienvenido</h1>
-        <p class="login-sub">Inicia sesión para continuar</p>
+<div class="login-container">
+    <h1>Sinfonía de Granos</h1>
+    <div class="eslogan">"De la semilla a la taza"</div>
 
-        <form id="loginForm">
-            <input type="text" id="username" name="username" class="login-input" placeholder="Usuario" required>
-            <input type="password" id="password" name="password" class="login-input" placeholder="Contraseña" required>
-
-            <div id="loginMessage" class="alert alert-danger" style="display:none; margin-bottom:10px;"></div>
-
-            <button type="submit" class="login-btn">Iniciar sesión</button>
-        </form>
-
-        <div class="login-footer">
-            <a href="forgot-password.html">¿Olvidaste tu contraseña?</a>
+    <form>
+        <div class="input-group">
+            <label>Correo electrónico</label>
+            <input type="email" required>
         </div>
-        <div class="login-footer">
-            <a href="register.html">Crear una cuenta</a>
+
+        <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" required>
         </div>
+
+        <button class="btn-login">Iniciar Sesión</button>
+    </form>
+
+    <div class="divider">o</div>
+
+    <button class="btn-google">
+        <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" width="18">
+        Continuar con Google
+    </button>
+
+    <div class="extra">
+        ¿No tienes cuenta? <a href="#">Regístrate</a>
     </div>
-
-    <!-- Scripts -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-
-    <!-- Tu lógica igualita -->
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('loginMessage');
-
-            messageDiv.style.display = 'block';
-            messageDiv.className = 'alert alert-info';
-            messageDiv.textContent = 'Iniciando sesión...';
-
-            $.ajax({
-                url: 'php/login.php',
-                type: 'POST',
-                data: { username, password },
-                dataType: 'json',
-                success: function (data) {
-
-                    if (data.success) {
-                        messageDiv.className = 'alert alert-success';
-                        messageDiv.textContent = 'Login exitoso. Redirigiendo...';
-
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userName', data.usuario.Nombre);
-
-                        var rol = (data.usuario.rol || '').toString();
-                        localStorage.setItem('userRole', rol);
-                        localStorage.setItem('userRoleNormalized', rol.toLowerCase());
-
-                        setTimeout(() => {
-                            if (rol.toLowerCase() === 'cliente') {
-                                localStorage.setItem('cliente', 'true');
-                                window.location.href = 'Cliente/index.php';
-                            } else if (rol.toLowerCase() === 'administrador') {
-                                window.location.href = 'usuarios.html';
-                            } else {
-                                window.location.href = 'clientes.html';
-                            }
-
-                        }, 600);
-
-                    } else {
-                        messageDiv.className = 'alert alert-danger';
-                        messageDiv.textContent = data.message || 'Usuario o contraseña incorrectos';
-                    }
-                },
-                error: function () {
-                    messageDiv.className = 'alert alert-danger';
-                    messageDiv.textContent = 'Error al conectar con el servidor.';
-                }
-            });
-        });
-    </script>
+</div>
 
 </body>
-
 </html>
