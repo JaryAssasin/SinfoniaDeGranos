@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - Sinfonía de Granos</title>
+    <title>Registro - Sinfonía de Granos</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -34,29 +34,27 @@
 
         .login-container h1 {
             color: #3b2a1e;
-            margin-bottom: 5px;
         }
 
         .eslogan {
             font-style: italic;
             color: #7a5c47;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .input-group {
             text-align: left;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
 
         .input-group label {
             font-size: 14px;
-            color: #5a4636;
         }
 
         .input-group input {
             width: 100%;
             padding: 10px;
-            margin-top: 6px;
+            margin-top: 5px;
             border-radius: 8px;
             border: 1px solid #ccc;
         }
@@ -69,21 +67,18 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 15px;
             margin-top: 10px;
         }
 
         .extra {
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 13px;
-            color: #777;
         }
 
         .extra a {
-            color: #4b2e2e;
-            text-decoration: none;
-            font-weight: 600;
             cursor: pointer;
+            color: #4b2e2e;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -95,7 +90,12 @@
         <h1>Sinfonía de Granos</h1>
         <div class="eslogan">"De la semilla a la taza"</div>
 
-        <form id="loginForm">
+        <form id="registerForm">
+
+            <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" id="nombre" required>
+            </div>
 
             <div class="input-group">
                 <label>Correo electrónico</label>
@@ -108,13 +108,13 @@
             </div>
 
             <button type="submit" class="btn-login">
-                Iniciar Sesión
+                Registrarse
             </button>
 
         </form>
 
         <div class="extra">
-            ¿No tienes cuenta? <a href="register.html">Regístrate</a>
+            ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
         </div>
 
     </div>
@@ -128,14 +128,15 @@
             supabaseKey
         );
 
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
 
             e.preventDefault();
 
+            const nombre = document.getElementById("nombre").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password
             });
@@ -145,22 +146,32 @@
                 return;
             }
 
-            window.location.href = "principal.html";
+            if (!data.user) {
+                alert("Revisa confirmación de correo");
+                return;
+            }
+
+            // 🔥 Guardar en tabla usuarios
+            const { error: insertError } = await supabase
+                .from("usuarios")
+                .insert([
+                    {
+                        id: data.user.id,
+                        correo: email,
+                        nombre: nombre,
+                        rol: "cliente"
+                    }
+                ]);
+
+            if (insertError) {
+                alert("Error al guardar usuario: " + insertError.message);
+                return;
+            }
+
+            alert("Registro exitoso");
+            window.location.href = "index.html";
 
         });
-
-
-        async function checkSession() {
-
-            const { data } = await supabase.auth.getSession();
-
-            if (data.session) {
-                window.location.href = "principal.html";
-            }
-        }
-
-        checkSession();
-
     </script>
 
 </body>
