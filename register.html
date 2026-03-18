@@ -4,14 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro - Sinfonía de Granos</title>
-
-    <!-- SUPABASE CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- TU CONEXIÓN -->
     <script src="js/supabase.js"></script>
-
-    <!-- TU LÓGICA -->
     <script src="js/auth.js"></script>
 
     <style>
@@ -92,40 +86,40 @@
 
 <body>
 
-<div class="login-container">
+    <div class="login-container">
 
-    <h1>Sinfonía de Granos</h1>
-    <div class="eslogan">"De la semilla a la taza"</div>
+        <h1>Sinfonía de Granos</h1>
+        <div class="eslogan">"De la semilla a la taza"</div>
 
-    <!-- 🔥 IMPORTANTE: usar register(event) -->
-    <form onsubmit="register(event)">
+        <!-- 🔥 IMPORTANTE: usar register(event) -->
+        <form onsubmit="register(event)">
 
-        <div class="input-group">
-            <label>Nombre</label>
-            <input type="text" id="nombre" required>
+            <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" id="nombre" required>
+            </div>
+
+            <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Registrarse
+            </button>
+
+        </form>
+
+        <div class="extra">
+            ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
         </div>
 
-        <div class="input-group">
-            <label>Correo electrónico</label>
-            <input type="email" id="email" required>
-        </div>
-
-        <div class="input-group">
-            <label>Contraseña</label>
-            <input type="password" id="password" required>
-        </div>
-
-        <button type="submit" class="btn-login">
-            Registrarse
-        </button>
-
-    </form>
-
-    <div class="extra">
-        ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
     </div>
-
-</div>
 
 </body>
 
