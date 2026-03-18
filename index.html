@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Login - Sinfonía de Granos</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         * {
             margin: 0;
@@ -67,61 +69,74 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
         }
 
         .extra {
             margin-top: 20px;
             font-size: 13px;
+            color: #777;
         }
 
         .extra a {
-            cursor: pointer;
             color: #4b2e2e;
-            font-weight: bold;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
         }
     </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
     <div class="login-container">
+
         <h1>Sinfonía de Granos</h1>
         <div class="eslogan">"De la semilla a la taza"</div>
 
-        <div class="input-group">
-            <label>Correo electrónico</label>
-            <input type="email" id="email">
-        </div>
+        <form id="loginForm">
 
-        <div class="input-group">
-            <label>Contraseña</label>
-            <input type="password" id="password">
-        </div>
+            <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="email" required>
+            </div>
 
-        <button type="button" class="btn-login" onclick="login()">
-            Iniciar Sesión
-        </button>
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Iniciar Sesión
+            </button>
+
+        </form>
 
         <div class="extra">
             ¿No tienes cuenta? <a onclick="register()">Regístrate</a>
         </div>
+
     </div>
 
     <script>
         const supabaseUrl = "https://ibftxwnyyxxvouymdcxu.supabase.co";
-        const supabaseKey = "TU_PUBLIC_ANON_KEY_AQUI"; // ⚠️ pega tu anon key
+        const supabaseKey = "TU_PUBLIC_ANON_KEY_AQUI";
 
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabase = window.supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+        );
 
         // 🔐 LOGIN
-        async function login() {
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+
+            e.preventDefault();
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password
             });
@@ -131,11 +146,9 @@
                 return;
             }
 
-            // Guardar sesión local
-            localStorage.setItem("user", JSON.stringify(data.user));
-
             window.location.href = "principal.html";
-        }
+
+        });
 
         // 📝 REGISTRO
         async function register() {
@@ -153,27 +166,33 @@
                 return;
             }
 
-            // 🔥 Insertar en tabla usuarios
-            const { error: errorInsert } = await supabase
-                .from("usuarios")
-                .insert([
-                    {
-                        id: data.user.id,
-                        nombre: "Usuario",
-                        correo: email,
-                        rol: "cliente"
-                    }
-                ]);
-
-            if (errorInsert) {
-                alert("Usuario creado pero error en tabla usuarios");
-                console.log(errorInsert);
-                return;
-            }
+            // Guardar en tabla usuarios
+            await supabase.from("usuarios").insert([
+                {
+                    id: data.user.id,
+                    correo: email,
+                    nombre: "Usuario",
+                    rol: "cliente"
+                }
+            ]);
 
             alert("Usuario registrado correctamente 🚀");
         }
+
+        // 🔥 AUTO LOGIN (si ya hay sesión)
+        async function checkSession() {
+
+            const { data } = await supabase.auth.getSession();
+
+            if (data.session) {
+                window.location.href = "principal.html";
+            }
+        }
+
+        checkSession();
+
     </script>
 
 </body>
+
 </html>

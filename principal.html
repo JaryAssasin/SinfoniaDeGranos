@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - Sinfonía de Granos</title>
+    <title>Principal - Sinfonía de Granos</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -16,244 +16,154 @@
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-        }
-
-        .login-container {
-            background: white;
-            width: 380px;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-            text-align: center;
-        }
-
-        .login-container h1 {
-            color: #3b2a1e;
-            margin-bottom: 5px;
-        }
-
-        .eslogan {
-            font-style: italic;
-            color: #7a5c47;
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 18px;
-        }
-
-        .input-group label {
-            font-size: 14px;
-            color: #5a4636;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
             background: linear-gradient(to right, #4b2e2e, #2e1b1b);
             color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #2e1b1b;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+        }
+
+        .user {
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: #ff4d4d;
             border: none;
-            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 15px;
-            margin-top: 10px;
+            margin-left: 10px;
         }
 
-        .divider {
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
+        .container {
+            padding: 40px;
             text-align: center;
-            color: #aaa;
         }
 
-        .divider::before,
-        .divider::after {
-            content: "";
-            flex: 1;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .divider:not(:empty)::before {
-            margin-right: .75em;
-        }
-
-        .divider:not(:empty)::after {
-            margin-left: .75em;
-        }
-
-        .btn-google {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .card {
             background: white;
-            cursor: pointer;
+            color: black;
+            padding: 30px;
+            border-radius: 15px;
+            width: 300px;
+            margin: auto;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+        }
+
+        .modules {
+            margin-top: 30px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .extra {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #777;
+        .module {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            width: 180px;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .extra a {
-            color: #4b2e2e;
-            text-decoration: none;
-            font-weight: 600;
+        .module:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-container">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>☕ Sinfonía de Granos</h1>
 
-        <h1>Sinfonía de Granos</h1>
-        <div class="eslogan">"De la semilla a la taza"</div>
+        <div class="user">
+            <span id="userEmail">Cargando...</span>
+            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
 
-        <form id="loginForm">
+    <!-- CONTENIDO -->
+    <div class="container">
 
-            <div class="input-group">
-                <label>Correo electrónico</label>
-                <input type="email" id="email" required>
+        <div class="card">
+            <h2>Bienvenido 👋</h2>
+            <p>Sistema de gestión</p>
+        </div>
+
+        <!-- MÓDULOS (luego los conectas) -->
+        <div class="modules">
+
+            <div class="module">
+                📦 Productos
             </div>
 
-            <div class="input-group">
-                <label>Contraseña</label>
-                <input type="password" id="password" required>
+            <div class="module">
+                🧾 Pedidos
             </div>
 
-            <button type="submit" class="btn-login">
-                Iniciar Sesión
-            </button>
+            <div class="module">
+                👥 Clientes
+            </div>
 
-        </form>
+            <div class="module">
+                📊 Reportes
+            </div>
 
-        <div class="divider">o</div>
-
-        <button type="button" class="btn-google" onclick="loginGoogle()">
-            <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" width="18">
-            Continuar con Google
-        </button>
-
-        <div class="extra">
-            ¿No tienes cuenta? <a href="#">Regístrate</a>
         </div>
 
     </div>
 
     <script>
-
         const supabaseUrl = "https://ibftxwnyyxxvouymdcxu.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliZnR4d255eXh4dm91eW1kY3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNTg1ODgsImV4cCI6MjA4ODgzNDU4OH0.pC6q8GP14udTvKHWILwnOJwGmE6F7oZPWXdrYolM-78";
+        const supabaseKey = "TU_PUBLIC_ANON_KEY_AQUI";
 
         const supabase = window.supabase.createClient(
             supabaseUrl,
             supabaseKey
         );
 
-    </script>
+        // 🔐 VERIFICAR SESIÓN
+        async function verificarSesion() {
 
-    <script>
+            const { data } = await supabase.auth.getSession();
 
-        /* LOGIN CON EMAIL */
-
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-
-            e.preventDefault();
-
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
-
-            if (error) {
-                alert(error.message);
+            if (!data.session) {
+                window.location.href = "index.html";
                 return;
             }
 
-            window.location.href = "principal.html";
-
-        });
-
-
-        /* LOGIN CON GOOGLE */
-
-        async function loginGoogle() {
-
-            await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
+            // Mostrar usuario
+            const user = data.session.user;
+            document.getElementById("userEmail").innerText = user.email;
 
         }
 
-
-        /* GUARDAR USUARIO EN PROFILES */
-
-        async function guardarUsuario() {
-
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!user) return;
-
-            const { data } = await supabase
-                .from("profiles")
-                .select("id")
-                .eq("id", user.id)
-                .single();
-
-            if (!data) {
-
-                await supabase.from("profiles").insert({
-                    id: user.id,
-                    email: user.email,
-                    nombre: user.user_metadata.full_name
-                });
-
-            }
-
+        // 🚪 LOGOUT
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = "index.html";
         }
 
-
-        /* DETECTAR SESION */
-
-        supabase.auth.getSession().then(async ({ data }) => {
-
-            if (data.session) {
-
-                await guardarUsuario();
-
-                window.location.href = "principal.html";
-
-            }
-
-        });
-
+        verificarSesion();
     </script>
 
 </body>
