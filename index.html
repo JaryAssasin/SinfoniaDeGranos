@@ -82,7 +82,6 @@
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 </head>
 
 <body>
@@ -112,13 +111,11 @@
 
     <script>
         const supabaseUrl = "https://ibftxwnyyxxvouymdcxu.supabase.co";
-        const supabaseKey = "TU_KEY_AQUI"; // ⚠️ pega tu key
+        const supabaseKey = "TU_PUBLIC_ANON_KEY_AQUI"; // ⚠️ pega tu anon key
 
-        const supabase = window.supabase.createClient(
-            supabaseUrl,
-            supabaseKey
-        );
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        // 🔐 LOGIN
         async function login() {
 
             const email = document.getElementById("email").value;
@@ -130,12 +127,17 @@
             });
 
             if (error) {
-                alert(error.message);
-            } else {
-                window.location.href = "principal.html";
+                alert("Error: " + error.message);
+                return;
             }
+
+            // Guardar sesión local
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            window.location.href = "principal.html";
         }
 
+        // 📝 REGISTRO
         async function register() {
 
             const email = document.getElementById("email").value;
@@ -147,10 +149,29 @@
             });
 
             if (error) {
-                alert(error.message);
-            } else {
-                alert("Usuario registrado correctamente");
+                alert("Error: " + error.message);
+                return;
             }
+
+            // 🔥 Insertar en tabla usuarios
+            const { error: errorInsert } = await supabase
+                .from("usuarios")
+                .insert([
+                    {
+                        id: data.user.id,
+                        nombre: "Usuario",
+                        correo: email,
+                        rol: "cliente"
+                    }
+                ]);
+
+            if (errorInsert) {
+                alert("Usuario creado pero error en tabla usuarios");
+                console.log(errorInsert);
+                return;
+            }
+
+            alert("Usuario registrado correctamente 🚀");
         }
     </script>
 
