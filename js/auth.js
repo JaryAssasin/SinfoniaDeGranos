@@ -1,5 +1,8 @@
-async function register() {
+async function register(e) {
 
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
@@ -13,28 +16,25 @@ async function register() {
         return;
     }
 
-    //VERIFICACIÓN CLAVE
     if (!data.user) {
-        alert("El usuario no se creó correctamente (revisa confirm email)");
+        alert("Revisa tu correo para confirmar");
         return;
     }
 
-    // 🔥 INSERTAR EN TU TABLA
     const { error: insertError } = await supabase
         .from("usuarios")
-        .insert([
-            {
-                id: data.user.id,
-                correo: email,
-                nombre: "Usuario",
-                rol: "cliente"
-            }
-        ]);
+        .insert([{
+            id: data.user.id,
+            correo: email,
+            nombre: nombre,
+            rol: "cliente"
+        }]);
 
     if (insertError) {
         alert("Error guardando usuario: " + insertError.message);
         return;
     }
 
-    alert("Usuario registrado correctamente");
+    alert("Registro exitoso 🚀");
+    window.location.href = "index.html";
 }

@@ -3,169 +3,254 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Principal - Sinfonía de Granos</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Sinfonía de Granos</title>
 
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            min-height: 100vh;
+            background: linear-gradient(to bottom, #f4f1ee, #e8e2dc);
         }
 
         .header {
-            background: #2e1b1b;
-            padding: 15px 30px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            text-align: center;
+            padding: 18px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .contenedor {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 40px 80px;
+            gap: 50px;
         }
 
-        .header h1 {
-            font-size: 20px;
+        .descripcion {
+            width: 42%;
         }
 
-        .user {
-            font-size: 14px;
-        }
-
-        .btn-logout {
-            background: #ff4d4d;
-            border: none;
-            padding: 8px 12px;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .container {
-            padding: 40px;
-            text-align: center;
-        }
-
-        .card {
-            background: white;
-            color: black;
-            padding: 30px;
-            border-radius: 15px;
-            width: 300px;
-            margin: auto;
-        }
-
-        .card h2 {
+        .descripcion h2 {
+            font-size: 32px;
+            color: #3b2a1e;
             margin-bottom: 10px;
         }
 
-        .modules {
-            margin-top: 30px;
+        .descripcion p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #5a4636;
+            margin-bottom: 15px;
+        }
+
+        .producto {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .precio {
+            font-size: 24px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .contador {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            align-items: center;
+            margin: 15px 0;
         }
 
-        .module {
-            background: white;
-            color: black;
-            padding: 20px;
-            border-radius: 10px;
-            width: 180px;
+        .contador button {
+            width: 35px;
+            height: 35px;
+            background-color: #4b2e2e;
+            color: white;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .module:hover {
-            transform: scale(1.05);
+        .contador span {
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .boton {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .logo-grande {
+            width: 200px;
+            margin-top: 15px;
+        }
+
+        .slider-container {
+            width: 55%;
+        }
+
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            overflow: hidden;
+            border-radius: 25px;
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .slides img {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+        }
+
+        .btn-slide {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .prev { left: 10px; }
+        .next { right: 10px; }
+
+        .footer-bar {
+            margin-top: 50px;
+            background: #2e1b1b;
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .footer-bar a {
+            color: #f4f1ee;
+            margin: 0 10px;
+            text-decoration: none;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <div class="header">
-        <h1>☕ Sinfonía de Granos</h1>
+<div class="header">
+    Sinfonía de Granos - "De la semilla a la taza"
+</div>
 
-        <div class="user">
-            <span id="userEmail">Cargando...</span>
-            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+<div class="contenedor">
+
+    <!-- IZQUIERDA -->
+    <div class="descripcion">
+        <h2>Café de Tanetze de Zaragoza</h2>
+
+        <p>
+            Nuestro café proviene de una región reconocida por su tradición cafetalera.
+        </p>
+
+        <p>
+            Cultivado artesanalmente, ofrece un sabor auténtico de la sierra oaxaqueña.
+        </p>
+
+        <div class="producto">
+            <h3>Café Molido - Medio Kilo</h3>
+            <div class="precio">$200 MXN</div>
+
+            <div class="contador">
+                <button onclick="disminuir()">-</button>
+                <span id="cantidad">1</span>
+                <button onclick="aumentar()">+</button>
+            </div>
+
+            <div class="boton" onclick="comprar()">Comprar Ahora</div>
+
+            <img src="LOGO.png" class="logo-grande">
         </div>
     </div>
 
-    <!-- CONTENIDO -->
-    <div class="container">
+    <!-- DERECHA -->
+    <div class="slider-container">
+        <div class="slider">
+            <div class="slides" id="slides">
+                <img src="galeria/img1.jpg">
+                <img src="galeria/img2.jpg">
+                <img src="galeria/img3.jpg">
+                <img src="galeria/img4.jpg">
+            </div>
 
-        <div class="card">
-            <h2>Bienvenido 👋</h2>
-            <p>Sistema de gestión</p>
+            <button class="btn-slide prev" onclick="moverSlide(-1)">❮</button>
+            <button class="btn-slide next" onclick="moverSlide(1)">❯</button>
         </div>
-
-        <!-- MÓDULOS (luego los conectas) -->
-        <div class="modules">
-
-            <div class="module">
-                📦 Productos
-            </div>
-
-            <div class="module">
-                🧾 Pedidos
-            </div>
-
-            <div class="module">
-                👥 Clientes
-            </div>
-
-            <div class="module">
-                📊 Reportes
-            </div>
-
-        </div>
-
     </div>
 
-    <script>
-        const supabaseUrl = "https://ibftxwnyyxxvouymdcxu.supabase.co";
-        const supabaseKey = "TU_PUBLIC_ANON_KEY_AQUI";
+</div>
 
-        const supabase = window.supabase.createClient(
-            supabaseUrl,
-            supabaseKey
-        );
+<div class="footer-bar">
+    <p>Síguenos:</p>
+    <a href="#">Instagram</a>
+    <a href="#">Facebook</a>
+</div>
 
-        // 🔐 VERIFICAR SESIÓN
-        async function verificarSesion() {
+<script>
+let indiceSlide = 0;
 
-            const { data } = await supabase.auth.getSession();
+function moverSlide(dir) {
+    const slides = document.getElementById("slides");
+    const total = slides.children.length;
 
-            if (!data.session) {
-                window.location.href = "index.html";
-                return;
-            }
+    indiceSlide += dir;
 
-            // Mostrar usuario
-            const user = data.session.user;
-            document.getElementById("userEmail").innerText = user.email;
+    if (indiceSlide < 0) indiceSlide = total - 1;
+    if (indiceSlide >= total) indiceSlide = 0;
 
-        }
+    slides.style.transform = `translateX(-${indiceSlide * 100}%)`;
+}
 
-        // 🚪 LOGOUT
-        async function logout() {
-            await supabase.auth.signOut();
-            window.location.href = "index.html";
-        }
+setInterval(() => moverSlide(1), 4000);
 
-        verificarSesion();
-    </script>
+function aumentar() {
+    let c = document.getElementById("cantidad");
+    c.innerText = parseInt(c.innerText) + 1;
+}
+
+function disminuir() {
+    let c = document.getElementById("cantidad");
+    if (parseInt(c.innerText) > 1) {
+        c.innerText--;
+    }
+}
+
+function comprar() {
+    let cantidad = document.getElementById("cantidad").innerText;
+    alert("Agregaste " + cantidad + " producto(s) al carrito 🛒");
+}
+</script>
 
 </body>
-
 </html>
