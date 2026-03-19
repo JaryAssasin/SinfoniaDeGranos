@@ -1,3 +1,4 @@
+console.log(window.supabaseClient);
 async function register(e) {
 
     e.preventDefault();

@@ -1,125 +1,126 @@
-    <!DOCTYPE html>
-    <html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>Registro - Sinfonía de Granos</title>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/auth.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - Sinfonía de Granos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    
 
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            body {
-                font-family: 'Segoe UI', sans-serif;
-                height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+        }
 
-            .login-container {
-                background: white;
-                width: 380px;
-                padding: 40px;
-                border-radius: 20px;
-                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-                text-align: center;
-            }
+        .login-container {
+            background: white;
+            width: 380px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
 
-            .login-container h1 {
-                color: #3b2a1e;
-            }
+        .login-container h1 {
+            color: #3b2a1e;
+        }
 
-            .eslogan {
-                font-style: italic;
-                color: #7a5c47;
-                margin-bottom: 20px;
-            }
+        .eslogan {
+            font-style: italic;
+            color: #7a5c47;
+            margin-bottom: 20px;
+        }
 
-            .input-group {
-                text-align: left;
-                margin-bottom: 15px;
-            }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
 
-            .input-group label {
-                font-size: 14px;
-            }
+        .input-group label {
+            font-size: 14px;
+        }
 
-            .input-group input {
-                width: 100%;
-                padding: 10px;
-                margin-top: 5px;
-                border-radius: 8px;
-                border: 1px solid #ccc;
-            }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
 
-            .btn-login {
-                width: 100%;
-                padding: 12px;
-                background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                margin-top: 10px;
-            }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
-            .extra {
-                margin-top: 15px;
-                font-size: 13px;
-            }
+        .extra {
+            margin-top: 15px;
+            font-size: 13px;
+        }
 
-            .extra a {
-                cursor: pointer;
-                color: #4b2e2e;
-                font-weight: bold;
-            }
-        </style>
-    </head>
+        .extra a {
+            cursor: pointer;
+            color: #4b2e2e;
+            font-weight: bold;
+        }
+    </style>
+</head>
 
-    <body>
+<body>
 
-        <div class="login-container">
+    <div class="login-container">
 
-            <h1>Sinfonía de Granos</h1>
-            <div class="eslogan">"De la semilla a la taza"</div>
+        <h1>Sinfonía de Granos</h1>
+        <div class="eslogan">"De la semilla a la taza"</div>
 
-            <form onsubmit="register(event)">
+        <form onsubmit="register(event)">
 
-                <div class="input-group">
-                    <label>Nombre</label>
-                    <input type="text" id="nombre" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Correo electrónico</label>
-                    <input type="email" id="email" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" required>
-                </div>
-
-                <button type="submit" class="btn-login">
-                    Registrarse
-                </button>
-
-            </form>
-
-            <div class="extra">
-                ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
+            <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" id="nombre" required>
             </div>
 
+            <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Registrarse
+            </button>
+
+        </form>
+
+        <div class="extra">
+            ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
         </div>
 
-    </body>
+    </div>
 
-    </html>
+</body>
+
+</html>
