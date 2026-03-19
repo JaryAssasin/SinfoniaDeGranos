@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <title>Sinfonía de Granos</title>
 
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -20,10 +24,21 @@
         .header {
             background: linear-gradient(to right, #4b2e2e, #2e1b1b);
             color: white;
-            text-align: center;
-            padding: 18px;
-            font-size: 22px;
-            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 30px;
+            font-size: 20px;
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: #2e1b1b;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .contenedor {
@@ -116,15 +131,17 @@
             border-radius: 25px;
         }
 
+        /* 🔥 FIX IMPORTANTE */
         .slides {
             display: flex;
-            transition: transform 0.6s ease-in-out;
+            width: 100%;
         }
 
         .slides img {
             width: 100%;
             height: 480px;
             object-fit: cover;
+            flex-shrink: 0; /* 👈 clave para que no se amontonen */
         }
 
         .btn-slide {
@@ -149,34 +166,22 @@
             text-align: center;
             color: white;
         }
-
-        .footer-bar a {
-            color: #f4f1ee;
-            margin: 0 10px;
-            text-decoration: none;
-        }
     </style>
 </head>
 
 <body>
 
 <div class="header">
-    Sinfonía de Granos - "De la semilla a la taza"
+    <span>Sinfonía de Granos</span>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
 </div>
 
 <div class="contenedor">
 
-    <!-- IZQUIERDA -->
     <div class="descripcion">
         <h2>Café de Tanetze de Zaragoza</h2>
 
-        <p>
-            Nuestro café proviene de una región reconocida por su tradición cafetalera.
-        </p>
-
-        <p>
-            Cultivado artesanalmente, ofrece un sabor auténtico de la sierra oaxaqueña.
-        </p>
+        <p>Producto artesanal de alta calidad.</p>
 
         <div class="producto">
             <h3>Café Molido - Medio Kilo</h3>
@@ -194,7 +199,6 @@
         </div>
     </div>
 
-    <!-- DERECHA -->
     <div class="slider-container">
         <div class="slider">
             <div class="slides" id="slides">
@@ -209,12 +213,6 @@
         </div>
     </div>
 
-</div>
-
-<div class="footer-bar">
-    <p>Síguenos:</p>
-    <a href="#">Instagram</a>
-    <a href="#">Facebook</a>
 </div>
 
 <script>
@@ -241,14 +239,18 @@ function aumentar() {
 
 function disminuir() {
     let c = document.getElementById("cantidad");
-    if (parseInt(c.innerText) > 1) {
-        c.innerText--;
-    }
+    if (parseInt(c.innerText) > 1) c.innerText--;
 }
 
 function comprar() {
     let cantidad = document.getElementById("cantidad").innerText;
-    alert("Agregaste " + cantidad + " producto(s) al carrito 🛒");
+    alert("Agregaste " + cantidad + " producto(s) 🛒");
+}
+
+// 🔐 LOGOUT
+async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "index.html";
 }
 </script>
 
