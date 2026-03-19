@@ -6,7 +6,7 @@ async function register(e) {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
         email,
         password
     });
@@ -21,14 +21,14 @@ async function register(e) {
         return;
     }
 
-    const { error: insertError } = await supabase
-        .from("usuarios")
-        .insert([{
-            id: data.user.id,
-            correo: email,
-            nombre: nombre,
-            rol: "cliente"
-        }]);
+    const { error: insertError } = await supabaseClient
+    .from("usuarios")
+    .insert([{
+        id: data.user.id,
+        correo: email,
+        nombre: nombre,
+        rol: "cliente"
+    }]);
 
     if (insertError) {
         alert("Error guardando usuario: " + insertError.message);
