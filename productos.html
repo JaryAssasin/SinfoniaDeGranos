@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Productos - Sinfonía de Granos</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #f4f1ee;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2e1b1b;
+    color: white;
+    padding: 15px 30px;
+    position: relative;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 0.7px;
+    margin: 0 auto;
+}
+
+/* BOTONES HEADER */
+.header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.user-menu {
+    position: absolute;
+    top: 12px;
+    left: 30px;
+    z-index: 10;
+}
+
+.icon-btn {
+    background: white;
+    color: #2e1b1b;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.icon-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+/* PRODUCTOS */
+.productos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 26px;
+    padding: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+    transition: transform .2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.precio {
+    font-size: 20px;
+    color: #2e8b57;
+    font-weight: 600;
+}
+
+.btn {
+    margin-top: 10px;
+    padding: 10px;
+    background: #4b2e2e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* CARRITO */
+.carrito {
+    position: fixed;
+    right: -380px;
+    top: 0;
+    width: 380px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -6px 0 22px rgba(0,0,0,0.2);
+    padding: 24px;
+    transition: right 0.3s ease;
+    z-index: 20;
+}
+
+.carrito.active {
+    right: 0;
+}
+
+.carrito h2 {
+    margin-bottom: 14px;
+    color: #2e1b1b;
+}
+
+#items p {
+    margin: 10px 0;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    background: #fbfbfb;
+}
+
+/* MENU USUARIO */
+.user-menu {
+    position: absolute;
+    top: 12px;
+    left: 30px;
+}
+
+.dropdown {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    background: white;
+    color: black;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    min-width: 180px;
+    border: 1px solid #ccc;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+    padding: 4px 0;
+    animation: popup .15s ease;
+}
+
+.dropdown button {
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+}
+
+.dropdown button:hover {
+    background: #f5f5f5;
+}
+
+@keyframes popup {
+    0% {opacity: 0; transform: translateY(-6px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Sinfonía de Granos</div>
+
+    <div class="header-right">
+        <button class="icon-btn" onclick="toggleCarrito()">🛒</button>
+
+        <div class="user-menu">
+            <button class="icon-btn" onclick="toggleMenu()">👤</button>
+
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="historial()">📦 Historial</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PRODUCTOS -->
+<div class="productos">
+
+    <div class="card">
+        <img src="galeria/img1.jpg">
+        <h3>Café Molido</h3>
+        <div class="precio">$200</div>
+        <button class="btn" onclick="agregarCarrito('Café Molido', 200)">Agregar</button>
+    </div>
+
+    <div class="card">
+        <img src="galeria/img2.jpg">
+        <h3>Café Granulado</h3>
+        <div class="precio">$200</div>
+        <button class="btn" onclick="agregarCarrito('Café Granulado', 200)">Agregar</button>
+    </div>
+
+</div>
+
+<!-- CARRITO -->
+<div class="carrito" id="carrito">
+    <h2>Carrito</h2>
+    <div id="items"></div>
+</div>
+
+<script>
+let carrito = [];
+
+function toggleCarrito() {
+    document.getElementById("carrito").classList.toggle("active");
+}
+
+function toggleMenu() {
+    const menu = document.getElementById("menuUsuario");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+}
+
+function agregarCarrito(nombre, precio) {
+    carrito.push({ nombre, precio });
+    renderCarrito();
+}
+
+function renderCarrito() {
+    let cont = document.getElementById("items");
+    cont.innerHTML = "";
+
+    carrito.forEach(p => {
+        cont.innerHTML += `<p>${p.nombre} - $${p.precio}</p>`;
+    });
+}
+
+/* 🔐 SUPABASE */
+async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "index.html";
+}
+
+function irInicio() {
+    window.location.href = "principal.html";
+}
+
+function historial() {
+    alert("Aquí irá el historial 🧠");
+}
+</script>
+
+</body>
+</html>
