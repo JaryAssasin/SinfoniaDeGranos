@@ -6,6 +6,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
+<script src="js/productos.js"></script>
 
 <style>
 body {
@@ -207,22 +208,8 @@ body {
 </div>
 
 <!-- PRODUCTOS -->
-<div class="productos">
-
-    <div class="card">
-        <img src="galeria/img1.jpg">
-        <h3>Café Molido</h3>
-        <div class="precio">$200</div>
-        <button class="btn" onclick="agregarCarrito('Café Molido', 200)">Agregar</button>
-    </div>
-
-    <div class="card">
-        <img src="galeria/img2.jpg">
-        <h3>Café Granulado</h3>
-        <div class="precio">$200</div>
-        <button class="btn" onclick="agregarCarrito('Café Granulado', 200)">Agregar</button>
-    </div>
-
+<div class="productos" id="productos">
+    <!-- Products loaded here -->
 </div>
 
 <!-- CARRITO -->
@@ -232,10 +219,11 @@ body {
 </div>
 
 <script>
-let carrito = [];
+let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
 function toggleCarrito() {
     document.getElementById("carrito").classList.toggle("active");
+    renderCarrito();
 }
 
 function toggleMenu() {
@@ -245,6 +233,7 @@ function toggleMenu() {
 
 function agregarCarrito(nombre, precio) {
     carrito.push({ nombre, precio });
+    localStorage.setItem('carrito', JSON.stringify(carrito));
     renderCarrito();
 }
 
@@ -252,14 +241,21 @@ function renderCarrito() {
     let cont = document.getElementById("items");
     cont.innerHTML = "";
 
-    carrito.forEach(p => {
-        cont.innerHTML += `<p>${p.nombre} - $${p.precio}</p>`;
+    carrito.forEach((p, index) => {
+        cont.innerHTML += `<p>${p.nombre} - $${p.precio} <button onclick="remover(${index})">X</button></p>`;
     });
+}
+
+function remover(index) {
+    carrito.splice(index, 1);
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderCarrito();
 }
 
 /* 🔐 SUPABASE */
 async function logout() {
     await supabaseClient.auth.signOut();
+    localStorage.removeItem('carrito');
     window.location.href = "index.html";
 }
 
@@ -270,6 +266,17 @@ function irInicio() {
 function historial() {
     alert("Aquí irá el historial 🧠");
 }
+
+async function checkSession() {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+        window.location.href = "index.html";
+    }
+}
+
+checkSession();
+cargarProductos();
 </script>
 
 </body>

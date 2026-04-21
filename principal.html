@@ -173,7 +173,10 @@
 
 <div class="header">
     <span>Sinfonía de Granos</span>
-    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    <div>
+        <button class="logout-btn" onclick="window.location.href='productos.html'">Productos</button>
+        <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
 </div>
 
 <div class="contenedor">
@@ -195,17 +198,18 @@
 
             <div class="boton" onclick="comprar()">Comprar Ahora</div>
 
-            <img src="LOGO.png" class="logo-grande">
+            <div class="boton" onclick="verCatalogo()">Ver Catálogo Completo</div>
+
         </div>
     </div>
 
     <div class="slider-container">
         <div class="slider">
             <div class="slides" id="slides">
-                <img src="galeria/img1.jpg">
-                <img src="galeria/img2.jpg">
-                <img src="galeria/img3.jpg">
-                <img src="galeria/img4.jpg">
+                <img src="Galeria/img1.jpg">
+                <img src="Galeria/img2.jpg">
+                <img src="Galeria/img3.jpg">
+                <img src="Galeria/img4.jpg">
             </div>
 
             <button class="btn-slide prev" onclick="moverSlide(-1)">❮</button>
@@ -213,6 +217,10 @@
         </div>
     </div>
 
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
 </div>
 
 <script>
@@ -247,11 +255,25 @@ function comprar() {
     alert("Agregaste " + cantidad + " producto(s) 🛒");
 }
 
+function verCatalogo() {
+    window.location.href = "productos.html";
+}
+
 // 🔐 LOGOUT
 async function logout() {
     await supabaseClient.auth.signOut();
     window.location.href = "index.html";
 }
+
+async function checkSession() {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+        window.location.href = "index.html";
+    }
+}
+
+checkSession();
 </script>
 
 </body>
