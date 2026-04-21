@@ -231,8 +231,8 @@ function toggleMenu() {
     menu.style.display = menu.style.display === "flex" ? "none" : "flex";
 }
 
-function agregarCarrito(nombre, precio) {
-    carrito.push({ nombre, precio });
+function agregarCarrito(nombre, precio, id) {
+    carrito.push({ nombre, precio, id });
     localStorage.setItem('carrito', JSON.stringify(carrito));
     renderCarrito();
 }

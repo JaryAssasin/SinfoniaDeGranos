@@ -1,7 +1,7 @@
 async function cargarProductos() {
 
     const { data, error } = await supabaseClient
-        .from("productos")
+        .from("producto")
         .select("*");
 
     if (error) {
@@ -19,7 +19,8 @@ async function cargarProductos() {
                 <h3>${prod.nombre}</h3>
                 <p>${prod.descripcion}</p>
                 <strong>$${prod.precio}</strong>
-                <button class="btn" onclick="agregarCarrito('${prod.nombre}', ${prod.precio})">Agregar</button>
+                <p>Stock: ${prod.stock}</p>
+                <button class="btn" onclick="agregarCarrito('${prod.nombre}', ${prod.precio}, ${prod.id_producto})">Agregar</button>
             </div>
         `;
     });
