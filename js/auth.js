@@ -36,6 +36,6 @@ async function register(e) {
         return;
     }
 
-    alert("Registro exitoso 🚀");
+    alert("Registro exitoso ");
     window.location.href = "index.html";
 }
