@@ -133,14 +133,20 @@ body {
     color: #2e1b1b;
 }
 
-#items p {
-    margin: 10px 0;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    background: #fbfbfb;
+#items p div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #items p div button {
+            width: 25px;
+            height: 25px;
+            background: #4b2e2e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
 }
 
 /* MENU USUARIO */
@@ -219,7 +225,7 @@ body {
 </div>
 
 <script>
-let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+let carrito = JSON.parse(localStorage.getItem('carrito')) || {};
 
 function toggleCarrito() {
     document.getElementById("carrito").classList.toggle("active");
@@ -232,7 +238,11 @@ function toggleMenu() {
 }
 
 function agregarCarrito(nombre, precio, id) {
-    carrito.push({ nombre, precio, id });
+    if (carrito[id]) {
+        carrito[id].cantidad += 1;
+    } else {
+        carrito[id] = { nombre, precio, cantidad: 1 };
+    }
     localStorage.setItem('carrito', JSON.stringify(carrito));
     renderCarrito();
 }
@@ -241,16 +251,53 @@ function renderCarrito() {
     let cont = document.getElementById("items");
     cont.innerHTML = "";
 
-    carrito.forEach((p, index) => {
-        cont.innerHTML += `<p>${p.nombre} - $${p.precio} <button onclick="remover(${index})">X</button></p>`;
-    });
+    for (let id in carrito) {
+        let p = carrito[id];
+        cont.innerHTML += `
+            <p>
+                ${p.nombre} - $${p.precio}
+                <div>
+                    <button onclick="cambiarCantidad(${id}, -1)">-</button>
+                    ${p.cantidad}
+                    <button onclick="cambiarCantidad(${id}, 1)">+</button>
+                    <button onclick="remover(${id})">X</button>
+                </div>
+            </p>
+        `;
+    }
 }
 
-function remover(index) {
-    carrito.splice(index, 1);
+function cambiarCantidad(id, delta) {
+    if (carrito[id]) {
+        carrito[id].cantidad += delta;
+        if (carrito[id].cantidad <= 0) {
+            delete carrito[id];
+        }
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderCarrito();
+    }
+}
+
+function remover(id) {
+    delete carrito[id];
     localStorage.setItem('carrito', JSON.stringify(carrito));
     renderCarrito();
 }
+
+// Cerrar menú y carrito al click fuera
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById("menuUsuario");
+    const carritoEl = document.getElementById("carrito");
+    const userMenu = document.querySelector('.user-menu');
+
+    if (!userMenu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+
+    if (!carritoEl.contains(event.target) && !event.target.closest('.icon-btn')) {
+        carritoEl.classList.remove('active');
+    }
+});
 
 /* 🔐 SUPABASE */
 async function logout() {

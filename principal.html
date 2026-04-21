@@ -41,6 +41,117 @@
             font-weight: bold;
         }
 
+        /* BOTONES HEADER */
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .icon-btn {
+            background: white;
+            color: #2e1b1b;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        /* MENU USUARIO */
+        .dropdown {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            border: 1px solid #ccc;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+            padding: 4px 0;
+            animation: popup .15s ease;
+            z-index: 10;
+        }
+
+        .dropdown button {
+            padding: 10px 14px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .dropdown button:hover {
+            background: #f5f5f5;
+        }
+
+        @keyframes popup {
+            0% {opacity: 0; transform: translateY(-6px);}
+            100% {opacity: 1; transform: translateY(0);}
+        }
+
+        /* CARRITO */
+        .carrito {
+            position: fixed;
+            right: -380px;
+            top: 0;
+            width: 380px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -6px 0 22px rgba(0,0,0,0.2);
+            padding: 24px;
+            transition: right 0.3s ease;
+            z-index: 20;
+        }
+
+        .carrito.active {
+            right: 0;
+        }
+
+        .carrito h2 {
+            margin-bottom: 14px;
+            color: #2e1b1b;
+        }
+
+        #items p {
+            margin: 10px 0;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            background: #fbfbfb;
+        }
+
+        #items p div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #items p div button {
+            width: 25px;
+            height: 25px;
+            background: #4b2e2e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         .contenedor {
             display: flex;
             justify-content: space-between;
@@ -173,9 +284,20 @@
 
 <div class="header">
     <span>Sinfonía de Granos</span>
-    <div>
-        <button class="logout-btn" onclick="window.location.href='productos.html'">Productos</button>
-        <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+
+    <div class="header-right">
+        <button class="icon-btn" onclick="toggleCarrito()">🛒</button>
+
+        <div class="user-menu">
+            <button class="icon-btn" onclick="toggleMenu()">👤</button>
+
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos</button>
+                <button onclick="historial()">📦 Historial</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -223,8 +345,15 @@
     <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
 </div>
 
+<!-- CARRITO -->
+<div class="carrito" id="carrito">
+    <h2>Carrito</h2>
+    <div id="items"></div>
+</div>
+
 <script>
 let indiceSlide = 0;
+let carrito = JSON.parse(localStorage.getItem('carrito')) || {};
 
 function moverSlide(dir) {
     const slides = document.getElementById("slides");
@@ -252,6 +381,8 @@ function disminuir() {
 
 function comprar() {
     let cantidad = document.getElementById("cantidad").innerText;
+    // Asumir id 1 para el producto principal
+    agregarCarrito('Café Molido - Medio Kilo', 200, 1, parseInt(cantidad));
     alert("Agregaste " + cantidad + " producto(s) 🛒");
 }
 
@@ -259,10 +390,94 @@ function verCatalogo() {
     window.location.href = "productos.html";
 }
 
-// 🔐 LOGOUT
+function toggleCarrito() {
+    document.getElementById("carrito").classList.toggle("active");
+    renderCarrito();
+}
+
+function toggleMenu() {
+    const menu = document.getElementById("menuUsuario");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+}
+
+function agregarCarrito(nombre, precio, id, cantidad = 1) {
+    if (carrito[id]) {
+        carrito[id].cantidad += cantidad;
+    } else {
+        carrito[id] = { nombre, precio, cantidad };
+    }
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderCarrito();
+}
+
+function renderCarrito() {
+    let cont = document.getElementById("items");
+    cont.innerHTML = "";
+
+    for (let id in carrito) {
+        let p = carrito[id];
+        cont.innerHTML += `
+            <p>
+                ${p.nombre} - $${p.precio}
+                <div>
+                    <button onclick="cambiarCantidad(${id}, -1)">-</button>
+                    ${p.cantidad}
+                    <button onclick="cambiarCantidad(${id}, 1)">+</button>
+                    <button onclick="remover(${id})">X</button>
+                </div>
+            </p>
+        `;
+    }
+}
+
+function cambiarCantidad(id, delta) {
+    if (carrito[id]) {
+        carrito[id].cantidad += delta;
+        if (carrito[id].cantidad <= 0) {
+            delete carrito[id];
+        }
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderCarrito();
+    }
+}
+
+function remover(id) {
+    delete carrito[id];
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderCarrito();
+}
+
+// Cerrar menú y carrito al click fuera
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById("menuUsuario");
+    const carritoEl = document.getElementById("carrito");
+    const userMenu = document.querySelector('.user-menu');
+
+    if (!userMenu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+
+    if (!carritoEl.contains(event.target) && !event.target.closest('.icon-btn')) {
+        carritoEl.classList.remove('active');
+    }
+});
+
 async function logout() {
     await supabaseClient.auth.signOut();
+    localStorage.removeItem('carrito');
     window.location.href = "index.html";
+}
+
+function irInicio() {
+    window.location.href = "principal.html";
+}
+
+function irProductos() {
+    window.location.href = "productos.html";
+}
+
+function historial() {
+    alert("Aquí irá el historial 🧠");
 }
 
 async function checkSession() {
