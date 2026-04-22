@@ -137,6 +137,28 @@
                 return;
             }
 
+            // Obtener datos del usuario para guardar el rol
+            const { data } = await supabaseClient.auth.getSession();
+            
+            if (data.session) {
+                try {
+                    const { data: usuario, error: userError } = await supabaseClient
+                        .from('usuarios')
+                        .select('rol, nombre')
+                        .eq('id', data.session.user.id)
+                        .single();
+
+                    if (!userError && usuario) {
+                        localStorage.setItem('userRole', usuario.rol);
+                        localStorage.setItem('userName', usuario.nombre || data.session.user.email);
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userRoleNormalized', usuario.rol.toLowerCase());
+                    }
+                } catch (err) {
+                    console.log('Error obteniendo rol:', err);
+                }
+            }
+
             window.location.href = "principal.html";
 
         });

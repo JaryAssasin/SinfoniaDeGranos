@@ -295,6 +295,7 @@
                 <button onclick="irInicio()">🏠 Inicio</button>
                 <button onclick="irProductos()">📦 Productos</button>
                 <button onclick="historial()">📦 Historial</button>
+                <button id="btnAdmin" style="display:none; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
                 <button onclick="logout()">🚪 Cerrar sesión</button>
             </div>
         </div>
@@ -465,6 +466,10 @@ document.addEventListener('click', function(event) {
 async function logout() {
     await supabaseClient.auth.signOut();
     localStorage.removeItem('carrito');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userRoleNormalized');
     window.location.href = "index.html";
 }
 
@@ -476,8 +481,22 @@ function irProductos() {
     window.location.href = "productos.html";
 }
 
+function irAdmin() {
+    window.location.href = "admin.html";
+}
+
 function historial() {
     alert("Aquí irá el historial 🧠");
+}
+
+// Verificar rol del usuario y mostrar botón de admin si es necesario
+function verificarRol() {
+    const userRole = localStorage.getItem('userRole');
+    const btnAdmin = document.getElementById('btnAdmin');
+    
+    if (userRole === 'admin' && btnAdmin) {
+        btnAdmin.style.display = 'block';
+    }
 }
 
 async function checkSession() {
@@ -485,7 +504,11 @@ async function checkSession() {
 
     if (!data.session) {
         window.location.href = "index.html";
+        return;
     }
+    
+    // Verificar rol al cargar
+    verificarRol();
 }
 
 checkSession();
