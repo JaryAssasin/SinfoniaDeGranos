@@ -234,7 +234,6 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <!-- Topbar -->
-                <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-dark topbar mb-4 static-top shadow">
                     <h5 class="m-0 font-weight-bold text-primary">Gestión de Pedidos</h5>
 
@@ -350,136 +349,169 @@
     </div>
 
     <!-- JS -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
     <script>
-        (function () {
-            try {
-                var role = localStorage.getItem('userRole') || '';
-                var roleNorm = (localStorage.getItem('userRoleNormalized') || role).toString().trim().toLowerCase();
-                if (roleNorm === 'administrador') return;
-                if (roleNorm === 'cliente') { if (window.location.pathname.toLowerCase().indexOf('/cliente/') === -1) { window.location.href = 'Cliente/index.php'; return; } }
-                if (roleNorm === 'usuario') { var userLink = document.querySelector('#accordionSidebar a.nav-link[href="usuarios.html"]'); if (userLink) { if (userLink.parentElement) userLink.parentElement.style.display = 'none'; else userLink.style.display = 'none'; } return; }
-                var userLink = document.querySelector('#accordionSidebar a.nav-link[href="usuarios.html"]'); if (userLink) { if (userLink.parentElement) userLink.parentElement.style.display = 'none'; else userLink.style.display = 'none'; }
-            } catch (e) { console.error('Role control error', e); }
+        // Verificar sesión
+        (function() {
+            if (!localStorage.getItem('isLoggedIn')) {
+                window.location.href = 'index.html';
+            }
         })();
-    </script>
-    <script>
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.clear();       // Borra datos de sesión
-            sessionStorage.clear();     // Opcional: por si usas esto
-            window.location.href = 'index.html';  // Te manda al login
-        });
 
-        $(document).ready(function () {
-            var tabla = $('#tablaPedidos').DataTable({
-                "ajax": "php/obtener_pedidos.php",
-                "columns": [
-                    { "data": "id_pedido" },
-                    { "data": "fecha_pedido" },
-                    { "data": "total" },
-                    { "data": "estado" },
-                    { "data": "id_videojuego" },
-                    {
-                        "data": null,
-                        "render": function (data, type, row) {
-                            return `
-                                <button class="btn btn-warning btn-sm btn-editar" data-id="${row.id_pedido}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm btn-eliminar" data-id="${row.id_pedido}">
-                                    <i class="fas fa-trash"></i>
-                                </button>`;
-                        }
-                    }
-                ]
-            });
+        // Cargar pedidos al cargar la página
+        async function cargarPedidos() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from("pedido")
+                    .select("*");
 
-            // Crear
-            $('#formCrearPedido').on('submit', function (e) {
-                e.preventDefault();
-                $.post('php/insertar_pedidos.php', $(this).serialize(), function (res) {
-                    if (res === "ok") {
+                const tbody = document.querySelector("#tablaPedidos tbody");
+                tbody.innerHTML = "";
+
+                if (error) {
+                    tbody.innerHTML = `<tr><td colspan='6' style="color: #ff6b6b;">Error cargando pedidos</td></tr>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan='6'>No hay pedidos registrados</td></tr>`;
+                    return;
+                }
+
+                data.forEach(ped => {
+                    const fecha = ped.fecha ? new Date(ped.fecha).toLocaleDateString() : 'N/A';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${ped.id_pedido || ped.id || ''}</td>
+                            <td>${fecha}</td>
+                            <td>$${(ped.total || 0).toFixed(2)}</td>
+                            <td><span style="background: ${ped.estado === 'completado' ? '#6ee7b7' : '#ffbe3b'}; color: #000; padding: 4px 8px; border-radius: 3px;">${ped.estado || ''}</span></td>
+                            <td>${ped.id_cliente || ped.id_videojuego || ''}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editarPedido(${ped.id_pedido || ped.id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${ped.id_pedido || ped.id})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Crear nuevo pedido
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarPedidos();
+
+            // Form crear pedido
+            const formCrear = document.getElementById('formCrearPedido');
+            if (formCrear) {
+                formCrear.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const pedido = {
+                        fecha: document.querySelector('input[name="fecha_pedido"]').value,
+                        total: parseFloat(document.querySelector('input[name="total"]').value),
+                        estado: document.querySelector('input[name="estado"]').value,
+                        id_videojuego: parseInt(document.querySelector('input[name="id_videojuego"]').value) || null
+                    };
+
+                    try {
+                        const { error } = await supabaseClient.from('pedido').insert([pedido]);
+
+                        if (error) throw error;
+
                         $('#modalCrearPedido').modal('hide');
-                        tabla.ajax.reload();
-                        Swal.fire('Éxito', 'Pedido registrado correctamente.', 'success');
-                    } else {
-                        Swal.fire('Error', 'No se pudo registrar el pedido.', 'error');
+                        formCrear.reset();
+                        await cargarPedidos();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al crear pedido: ' + error.message);
                     }
                 });
-            });
+            }
 
-            // Editar
-            $('#tablaPedidos').on('click', '.btn-editar', function () {
-                var data = tabla.row($(this).parents('tr')).data();
-                $('#edit_id_pedido').val(data.id_pedido);
-                $('#edit_fecha_pedido').val(data.fecha_pedido);
-                $('#edit_total').val(data.total);
-                $('#edit_estado').val(data.estado);
-                $('#edit_id_videojuego').val(data.id_videojuego);
-                $('#modalEditarPedido').modal('show');
-            });
+            // Form editar pedido
+            const formEditar = document.getElementById('formEditarPedido');
+            if (formEditar) {
+                formEditar.addEventListener('submit', async (e) => {
+                    e.preventDefault();
 
-            $('#formEditarPedido').on('submit', function (e) {
-                e.preventDefault();
-                $.post('php/editar_pedidos.php', $(this).serialize(), function (res) {
-                    if (res === "ok") {
+                    const id = document.getElementById('edit_id_pedido').value;
+                    const pedido = {
+                        fecha: document.getElementById('edit_fecha_pedido').value,
+                        total: parseFloat(document.getElementById('edit_total').value),
+                        estado: document.getElementById('edit_estado').value,
+                        id_videojuego: parseInt(document.getElementById('edit_id_videojuego').value) || null
+                    };
+
+                    try {
+                        const { error } = await supabaseClient
+                            .from('pedido')
+                            .update(pedido)
+                            .eq('id_pedido', id);
+
+                        if (error) throw error;
+
                         $('#modalEditarPedido').modal('hide');
-                        tabla.ajax.reload();
-                        Swal.fire('Actualizado', 'Pedido modificado correctamente.', 'success');
-                    } else {
-                        Swal.fire('Error', 'No se pudo actualizar.', 'error');
+                        await cargarPedidos();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al actualizar pedido: ' + error.message);
                     }
                 });
-            });
+            }
 
-            // Eliminar
-            $('#tablaPedidos').on('click', '.btn-eliminar', function () {
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: '¿Eliminar pedido?',
-                    text: 'Esta acción no se puede deshacer',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Eliminar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post('php/eliminar_pedidos.php', { id_pedido: id }, function (res) {
-                            if (res === "ok") {
-                                tabla.ajax.reload();
-                                Swal.fire('Eliminado', 'Pedido eliminado correctamente.', 'success');
-                            } else {
-                                Swal.fire('Error', 'No se pudo eliminar.', 'error');
-                            }
-                        });
-                    }
-                });
+            // Logout
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
             });
         });
-    </script>
 
-    <script>
-        (function () {
+        async function editarPedido(id) {
             try {
-                var role = localStorage.getItem('userRole');
-                if (role && role.toLowerCase() === 'cliente') {
-                    if (window.location.pathname.toLowerCase().indexOf('/cliente/') === -1) {
-                        window.location.href = 'Cliente/index.php';
-                        return;
-                    }
-                }
-                if (!role || role.toLowerCase() !== 'administrador') {
-                    var userLink = document.querySelector('#accordionSidebar a.nav-link[href="usuarios.html"]');
-                    if (userLink) { userLink.style.display = 'none'; if (userLink.parentElement) userLink.parentElement.style.display = 'none'; }
-                }
-            } catch (e) { console.error('Role control error', e); }
-        })();
+                const { data, error } = await supabaseClient
+                    .from('pedido')
+                    .select('*')
+                    .eq('id_pedido', id)
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById('edit_id_pedido').value = data.id_pedido;
+                document.getElementById('edit_fecha_pedido').value = data.fecha || '';
+                document.getElementById('edit_total').value = data.total || 0;
+                document.getElementById('edit_estado').value = data.estado || '';
+                document.getElementById('edit_id_videojuego').value = data.id_videojuego || '';
+
+                $('#modalEditarPedido').modal('show');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error cargando pedido');
+            }
+        }
+
+        async function eliminarPedido(id) {
+            if (!confirm('¿Seguro de eliminar este pedido?')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('pedido')
+                    .delete()
+                    .eq('id_pedido', id);
+
+                if (error) throw error;
+
+                await cargarPedidos();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar pedido');
+            }
+        }
     </script>
 </body>
 

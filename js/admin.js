@@ -1,19 +1,17 @@
 // Variables globales
-let currentModule = 'ventas';
+let currentModule = 'inventario';
 let usuarioActual = null;
 let rolUsuario = localStorage.getItem('userRole');
 
 // Inicialización
 async function initAdmin() {
-    // Verificar sesión y rol
     const { data } = await supabaseClient.auth.getSession();
-    
+
     if (!data.session) {
         window.location.href = 'index.html';
         return;
     }
 
-    // Obtener usuario de Supabase
     try {
         const { data: usuarios, error } = await supabaseClient
             .from('usuarios')
@@ -30,9 +28,10 @@ async function initAdmin() {
         usuarioActual = usuarios;
         rolUsuario = usuarios.rol;
         localStorage.setItem('userRole', usuarios.rol);
-        
-        // Cargar módulo inicial
-        loadModule('ventas');
+
+        // ✅ Cargar módulo de inventario por defecto
+        loadModule('inventario');
+
     } catch (error) {
         console.error('Error verificando permisos:', error);
         window.location.href = 'principal.html';
@@ -42,21 +41,15 @@ async function initAdmin() {
 // Cambiar módulo
 function loadModule(module) {
     currentModule = module;
-    const content = document.getElementById('moduleContent');
-    
-    // Remover clase activa
+
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    
-    // Añadir clase activa
-    document.querySelector(`[data-module="${module}"]`).classList.add('active');
-    
-    // Cargar contenido del módulo
-    switch(module) {
-        case 'ventas':
-            loadVentas();
-            break;
+
+    const activeLink = document.querySelector(`[data-module="${module}"]`);
+    if (activeLink) activeLink.classList.add('active');
+
+    switch (module) {
         case 'inventario':
             loadInventario();
             break;
@@ -72,181 +65,15 @@ function loadModule(module) {
     }
 }
 
-// === MÓDULO DE VENTAS ===
-async function loadVentas() {
-    const content = document.getElementById('moduleContent');
-    content.innerHTML = `
-        <div class="module-header">
-            <h2>📊 Módulo de Ventas</h2>
-            <button class="btn-primary" onclick="openVentaForm()">+ Nueva Venta</button>
-        </div>
-        
-        <div class="stats-container">
-            <div class="stat-card">
-                <h4>Ventas Hoy</h4>
-                <p class="stat-value" id="ventasHoy">$0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Total Órdenes</h4>
-                <p class="stat-value" id="totalOrdenes">0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Promedio por Venta</h4>
-                <p class="stat-value" id="promedioVenta">$0</p>
-            </div>
-        </div>
+//////////////////////////////////////////////////
+// INVENTARIO
+//////////////////////////////////////////////////
 
-        <div class="table-container">
-            <h3>Historial de Ventas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="ventasTable">
-                    <tr><td colspan="7" class="loading">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="ventaModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close" onclick="closeVentaForm()">&times;</span>
-                <h2>Nueva Venta</h2>
-                <form onsubmit="saveVenta(event)">
-                    <div class="form-group">
-                        <label>Cliente:</label>
-                        <input type="text" id="ventaCliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Producto:</label>
-                        <input type="text" id="ventaProducto" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Cantidad:</label>
-                        <input type="number" id="ventaCantidad" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Precio Unitario:</label>
-                        <input type="number" id="ventaPrecio" required min="0" step="0.01">
-                    </div>
-                    <button type="submit" class="btn-primary">Guardar Venta</button>
-                </form>
-            </div>
-        </div>
-    `;
-
-    // Cargar datos de ventas
-    await loadVentasData();
-}
-
-async function loadVentasData() {
-    try {
-        const { data: ventas, error } = await supabaseClient
-            .from('ventas')
-            .select('*')
-            .order('fecha', { ascending: false })
-            .limit(20);
-
-        if (error) throw error;
-
-        const tbody = document.getElementById('ventasTable');
-        tbody.innerHTML = '';
-
-        if (!ventas || ventas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">Sin ventas registradas</td></tr>';
-            return;
-        }
-
-        let totalVentas = 0;
-        ventas.forEach(venta => {
-            const total = venta.cantidad * venta.precio;
-            totalVentas += total;
-            tbody.innerHTML += `
-                <tr>
-                    <td>${venta.id}</td>
-                    <td>${venta.cliente}</td>
-                    <td>${venta.producto}</td>
-                    <td>${venta.cantidad}</td>
-                    <td>$${total.toFixed(2)}</td>
-                    <td>${new Date(venta.fecha).toLocaleDateString()}</td>
-                    <td><button class="btn-sm" onclick="deleteVenta(${venta.id})">Eliminar</button></td>
-                </tr>
-            `;
-        });
-
-        // Actualizar estadísticas
-        document.getElementById('ventasHoy').textContent = '$' + totalVentas.toFixed(2);
-        document.getElementById('totalOrdenes').textContent = ventas.length;
-        document.getElementById('promedioVenta').textContent = '$' + (totalVentas / ventas.length).toFixed(2);
-    } catch (error) {
-        console.error('Error cargando ventas:', error);
-    }
-}
-
-function openVentaForm() {
-    document.getElementById('ventaModal').style.display = 'block';
-}
-
-function closeVentaForm() {
-    document.getElementById('ventaModal').style.display = 'none';
-}
-
-async function saveVenta(event) {
-    event.preventDefault();
-    
-    const venta = {
-        cliente: document.getElementById('ventaCliente').value,
-        producto: document.getElementById('ventaProducto').value,
-        cantidad: parseInt(document.getElementById('ventaCantidad').value),
-        precio: parseFloat(document.getElementById('ventaPrecio').value),
-        fecha: new Date().toISOString()
-    };
-
-    try {
-        const { error } = await supabaseClient
-            .from('ventas')
-            .insert([venta]);
-
-        if (error) throw error;
-
-        alert('Venta guardada correctamente');
-        closeVentaForm();
-        await loadVentasData();
-    } catch (error) {
-        alert('Error al guardar venta: ' + error.message);
-    }
-}
-
-async function deleteVenta(id) {
-    if (confirm('¿Estás seguro de eliminar esta venta?')) {
-        try {
-            const { error } = await supabaseClient
-                .from('ventas')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-            await loadVentasData();
-        } catch (error) {
-            alert('Error al eliminar: ' + error.message);
-        }
-    }
-}
-
-// === MÓDULO DE INVENTARIO ===
 async function loadInventario() {
     const content = document.getElementById('moduleContent');
     content.innerHTML = `
         <div class="module-header">
-            <h2>📦 Módulo de Inventario</h2>
+            <h2>Módulo de Inventario</h2>
             <button class="btn-primary" onclick="openProductoForm()">+ Nuevo Producto</button>
         </div>
 
@@ -278,9 +105,7 @@ async function loadInventario() {
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="productosTable">
-                    <tr><td colspan="6" class="loading">Cargando...</td></tr>
-                </tbody>
+                <tbody id="productosTable"></tbody>
             </table>
         </div>
 
@@ -289,23 +114,12 @@ async function loadInventario() {
                 <span class="close" onclick="closeProductoForm()">&times;</span>
                 <h2>Nuevo Producto</h2>
                 <form onsubmit="saveProducto(event)">
-                    <div class="form-group">
-                        <label>Nombre:</label>
-                        <input type="text" id="productoNombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Stock:</label>
-                        <input type="number" id="productoStock" required min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Precio:</label>
-                        <input type="number" id="productoPrecio" required min="0" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción:</label>
-                        <textarea id="productoDescripcion"></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">Guardar Producto</button>
+                    <input type="text" id="productoNombre" placeholder="Nombre" required>
+                    <input type="number" id="productoStock" placeholder="Stock" required min="0">
+                    <input type="number" id="productoPrecio" placeholder="Precio" required step="0.01">
+                    <textarea id="productoDescripcion" placeholder="Descripción"></textarea>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-primary" onclick="closeProductoForm()" style="background: #999;">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -316,411 +130,236 @@ async function loadInventario() {
 
 async function loadProductosData() {
     try {
-        const { data: productos, error } = await supabaseClient
-            .from('productos')
-            .select('*');
-
-        if (error) throw error;
+        const { data: productos, error } = await supabaseClient.from('producto').select('*');
 
         const tbody = document.getElementById('productosTable');
-        tbody.innerHTML = '';
 
-        if (!productos || productos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="no-data">Sin productos registrados</td></tr>';
+        if (error) {
+            tbody.innerHTML = '<tr><td colspan="6">Error cargando productos</td></tr>';
             return;
         }
 
+        if (!productos || productos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">Sin productos</td></tr>';
+            return;
+        }
+
+        let html = '';
         let totalStock = 0;
-        let productosBaros = 0;
+        let bajos = 0;
 
-        productos.forEach(prod => {
-            totalStock += prod.stock || 0;
-            if ((prod.stock || 0) < 5) productosBaros++;
+        productos.forEach(p => {
+            totalStock += p.stock || 0;
+            if ((p.stock || 0) < 5) bajos++;
 
-            tbody.innerHTML += `
+            html += `
                 <tr>
-                    <td>${prod.id}</td>
-                    <td>${prod.nombre}</td>
-                    <td>${prod.stock || 0}</td>
-                    <td>$${(prod.precio || 0).toFixed(2)}</td>
-                    <td>${prod.descripcion || '-'}</td>
+                    <td>${p.id_producto || p.id}</td>
+                    <td>${p.nombre || ''}</td>
+                    <td>${p.stock || 0}</td>
+                    <td>$${(p.precio || 0).toFixed(2)}</td>
+                    <td>${p.descripcion || '-'}</td>
                     <td>
-                        <button class="btn-sm" onclick="editProducto(${prod.id})">Editar</button>
-                        <button class="btn-sm btn-danger" onclick="deleteProducto(${prod.id})">Eliminar</button>
+                        <button onclick="editProducto(${p.id_producto || p.id})" style="background: #6ee7b7; color: #000; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Editar</button>
+                        <button onclick="deleteProducto(${p.id_producto || p.id})" style="background: #ff6b6b; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button>
                     </td>
                 </tr>
             `;
         });
 
+        tbody.innerHTML = html;
+
         document.getElementById('totalProductos').textContent = productos.length;
         document.getElementById('stockTotal').textContent = totalStock + ' unidades';
-        document.getElementById('productosBaros').textContent = productosBaros;
+        document.getElementById('productosBaros').textContent = bajos;
+
     } catch (error) {
         console.error('Error cargando productos:', error);
     }
 }
 
 function openProductoForm() {
-    document.getElementById('productoModal').style.display = 'block';
+    document.getElementById('productoModal').style.display = 'flex';
 }
 
 function closeProductoForm() {
     document.getElementById('productoModal').style.display = 'none';
+    document.getElementById('productoNombre').value = '';
+    document.getElementById('productoStock').value = '';
+    document.getElementById('productoPrecio').value = '';
+    document.getElementById('productoDescripcion').value = '';
 }
 
-async function saveProducto(event) {
-    event.preventDefault();
-    
+async function saveProducto(e) {
+    e.preventDefault();
+
     const producto = {
-        nombre: document.getElementById('productoNombre').value,
+        nombre: document.getElementById('productoNombre').value.trim(),
         stock: parseInt(document.getElementById('productoStock').value),
         precio: parseFloat(document.getElementById('productoPrecio').value),
         descripcion: document.getElementById('productoDescripcion').value
     };
 
     try {
-        const { error } = await supabaseClient
-            .from('productos')
-            .insert([producto]);
+        const { error } = await supabaseClient.from('producto').insert([producto]);
 
-        if (error) throw error;
-
-        alert('Producto guardado correctamente');
-        closeProductoForm();
-        await loadProductosData();
-    } catch (error) {
-        alert('Error al guardar: ' + error.message);
-    }
-}
-
-async function deleteProducto(id) {
-    if (confirm('¿Estás seguro?')) {
-        try {
-            const { error } = await supabaseClient
-                .from('productos')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-            await loadProductosData();
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
-    }
-}
-
-function editProducto(id) {
-    alert('Función de editar en desarrollo...');
-}
-
-// === MÓDULO DE REPORTES ===
-async function loadReportes() {
-    const content = document.getElementById('moduleContent');
-    content.innerHTML = `
-        <div class="module-header">
-            <h2>📈 Módulo de Reportes</h2>
-        </div>
-
-        <div class="reports-container">
-            <div class="report-card">
-                <h3>Ventas por Período</h3>
-                <div class="chart-placeholder">
-                    <canvas id="chartVentas"></canvas>
-                </div>
-            </div>
-
-            <div class="report-card">
-                <h3>Top Productos Vendidos</h3>
-                <div id="topProductos" class="report-list">
-                    <p class="loading">Cargando...</p>
-                </div>
-            </div>
-
-            <div class="report-card">
-                <h3>Resumen General</h3>
-                <div class="summary-list">
-                    <div class="summary-item">
-                        <span>Total de Ingresos:</span>
-                        <strong id="totalIngresos">$0</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Número de Transacciones:</span>
-                        <strong id="numTransacciones">0</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Clientes Registrados:</span>
-                        <strong id="numClientes">0</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Valor Inventario:</span>
-                        <strong id="valorInventario">$0</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    await loadReportesData();
-}
-
-async function loadReportesData() {
-    try {
-        // Obtener ventas
-        const { data: ventas } = await supabaseClient.from('ventas').select('*');
-        
-        // Obtener productos
-        const { data: productos } = await supabaseClient.from('productos').select('*');
-        
-        // Obtener usuarios
-        const { data: usuarios } = await supabaseClient.from('usuarios').select('*');
-
-        let totalIngresos = 0;
-        let topProds = {};
-
-        if (ventas) {
-            ventas.forEach(v => {
-                const total = (v.cantidad || 0) * (v.precio || 0);
-                totalIngresos += total;
-                
-                const key = v.producto;
-                topProds[key] = (topProds[key] || 0) + v.cantidad;
-            });
-        }
-
-        // Valor inventario
-        let valorInventario = 0;
-        if (productos) {
-            productos.forEach(p => {
-                valorInventario += (p.stock || 0) * (p.precio || 0);
-            });
-        }
-
-        document.getElementById('totalIngresos').textContent = '$' + totalIngresos.toFixed(2);
-        document.getElementById('numTransacciones').textContent = ventas?.length || 0;
-        document.getElementById('numClientes').textContent = usuarios?.length || 0;
-        document.getElementById('valorInventario').textContent = '$' + valorInventario.toFixed(2);
-
-        // Top productos
-        const topList = document.getElementById('topProductos');
-        topList.innerHTML = '';
-        
-        Object.entries(topProds)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5)
-            .forEach(([prod, cant]) => {
-                topList.innerHTML += `
-                    <div class="list-item">
-                        <span>${prod}</span>
-                        <strong>${cant} unidades</strong>
-                    </div>
-                `;
-            });
-
-        if (Object.keys(topProds).length === 0) {
-            topList.innerHTML = '<p class="no-data">Sin datos</p>';
-        }
-    } catch (error) {
-        console.error('Error cargando reportes:', error);
-    }
-}
-
-// === MÓDULO DE USUARIOS ===
-async function loadUsuarios() {
-    const content = document.getElementById('moduleContent');
-    content.innerHTML = `
-        <div class="module-header">
-            <h2>👥 Módulo de Usuarios</h2>
-        </div>
-
-        <div class="stats-container">
-            <div class="stat-card">
-                <h4>Total Usuarios</h4>
-                <p class="stat-value" id="totalUsuarios">0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Administradores</h4>
-                <p class="stat-value" id="totalAdmins">0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Vendedores</h4>
-                <p class="stat-value" id="totalVendedores">0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Clientes</h4>
-                <p class="stat-value" id="totalClientes">0</p>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <h3>Lista de Usuarios</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="usuariosTable">
-                    <tr><td colspan="5" class="loading">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    await loadUsuariosData();
-}
-
-async function loadUsuariosData() {
-    try {
-        const { data: usuarios, error } = await supabaseClient
-            .from('usuarios')
-            .select('*');
-
-        if (error) throw error;
-
-        const tbody = document.getElementById('usuariosTable');
-        tbody.innerHTML = '';
-
-        if (!usuarios || usuarios.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="no-data">Sin usuarios registrados</td></tr>';
+        if (error) {
+            alert('Error al guardar: ' + error.message);
             return;
         }
 
-        let admins = 0, vendedores = 0, clientes = 0;
-
-        usuarios.forEach(user => {
-            if (user.rol === 'admin') admins++;
-            else if (user.rol === 'vendedor') vendedores++;
-            else if (user.rol === 'cliente') clientes++;
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${user.id.substring(0, 8)}...</td>
-                    <td>${user.nombre || '-'}</td>
-                    <td>${user.correo}</td>
-                    <td><span class="role-badge role-${user.rol}">${user.rol}</span></td>
-                    <td>
-                        <select onchange="changeUserRole('${user.id}', this.value)" style="padding: 5px;">
-                            <option value="${user.rol}">Cambiar rol</option>
-                            <option value="admin">Admin</option>
-                            <option value="vendedor">Vendedor</option>
-                            <option value="cliente">Cliente</option>
-                        </select>
-                    </td>
-                </tr>
-            `;
-        });
-
-        document.getElementById('totalUsuarios').textContent = usuarios.length;
-        document.getElementById('totalAdmins').textContent = admins;
-        document.getElementById('totalVendedores').textContent = vendedores;
-        document.getElementById('totalClientes').textContent = clientes;
+        closeProductoForm();
+        await loadProductosData();
     } catch (error) {
-        console.error('Error cargando usuarios:', error);
+        console.error('Error:', error);
+        alert('Error al guardar el producto');
     }
 }
 
-async function changeUserRole(userId, newRole) {
-    if (newRole === 'Cambiar rol') return;
-    
+async function editProducto(id) {
+    alert('Función de edición en desarrollo');
+}
+
+async function deleteProducto(id) {
+    if (!confirm('¿Eliminar producto?')) return;
+
     try {
-        const { error } = await supabaseClient
-            .from('usuarios')
-            .update({ rol: newRole })
-            .eq('id', userId);
+        const { error } = await supabaseClient.from('producto').delete().eq('id_producto', id);
 
         if (error) throw error;
-        
-        alert('Rol actualizado correctamente');
-        await loadUsuariosData();
+
+        await loadProductosData();
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error('Error:', error);
+        alert('Error al eliminar');
     }
 }
 
-// === MÓDULO DE PAGOS ===
-async function loadPagos() {
-    const content = document.getElementById('moduleContent');
-    content.innerHTML = `
-        <div class="module-header">
-            <h2>💳 Módulo de Pagos</h2>
-            <button class="btn-primary" onclick="openPagoForm()">+ Registrar Pago</button>
-        </div>
+//////////////////////////////////////////////////
+// REPORTES
+//////////////////////////////////////////////////
 
+async function loadReportes() {
+    const content = document.getElementById('moduleContent');
+
+    content.innerHTML = `
+        <h2>Reportes</h2>
         <div class="stats-container">
             <div class="stat-card">
-                <h4>Total Pagado</h4>
-                <p class="stat-value" id="totalPagado">$0</p>
+                <h4>Total Ingresos</h4>
+                <p class="stat-value" id="totalIngresos">$0.00</p>
             </div>
             <div class="stat-card">
-                <h4>Transacciones</h4>
-                <p class="stat-value" id="totalTransacciones">0</p>
+                <h4>Pagos Completados</h4>
+                <p class="stat-value" id="pagosCompletados">0</p>
             </div>
             <div class="stat-card">
-                <h4>Promedio</h4>
-                <p class="stat-value" id="promedioPago">$0</p>
-            </div>
-            <div class="stat-card">
-                <h4>Pendientes</h4>
+                <h4>Pagos Pendientes</h4>
                 <p class="stat-value" id="pagosPendientes">0</p>
             </div>
         </div>
+    `;
 
+    try {
+        const { data: pagos, error } = await supabaseClient.from('pago').select('*');
+
+        if (error) {
+            content.innerHTML += '<p>Error cargando reportes</p>';
+            return;
+        }
+
+        let total = 0;
+        let completados = 0;
+        let pendientes = 0;
+
+        pagos?.forEach(p => {
+            if (p.estado === 'completado') {
+                total += p.monto || 0;
+                completados++;
+            } else if (p.estado === 'pendiente') {
+                pendientes++;
+            }
+        });
+
+        document.getElementById('totalIngresos').textContent = '$' + total.toFixed(2);
+        document.getElementById('pagosCompletados').textContent = completados;
+        document.getElementById('pagosPendientes').textContent = pendientes;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+//////////////////////////////////////////////////
+// USUARIOS
+//////////////////////////////////////////////////
+
+async function loadUsuarios() {
+    const content = document.getElementById('moduleContent');
+
+    try {
+        const { data: usuarios, error } = await supabaseClient.from('usuarios').select('*');
+
+        if (error) {
+            content.innerHTML = '<p>Error cargando usuarios</p>';
+            return;
+        }
+
+        let html = `<h2>Usuarios</h2><table><thead><tr><th>Correo</th><th>Rol</th></tr></thead><tbody>`;
+
+        usuarios?.forEach(u => {
+            html += `<tr><td>${u.correo || u.email || ''}</td><td>${u.rol || 'usuario'}</td></tr>`;
+        });
+
+        html += `</tbody></table>`;
+        content.innerHTML = html;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+//////////////////////////////////////////////////
+// PAGOS
+//////////////////////////////////////////////////
+
+async function loadPagos() {
+    const content = document.getElementById('moduleContent');
+
+    content.innerHTML = `
+        <div class="module-header">
+            <h2>Gestión de Pagos</h2>
+            <button class="btn-primary" onclick="openPagoForm()">+ Nuevo Pago</button>
+        </div>
         <div class="table-container">
-            <h3>Historial de Pagos</h3>
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Cliente</th>
                         <th>Monto</th>
-                        <th>Método</th>
                         <th>Estado</th>
-                        <th>Fecha</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="pagosTable">
-                    <tr><td colspan="7" class="loading">Cargando...</td></tr>
-                </tbody>
+                <tbody id="pagosTable"></tbody>
             </table>
         </div>
 
         <div id="pagoModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closePagoForm()">&times;</span>
-                <h2>Registrar Pago</h2>
+                <h2>Nuevo Pago</h2>
                 <form onsubmit="savePago(event)">
-                    <div class="form-group">
-                        <label>Cliente:</label>
-                        <input type="text" id="pagoCliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Monto:</label>
-                        <input type="number" id="pagoMonto" required min="0" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Método de Pago:</label>
-                        <select id="pagoMetodo" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta de Crédito</option>
-                            <option value="transferencia">Transferencia</option>
-                            <option value="cheque">Cheque</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Estado:</label>
-                        <select id="pagoEstado" required>
-                            <option value="completado">Completado</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="fallido">Fallido</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-primary">Guardar Pago</button>
+                    <input type="number" id="pagoPedido" placeholder="ID Pedido" required>
+                    <input type="number" id="pagoMonto" placeholder="Monto" required step="0.01">
+                    <select id="pagoMetodo">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                    <select id="pagoEstado">
+                        <option value="completado">Completado</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-primary" onclick="closePagoForm()" style="background: #999;">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -731,106 +370,89 @@ async function loadPagos() {
 
 async function loadPagosData() {
     try {
-        const { data: pagos, error } = await supabaseClient
-            .from('pagos')
-            .select('*')
-            .order('fecha', { ascending: false });
+        const { data: pagos, error } = await supabaseClient.from('pago').select('*');
 
-        if (error) throw error;
-
-        const tbody = document.getElementById('pagosTable');
-        tbody.innerHTML = '';
-
-        if (!pagos || pagos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data">Sin pagos registrados</td></tr>';
+        if (error) {
+            document.getElementById('pagosTable').innerHTML = '<tr><td colspan="4">Error cargando pagos</td></tr>';
             return;
         }
 
-        let totalPagado = 0;
-        let pagosPendientes = 0;
+        let html = '';
 
-        pagos.forEach(pago => {
-            if (pago.estado === 'completado') totalPagado += pago.monto || 0;
-            if (pago.estado === 'pendiente') pagosPendientes++;
-
-            tbody.innerHTML += `
+        pagos?.forEach(p => {
+            html += `
                 <tr>
-                    <td>${pago.id}</td>
-                    <td>${pago.cliente}</td>
-                    <td>$${(pago.monto || 0).toFixed(2)}</td>
-                    <td>${pago.metodo}</td>
-                    <td><span class="status-badge status-${pago.estado}">${pago.estado}</span></td>
-                    <td>${new Date(pago.fecha).toLocaleDateString()}</td>
-                    <td><button class="btn-sm btn-danger" onclick="deletePago(${pago.id})">Eliminar</button></td>
+                    <td>${p.id_pago || p.id}</td>
+                    <td>$${(p.monto || 0).toFixed(2)}</td>
+                    <td><span style="background: ${p.estado === 'completado' ? '#6ee7b7' : '#ffbe3b'}; color: #000; padding: 5px 10px; border-radius: 4px;">${p.estado}</span></td>
+                    <td><button onclick="deletePago(${p.id_pago || p.id})" style="background: #ff6b6b; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button></td>
                 </tr>
             `;
         });
 
-        document.getElementById('totalPagado').textContent = '$' + totalPagado.toFixed(2);
-        document.getElementById('totalTransacciones').textContent = pagos.length;
-        document.getElementById('promedioPago').textContent = '$' + (totalPagado / pagos.length).toFixed(2);
-        document.getElementById('pagosPendientes').textContent = pagosPendientes;
+        document.getElementById('pagosTable').innerHTML = html || '<tr><td colspan="4">No hay pagos registrados</td></tr>';
     } catch (error) {
-        console.error('Error cargando pagos:', error);
+        console.error('Error:', error);
     }
 }
 
 function openPagoForm() {
-    document.getElementById('pagoModal').style.display = 'block';
+    document.getElementById('pagoModal').style.display = 'flex';
 }
 
 function closePagoForm() {
     document.getElementById('pagoModal').style.display = 'none';
+    document.getElementById('pagoPedido').value = '';
+    document.getElementById('pagoMonto').value = '';
 }
 
-async function savePago(event) {
-    event.preventDefault();
-    
+async function savePago(e) {
+    e.preventDefault();
+
     const pago = {
-        cliente: document.getElementById('pagoCliente').value,
+        id_pedido: parseInt(document.getElementById('pagoPedido').value),
         monto: parseFloat(document.getElementById('pagoMonto').value),
         metodo: document.getElementById('pagoMetodo').value,
         estado: document.getElementById('pagoEstado').value,
-        fecha: new Date().toISOString()
+        fecha_pago: new Date().toISOString()
     };
 
     try {
-        const { error } = await supabaseClient
-            .from('pagos')
-            .insert([pago]);
+        const { error } = await supabaseClient.from('pago').insert([pago]);
 
         if (error) throw error;
 
-        alert('Pago registrado correctamente');
         closePagoForm();
         await loadPagosData();
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error('Error:', error);
+        alert('Error al guardar el pago');
     }
 }
 
 async function deletePago(id) {
-    if (confirm('¿Estás seguro?')) {
-        try {
-            const { error } = await supabaseClient
-                .from('pagos')
-                .delete()
-                .eq('id', id);
+    if (!confirm('¿Eliminar pago?')) return;
 
-            if (error) throw error;
-            await loadPagosData();
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+    try {
+        const { error } = await supabaseClient.from('pago').delete().eq('id_pago', id);
+
+        if (error) throw error;
+
+        await loadPagosData();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar');
     }
 }
 
-// Logout
+//////////////////////////////////////////////////
+// LOGOUT
+//////////////////////////////////////////////////
+
 async function logoutAdmin() {
     await supabaseClient.auth.signOut();
     localStorage.removeItem('userRole');
     window.location.href = 'index.html';
 }
 
-// Inicializar al cargar la página
 window.addEventListener('load', initAdmin);

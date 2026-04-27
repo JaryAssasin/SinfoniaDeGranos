@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Sinfonía de Granos</title>
-    
+
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -35,10 +35,10 @@
             background: linear-gradient(180deg, #2e1b1b 0%, #1a0f0f 100%);
             border-right: 2px solid #4b2e2e;
             padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
         }
 
         .sidebar-header {
@@ -57,17 +57,12 @@
             list-style: none;
         }
 
-        .nav-item {
-            margin: 5px 0;
-        }
-
         .nav-link {
             display: block;
             padding: 12px 20px;
             color: #ccc;
-            text-decoration: none;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: 0.3s;
             border-left: 3px solid transparent;
         }
 
@@ -75,7 +70,6 @@
             background: rgba(75, 46, 46, 0.5);
             color: #f4a460;
             border-left-color: #f4a460;
-            padding-left: 25px;
         }
 
         .nav-link.active {
@@ -84,112 +78,108 @@
             border-left-color: #f4a460;
         }
 
-        /* MAIN CONTENT */
+        /* MAIN */
         .main-content {
-            flex: 1;
             margin-left: 260px;
+            flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .header {
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
+            background: #4b2e2e;
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .header-title {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
         }
 
         .btn-logout {
             background: #ff6b6b;
-            color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 10px;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s ease;
-        }
-
-        .btn-logout:hover {
-            background: #ff5252;
-            transform: translateY(-2px);
+            border-radius: 6px;
+            color: white;
         }
 
         .content-area {
-            flex: 1;
             padding: 30px;
-            overflow-y: auto;
         }
 
-        /* MODULE HEADER */
+        /* MODAL FIX */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1a0f0f;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+            background: #2e1b1b;
+            border: 1px solid #4b2e2e;
+            color: white;
+            border-radius: 5px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            padding: 10px;
+            border-bottom: 1px solid #4b2e2e;
+        }
+
+        /* MÓDULOS */
         .module-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #4b2e2e;
         }
 
         .module-header h2 {
-            font-size: 28px;
             color: #f4a460;
+            font-size: 24px;
         }
 
-        /* BUTTONS */
         .btn-primary {
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
+            background: #f4a460;
+            color: #1a0f0f;
             border: none;
             padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s ease;
+            font-weight: 600;
+            transition: 0.3s;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(75, 46, 46, 0.4);
+            background: #e89350;
         }
 
-        .btn-sm {
-            background: #4b2e2e;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: 0.2s ease;
-        }
-
-        .btn-sm:hover {
-            background: #6b4646;
-        }
-
-        .btn-danger {
-            background: #ff6b6b !important;
-        }
-
-        .btn-danger:hover {
-            background: #ff5252 !important;
-        }
-
-        /* STATS CARDS */
+        /* STATS */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -198,26 +188,17 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #2e1b1b 0%, #1a0f0f 100%);
+            background: rgba(75, 46, 46, 0.3);
             border: 1px solid #4b2e2e;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(244, 164, 96, 0.1);
-            border-color: #f4a460;
         }
 
         .stat-card h4 {
-            color: #ccc;
+            color: #999;
             font-size: 14px;
             margin-bottom: 10px;
-            text-transform: uppercase;
         }
 
         .stat-value {
@@ -226,372 +207,88 @@
             font-weight: bold;
         }
 
-        /* TABLE */
+        /* TABLAS */
         .table-container {
-            background: linear-gradient(135deg, #2e1b1b 0%, #1a0f0f 100%);
+            background: rgba(75, 46, 46, 0.2);
             border: 1px solid #4b2e2e;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 20px;
-            overflow-x: auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .table-container h3 {
             color: #f4a460;
             margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            color: #e0e0e0;
-        }
-
-        table thead {
-            background: rgba(75, 46, 46, 0.3);
         }
 
         table th {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 2px solid #4b2e2e;
+            background: rgba(244, 164, 96, 0.1);
             color: #f4a460;
-            font-weight: bold;
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #4b2e2e;
+            font-weight: 600;
         }
 
         table tbody tr:hover {
-            background: rgba(75, 46, 46, 0.2);
+            background: rgba(244, 164, 96, 0.05);
         }
 
-        .loading {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-        }
-
-        .no-data {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-        }
-
-        /* MODAL */
-        .modal {
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #2e1b1b 0%, #1a0f0f 100%);
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #4b2e2e;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
+        /* CLOSE BUTTON */
         .close {
-            color: #f4a460;
-            float: right;
-            font-size: 28px;
+            color: #999;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            line-height: 20px;
+            transition: 0.3s;
         }
 
         .close:hover {
-            color: #ff6b6b;
-        }
-
-        .modal h2 {
-            color: #f4a460;
-            margin-bottom: 20px;
-        }
-
-        /* FORM */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #ccc;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            background: #1a0f0f;
-            border: 1px solid #4b2e2e;
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #f4a460;
-            box-shadow: 0 0 8px rgba(244, 164, 96, 0.2);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* BADGES */
-        .role-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .role-admin {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
-        }
-
-        .role-vendedor {
-            background: rgba(244, 164, 96, 0.2);
             color: #f4a460;
         }
 
-        .role-cliente {
-            background: rgba(100, 200, 150, 0.2);
-            color: #64c896;
+        /* MODAL DISPLAY */
+        .modal {
+            display: none !important;
         }
 
-        /* STATUS BADGE */
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-completado {
-            background: rgba(100, 200, 150, 0.2);
-            color: #64c896;
-        }
-
-        .status-pendiente {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-        }
-
-        .status-fallido {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff6b6b;
-        }
-
-        /* REPORTS */
-        .reports-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-        }
-
-        .report-card {
-            background: linear-gradient(135deg, #2e1b1b 0%, #1a0f0f 100%);
-            border: 1px solid #4b2e2e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .report-card h3 {
-            color: #f4a460;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #4b2e2e;
-            padding-bottom: 10px;
-        }
-
-        .chart-placeholder {
-            background: rgba(75, 46, 46, 0.2);
-            height: 200px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-        }
-
-        .report-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #4b2e2e;
-            color: #e0e0e0;
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .list-item strong {
-            color: #f4a460;
-        }
-
-        .summary-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background: rgba(75, 46, 46, 0.2);
-            border-radius: 6px;
-        }
-
-        .summary-item strong {
-            color: #f4a460;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 80px;
-            }
-
-            .main-content {
-                margin-left: 80px;
-            }
-
-            .nav-link {
-                padding: 12px 8px;
-                font-size: 0;
-            }
-
-            .nav-link:before {
-                content: attr(data-icon);
-                font-size: 20px;
-            }
-
-            .content-area {
-                padding: 20px;
-            }
-
-            .module-header h2 {
-                font-size: 20px;
-            }
-
-            .stats-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1a0f0f;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #4b2e2e;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6b4646;
+        .modal.active {
+            display: flex !important;
         }
     </style>
 </head>
 
 <body>
-    <div class="admin-container">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Panel de administrador</h2>
-            </div>
 
-            <nav class="nav-menu">
-                <li class="nav-item">
-                    <a class="nav-link active" data-module="ventas" onclick="loadModule('ventas')">Ventas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-module="inventario" onclick="loadModule('inventario')">Inventario</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-module="reportes" onclick="loadModule('reportes')">Reportes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-module="usuarios" onclick="loadModule('usuarios')">Usuarios</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-module="pagos" onclick="loadModule('pagos')">Pagos</a>
-                </li>
-            </nav>
-        </aside>
+<div class="admin-container">
 
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <!-- HEADER -->
-            <header class="header">
-                <div class="header-title">Sinfonía de Granos - Panel de Administración</div>
-                <div class="header-buttons">
-                    <button class="btn-logout" onclick="logoutAdmin()">🚪 Cerrar Sesión</button>
-                </div>
-            </header>
-
-            <!-- CONTENT AREA -->
-            <div class="content-area" id="moduleContent">
-                <!-- Los módulos se cargarán aquí -->
-            </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Panel Admin</h2>
         </div>
+
+        <ul class="nav-menu">
+            <li><a class="nav-link active" data-module="inventario" onclick="loadModule('inventario')">📦 Inventario</a></li>
+            <li><a class="nav-link" data-module="reportes" onclick="loadModule('reportes')">📊 Reportes</a></li>
+            <li><a class="nav-link" data-module="usuarios" onclick="loadModule('usuarios')">👤 Usuarios</a></li>
+            <li><a class="nav-link" data-module="pagos" onclick="loadModule('pagos')">💳 Pagos</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <header class="header">
+            <h2>Sinfonía de Granos</h2>
+            <button class="btn-logout" onclick="logoutAdmin()">Cerrar sesión</button>
+        </header>
+
+        <div class="content-area" id="moduleContent">
+            <!-- contenido dinámico -->
+        </div>
+
     </div>
 
-    <!-- Scripts -->
-    <script src="js/admin.js"></script>
-</body>
+</div>
 
+<script src="js/admin.js"></script>
+
+</body>
 </html>
