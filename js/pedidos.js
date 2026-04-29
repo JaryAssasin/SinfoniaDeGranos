@@ -19,12 +19,12 @@ async function cargarPedidos() {
         tbody.innerHTML = "";
 
         if (error) {
-            tbody.innerHTML = `<tr><td colspan='8' style="color: #ff6b6b;">Error cargando pedidos</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan='7' style="color: #ff6b6b;">Error cargando pedidos</td></tr>`;
             return;
         }
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan='8'>No hay pedidos registrados</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan='7'>No hay pedidos registrados</td></tr>`;
             return;
         }
 
@@ -43,8 +43,6 @@ function renderPedidosTable(data) {
     data.forEach(ped => {
         const fecha = ped.fecha ? new Date(ped.fecha).toLocaleDateString() : 'N/A';
         const estadoColor = ped.estado === 'completado' ? '#6ee7b7' : ped.estado === 'pendiente' ? '#ffbe3b' : '#ff6b6b';
-        const metodoTexto = ped.metodo_pago === 'transferencia' ? '🏦 Transferencia' : ped.metodo_pago === 'contraentrega' ? '💵 Contraentrega' : '❓ Sin definir';
-        const pagadoTexto = ped.pagado ? '✅ Sí' : '❌ No';
 
         html += `
             <tr>
@@ -52,9 +50,8 @@ function renderPedidosTable(data) {
                 <td>${fecha}</td>
                 <td>$${(ped.total || 0).toFixed(2)}</td>
                 <td><span style="background: ${estadoColor}; color: #000; padding: 4px 8px; border-radius: 3px; font-weight: bold;">${ped.estado || 'N/A'}</span></td>
-                <td>${metodoTexto}</td>
-                <td>${pagadoTexto}</td>
                 <td>${ped.id_cliente || ''}</td>
+                <td>${ped.id_vendedor || 'N/A'}</td>
                 <td style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <button class="btn btn-sm btn-primary" onclick="editarPedido(${ped.id_pedido || ped.id})">✏️ Editar</button>
                     <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${ped.id_pedido || ped.id})">🗑️ Eliminar</button>
@@ -76,7 +73,8 @@ function buscarPedidos() {
             fecha.includes(searchTerm) ||
             (ped.total?.toString() || '').includes(searchTerm) ||
             (ped.estado || '').toLowerCase().includes(searchTerm) ||
-            (ped.id_cliente?.toString() || '').includes(searchTerm)
+            (ped.id_cliente?.toString() || '').includes(searchTerm) ||
+            (ped.id_vendedor?.toString() || '').includes(searchTerm)
         );
     });
     renderPedidosTable(filtered);
@@ -95,9 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pedido = {
                 fecha: document.querySelector('input[name="fecha_pedido"]').value,
                 total: parseFloat(document.querySelector('input[name="total"]').value),
-                estado: document.querySelector('input[name="estado"]').value,
-                metodo_pago: document.querySelector('select[name="metodo_pago"]')?.value || null,
-                pagado: document.querySelector('input[name="pagado"]')?.checked || false,
+                estado: document.querySelector('select[name="estado"]').value,
                 id_cliente: parseInt(document.querySelector('input[name="id_cliente"]').value) || null
             };
 
@@ -128,8 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 fecha: document.getElementById('edit_fecha_pedido').value,
                 total: parseFloat(document.getElementById('edit_total').value),
                 estado: document.getElementById('edit_estado').value,
-                metodo_pago: document.getElementById('edit_metodo_pago')?.value || null,
-                pagado: document.getElementById('edit_pagado')?.checked || false,
                 id_cliente: parseInt(document.getElementById('edit_id_cliente').value) || null
             };
 
@@ -179,8 +173,6 @@ async function editarPedido(id) {
         document.getElementById('edit_fecha_pedido').value = data.fecha || '';
         document.getElementById('edit_total').value = data.total || 0;
         document.getElementById('edit_estado').value = data.estado || '';
-        document.getElementById('edit_metodo_pago').value = data.metodo_pago || '';
-        document.getElementById('edit_pagado').checked = data.pagado || false;
         document.getElementById('edit_id_cliente').value = data.id_cliente || '';
 
         $('#modalEditarPedido').modal('show');

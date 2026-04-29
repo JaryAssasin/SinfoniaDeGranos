@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Productos - Sinfonía de Granos</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/productos.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #f4f1ee, #e8e2dc);
+        }
+
+        .header {
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 30px;
+            font-size: 20px;
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: #2e1b1b;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .icon-btn {
+            background: white;
+            color: #2e1b1b;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            border: 1px solid #ccc;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+            padding: 4px 0;
+            animation: popup .15s ease;
+            z-index: 10;
+        }
+
+        .dropdown button {
+            padding: 10px 14px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .dropdown button:hover {
+            background: #f5f5f5;
+        }
+
+        @keyframes popup {
+            0% {opacity: 0; transform: translateY(-6px);}
+            100% {opacity: 1; transform: translateY(0);}
+        }
+
+        .carrito {
+            position: fixed;
+            right: -380px;
+            top: 0;
+            width: 380px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -6px 0 22px rgba(0,0,0,0.2);
+            padding: 24px;
+            transition: right 0.3s ease;
+            z-index: 20;
+        }
+
+        .carrito.active {
+            right: 0;
+        }
+
+        .carrito h2 {
+            margin-bottom: 14px;
+            color: #2e1b1b;
+        }
+
+        #items p {
+            margin: 10px 0;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            background: #fbfbfb;
+            font-size: 14px;
+        }
+
+        #items p div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #items p div button {
+            width: 25px;
+            height: 25px;
+            background: #4b2e2e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .titulo-seccion {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .titulo-seccion h1 {
+            color: #3b2a1e;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .titulo-seccion p {
+            color: #7a5c47;
+            font-style: italic;
+        }
+
+        .filtros {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filtros input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+
+        #productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            min-height: 200px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #3b2a1e;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            flex-grow: 1;
+        }
+
+        .precio {
+            font-size: 22px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stock {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            padding: 10px;
+            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(75, 46, 46, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .footer-bar {
+            margin-top: 50px;
+            background: #2e1b1b;
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .vacio {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <span>Sinfonía de Granos - Catálogo</span>
+
+    <div class="header-right">
+        <button class="icon-btn" onclick="toggleCarrito()">🛒</button>
+
+        <div class="user-menu">
+            <button class="icon-btn" onclick="toggleMenu()">👤</button>
+
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos (Actual)</button>
+                <button onclick="historial()">📦 Historial</button>
+                <button id="btnAdmin" style="display:none; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="titulo-seccion">
+        <h1>Nuestros Productos</h1>
+        <p>"Calidad artesanal en cada taza"</p>
+    </div>
+
+    <div class="filtros">
+        <input type="text" id="searchProductos" placeholder="🔍 Buscar productos...">
+    </div>
+
+    <div id="productos">
+        <!-- Se genera dinámicamente -->
+    </div>
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+</div>
+
+<!-- CARRITO -->
+<div class="carrito" id="carrito">
+    <h2>🛒 Carrito</h2>
+    <div id="items"></div>
+    <div style="margin-top: 20px;">
+        <button class="btn" onclick="finalizarCompra()" style="width: 100%;">Finalizar Compra</button>
+    </div>
+</div>
+
+<script>
+let carrito = JSON.parse(localStorage.getItem('carrito')) || {};
+
+function toggleCarrito() {
+    document.getElementById("carrito").classList.toggle("active");
+    renderCarrito();
+}
+
+function toggleMenu() {
+    const menu = document.getElementById("menuUsuario");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+}
+
+function agregarCarrito(nombre, precio, id, cantidad = 1) {
+    if (carrito[id]) {
+        carrito[id].cantidad += cantidad;
+    } else {
+        carrito[id] = { nombre, precio, cantidad };
+    }
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderCarrito();
+    alert(`✅ ${nombre} agregado al carrito`);
+}
+
+function renderCarrito() {
+    let cont = document.getElementById("items");
+    cont.innerHTML = "";
+
+    let total = 0;
+
+    for (let id in carrito) {
+        let p = carrito[id];
+        let subtotal = p.precio * p.cantidad;
+        total += subtotal;
+
+        cont.innerHTML += `
+            <p>
+                <strong>${p.nombre}</strong>
+                <div>
+                    <button onclick="cambiarCantidad(${id}, -1)">-</button>
+                    <span>${p.cantidad}x</span>
+                    <button onclick="cambiarCantidad(${id}, 1)">+</button>
+                    <button onclick="remover(${id})">X</button>
+                </div>
+            </p>
+            <p style="justify-content: flex-end; font-size: 12px;">
+                $${subtotal.toFixed(2)}
+            </p>
+        `;
+    }
+
+    if (Object.keys(carrito).length === 0) {
+        cont.innerHTML = '<p style="text-align: center; color: #999;">Carrito vacío</p>';
+    } else {
+        cont.innerHTML += `<p style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ccc; font-size: 16px; font-weight: bold;">
+            Total: $${total.toFixed(2)}
+        </p>`;
+    }
+}
+
+function cambiarCantidad(id, delta) {
+    if (carrito[id]) {
+        carrito[id].cantidad += delta;
+        if (carrito[id].cantidad <= 0) {
+            delete carrito[id];
+        }
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderCarrito();
+    }
+}
+
+function remover(id) {
+    delete carrito[id];
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderCarrito();
+}
+
+function finalizarCompra() {
+    if (Object.keys(carrito).length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    // Aquí iría la lógica para crear un pedido
+    alert('Funcionalidad de checkout en desarrollo');
+}
+
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById("menuUsuario");
+    const carritoEl = document.getElementById("carrito");
+    const userMenu = document.querySelector('.user-menu');
+
+    if (!userMenu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+
+    if (!carritoEl.contains(event.target) && !event.target.closest('.icon-btn')) {
+        carritoEl.classList.remove('active');
+    }
+});
+
+async function logout() {
+    await supabaseClient.auth.signOut();
+    localStorage.removeItem('carrito');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userRoleNormalized');
+    window.location.href = "index.html";
+}
+
+function irInicio() {
+    window.location.href = "principal.html";
+}
+
+function irProductos() {
+    window.location.href = "productos.html";
+}
+
+function irAdmin() {
+    window.location.href = "admin.html";
+}
+
+function historial() {
+    alert("Funcionalidad de historial en desarrollo 📦");
+}
+
+function verificarRol() {
+    const userRole = localStorage.getItem('userRole');
+    const btnAdmin = document.getElementById('btnAdmin');
+
+    if (userRole === 'admin' && btnAdmin) {
+        btnAdmin.style.display = 'block';
+    }
+}
+
+async function checkSession() {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (!data.session) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    verificarRol();
+}
+
+// Búsqueda de productos
+function buscarProductos() {
+    const searchTerm = document.getElementById('searchProductos').value.toLowerCase();
+    const cards = document.querySelectorAll('#productos .card');
+
+    cards.forEach(card => {
+        const texto = card.textContent.toLowerCase();
+        card.style.display = texto.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+document.getElementById('searchProductos')?.addEventListener('keyup', buscarProductos);
+
+checkSession();
+</script>
+
+</body>
+
+</html>

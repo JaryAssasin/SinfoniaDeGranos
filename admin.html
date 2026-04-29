@@ -6,56 +6,348 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Sinfonía de Granos</title>
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
 
-    <!-- External CSS -->
-    <link href="css/admin.css" rel="stylesheet">
-
     <style>
-        /* Estilos específicos que no están en admin.css */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .admin-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: #111;
+            padding: 15px;
+        }
+
+        .sidebar-header { margin-bottom: 20px; }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-link {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            color: #ccc;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* MAIN */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2a2a2a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .role-badge {
+            background: #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-edit    { background: #10b981; color: black; }
+        .btn-delete  { background: #ef4444; color: white; }
+        .btn-logout  { background: #ef4444; color: white; }
+
+        /* CONTENIDO */
+        .content-area {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* TABLAS */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #2a2a2a;
+            padding: 10px 8px;
+            text-align: left;
+            color: #aaa;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+        }
+
+        tr:hover td { background: #2a2a2a; }
+
+        .td-descripcion {
+            max-width: 220px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .td-uuid {
+            font-family: monospace;
+            font-size: 12px;
+            color: #888;
+            cursor: default;
+        }
+
+        /* BADGES DE ROL */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .badge-admin    { background: #4b1c1c; color: #f87171; }
+        .badge-vendedor { background: #1c2f4b; color: #60a5fa; }
+        .badge-cliente  { background: #1c3a2a; color: #34d399; }
+
+        /* INPUT */
+        .input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        textarea.input {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        select.input {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .input:disabled {
+            background: #2e2e2e;
+            color: #666;
+            cursor: not-allowed;
+            border-color: #444;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal[style*="display: flex"] {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 24px;
+            border-radius: 10px;
+            width: 360px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .modal-content label {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        @keyframes fadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="admin-container">
+    <div class="admin-container">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>Panel Admin</h2>
-        </div>
-
-        <ul class="nav-menu">
-            <li><a class="nav-link active" data-module="inventario" onclick="loadModule('inventario')">📦 Inventario</a></li>
-            <li><a class="nav-link" data-module="reportes" onclick="loadModule('reportes')">📊 Reportes</a></li>
-            <li><a class="nav-link" data-module="usuarios" onclick="loadModule('usuarios')">👤 Usuarios</a></li>
-            <li><a class="nav-link" data-module="pagos" onclick="loadModule('pagos')">💳 Pagos</a></li>
-        </ul>
-    </aside>
-
-    <!-- MAIN -->
-    <div class="main-content">
-
-        <header class="header">
-            <h2>🌾 Sinfonía de Granos - Panel Admin</h2>
-            <div class="header-right">
-                <span class="role-badge" id="currentUserRole">Usuario</span>
-                <button class="btn-logout" onclick="logoutAdmin()">🚪 Cerrar sesión</button>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Administración</h2>
             </div>
-        </header>
+            <ul class="nav-menu">
+                <li>
+                    <button type="button" class="nav-link active" data-module="inventario"
+                        onclick="loadModule('inventario')">Inventario</button>
+                </li>
+                <li>
+                    <button type="button" class="nav-link" data-module="usuarios"
+                        onclick="loadModule('usuarios')">Usuarios</button>
+                </li>
+                <li>
+                    <button type="button" class="nav-link" data-module="reportes"
+                        onclick="loadModule('reportes')">Reportes</button>
+                </li>
+                <li>
+                    <button type="button" class="nav-link" data-module="pagos"
+                        onclick="loadModule('pagos')">Pagos</button>
+                </li>
+            </ul>
+        </aside>
 
-        <div class="content-area" id="moduleContent">
-            <!-- contenido dinámico -->
+        <div class="main-content">
+
+            <header class="header">
+                <h2>Sinfonía de Granos</h2>
+                <div class="header-right">
+                    <span class="role-badge" id="currentUserRole">Usuario</span>
+                    <button type="button" class="btn btn-logout" onclick="logoutAdmin()">
+                        Cerrar sesión
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area" id="moduleContent">
+                <!-- contenido dinámico -->
+            </div>
+
         </div>
-
     </div>
 
-</div>
+    <!-- ── MODAL PRODUCTO ─────────────────────────────────────────────────── -->
+    <div id="productoModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nuevo Producto</h3>
 
-<script src="js/admin.js"></script>
+            <label for="productoNombre">Nombre</label>
+            <input id="productoNombre" class="input" type="text" placeholder="Nombre del producto">
+
+            <label for="productoDescripcion">Descripción</label>
+            <textarea id="productoDescripcion" class="input" placeholder="Descripción (opcional)"></textarea>
+
+            <label for="productoStock">Stock</label>
+            <input id="productoStock" class="input" type="number" placeholder="0">
+
+            <label for="productoPrecio">Precio</label>
+            <input id="productoPrecio" class="input" type="number" placeholder="0.00" step="0.01">
+
+            <div class="modal-actions">
+                <button id="btnGuardarProducto"  class="btn btn-primary">Guardar</button>
+                <button id="btnCancelarProducto" class="btn" style="background:#666;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL USUARIO ──────────────────────────────────────────────────── -->
+    <div id="usuarioModal" class="modal">
+        <div class="modal-content">
+            <h3 id="usuarioModalTitle">Nuevo Usuario</h3>
+
+            <label for="usuarioNombre">Nombre</label>
+            <input id="usuarioNombre" class="input" type="text" placeholder="Nombre completo">
+
+            <label for="usuarioCorreo">Correo</label>
+            <input id="usuarioCorreo" class="input" type="email" placeholder="correo@ejemplo.com">
+
+            <label for="usuarioRol">Rol</label>
+            <select id="usuarioRol" class="input">
+                <option value="cliente">cliente</option>
+                <option value="vendedor">vendedor</option>
+                <option value="admin">admin</option>
+            </select>
+
+            <div class="modal-actions">
+                <button id="btnGuardarUsuario"  class="btn btn-primary">Guardar</button>
+                <button id="btnCancelarUsuario" class="btn" style="background:#666;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", initAdmin);
+    </script>
 
 </body>
 </html>
