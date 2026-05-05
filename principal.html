@@ -1,518 +1,528 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Sinfonía de Granos</title>
-
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom, #f4f1ee, #e8e2dc);
-        }
-
+        /* ── HEADER ─────────────────────────────────────────────────── */
         .header {
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 30px;
-            font-size: 20px;
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; display:flex; justify-content:space-between;
+            align-items:center; padding:18px 30px; font-size:20px;
         }
-
-        .logout-btn {
-            background: #fff;
-            color: #2e1b1b;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* BOTONES HEADER */
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
+        .header-right { display:flex; gap:15px; align-items:center; }
         .icon-btn {
-            background: white;
-            color: #2e1b1b;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease;
+            background:white; color:#2e1b1b; border:none;
+            padding:8px 12px; border-radius:8px; cursor:pointer;
+            transition:transform .2s,box-shadow .2s;
         }
+        .icon-btn:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,.2); }
+        .user-menu { position:relative; }
 
-        .icon-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        /* Pill de usuario (foto + nombre) */
+        .user-pill {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3);
+            border-radius:30px; padding:6px 14px 6px 6px; cursor:pointer;
+            transition:background .2s;
         }
+        .user-pill:hover { background:rgba(255,255,255,.22); }
+        .pill-avatar {
+            width:32px; height:32px; border-radius:50%;
+            background:#a0632a; color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
+        }
+        .pill-avatar img { width:100%; height:100%; object-fit:cover; }
+        .pill-name { font-size:14px; font-weight:600; }
+        .pill-arrow { font-size:10px; opacity:.7; }
 
-        /* MENU USUARIO */
         .dropdown {
-            position: absolute;
-            top: 42px;
-            right: 0;
-            background: white;
-            color: black;
-            border-radius: 10px;
-            display: none;
-            flex-direction: column;
-            min-width: 180px;
-            border: 1px solid #ccc;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.16);
-            padding: 4px 0;
-            animation: popup .15s ease;
-            z-index: 10;
+            position:absolute; top:46px; right:0; background:white;
+            color:black; border-radius:10px; display:none; flex-direction:column;
+            min-width:200px; border:1px solid #ccc;
+            box-shadow:0 8px 18px rgba(0,0,0,.16); padding:4px 0;
+            animation:popup .15s ease; z-index:10;
         }
-
         .dropdown button {
-            padding: 10px 14px;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-            width: 100%;
+            padding:10px 14px; border:none; background:none;
+            text-align:left; cursor:pointer; width:100%; font-size:14px;
         }
-
-        .dropdown button:hover {
-            background: #f5f5f5;
-        }
-
+        .dropdown button:hover { background:#f5f5f5; }
         @keyframes popup {
-            0% {opacity: 0; transform: translateY(-6px);}
-            100% {opacity: 1; transform: translateY(0);}
+            0%{opacity:0;transform:translateY(-6px);}
+            100%{opacity:1;transform:translateY(0);}
         }
 
-        /* CARRITO */
+        /* ── CARRITO ─────────────────────────────────────────────────── */
         .carrito {
-            position: fixed;
-            right: -380px;
-            top: 0;
-            width: 380px;
-            height: 100%;
-            background: #fff;
-            box-shadow: -6px 0 22px rgba(0,0,0,0.2);
-            padding: 24px;
-            transition: right 0.3s ease;
-            z-index: 20;
+            position:fixed; right:-380px; top:0; width:380px; height:100%;
+            background:#fff; box-shadow:-6px 0 22px rgba(0,0,0,.2);
+            padding:24px; transition:right .3s ease; z-index:20;
         }
-
-        .carrito.active {
-            right: 0;
-        }
-
-        .carrito h2 {
-            margin-bottom: 14px;
-            color: #2e1b1b;
-        }
-
+        .carrito.active { right:0; }
+        .carrito h2 { margin-bottom:14px; color:#2e1b1b; }
         #items p {
-            margin: 10px 0;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            background: #fbfbfb;
+            margin:10px 0; padding:8px 10px; border:1px solid #ddd;
+            border-radius:8px; display:flex; justify-content:space-between;
+            background:#fbfbfb;
         }
-
-        #items p div {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
+        #items p div { display:flex; align-items:center; gap:5px; }
         #items p div button {
-            width: 25px;
-            height: 25px;
-            background: #4b2e2e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            width:25px; height:25px; background:#4b2e2e; color:white;
+            border:none; border-radius:4px; cursor:pointer;
         }
 
-        .contenedor {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 40px 80px;
-            gap: 50px;
+        /* ── HERO / RESUMEN ──────────────────────────────────────────── */
+        .hero {
+            background:linear-gradient(135deg,#3b2215 0%,#6b3a1f 50%,#2e1b0e 100%);
+            color:white; padding:60px 80px; display:flex;
+            align-items:center; gap:60px;
         }
-
-        .descripcion {
-            width: 42%;
+        .hero-texto { flex:1; }
+        .hero-texto h1 {
+            font-size:42px; font-weight:800; line-height:1.15;
+            margin-bottom:14px;
         }
-
-        .descripcion h2 {
-            font-size: 32px;
-            color: #3b2a1e;
-            margin-bottom: 10px;
+        .hero-texto h1 span { color:#e8b86d; }
+        .hero-texto p { font-size:16px; line-height:1.8; opacity:.85; margin-bottom:24px; }
+        .hero-btns { display:flex; gap:12px; flex-wrap:wrap; }
+        .btn-hero-primary {
+            padding:14px 28px; background:#e8b86d; color:#2e1b0e;
+            border:none; border-radius:10px; font-size:15px; font-weight:700;
+            cursor:pointer; transition:transform .2s,box-shadow .2s;
         }
-
-        .descripcion p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #5a4636;
-            margin-bottom: 15px;
+        .btn-hero-primary:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(232,184,109,.35); }
+        .btn-hero-secondary {
+            padding:14px 28px; background:rgba(255,255,255,.12); color:white;
+            border:2px solid rgba(255,255,255,.3); border-radius:10px;
+            font-size:15px; font-weight:600; cursor:pointer; transition:background .2s;
         }
+        .btn-hero-secondary:hover { background:rgba(255,255,255,.2); }
+        /* Datos destacados */
+        .hero-stats { display:flex; gap:30px; margin-top:28px; }
+        .stat-item { text-align:center; }
+        .stat-num { font-size:28px; font-weight:800; color:#e8b86d; }
+        .stat-label { font-size:12px; opacity:.7; }
 
-        .producto {
-            background: white;
-            padding: 30px;
-            border-radius: 18px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            margin-top: 25px;
-            text-align: center;
-        }
-
-        .precio {
-            font-size: 24px;
-            color: #2e7d32;
-            font-weight: bold;
-            margin: 15px 0;
-        }
-
-        .contador {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 15px 0;
-        }
-
-        .contador button {
-            width: 35px;
-            height: 35px;
-            background-color: #4b2e2e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .contador span {
-            margin: 0 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .boton {
-            padding: 12px 25px;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .logo-grande {
-            width: 200px;
-            margin-top: 15px;
-        }
-
-        .slider-container {
-            width: 55%;
-        }
-
+        /* Slider */
+        .hero-slider { width:420px; flex-shrink:0; }
         .slider {
-            position: relative;
-            width: 100%;
-            height: 480px;
-            overflow: hidden;
-            border-radius: 25px;
+            position:relative; width:100%; height:320px;
+            overflow:hidden; border-radius:20px;
+            box-shadow:0 20px 50px rgba(0,0,0,.4);
         }
-
-        /* 🔥 FIX IMPORTANTE */
-        .slides {
-            display: flex;
-            width: 100%;
-        }
-
-        .slides img {
-            width: 100%;
-            height: 480px;
-            object-fit: cover;
-            flex-shrink: 0; /* 👈 clave para que no se amontonen */
-        }
-
+        .slides { display:flex; width:100%; }
+        .slides img { width:100%; height:320px; object-fit:cover; flex-shrink:0; }
         .btn-slide {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 50%;
+            position:absolute; top:50%; transform:translateY(-50%);
+            background:rgba(0,0,0,.5); color:white; border:none;
+            padding:10px; cursor:pointer; border-radius:50%; font-size:16px;
         }
+        .prev { left:10px; } .next { right:10px; }
 
-        .prev { left: 10px; }
-        .next { right: 10px; }
+        /* ── CARACTERÍSTICAS ─────────────────────────────────────────── */
+        .features {
+            display:flex; gap:0; background:white;
+            border-bottom:1px solid #eee;
+        }
+        .feature-item {
+            flex:1; padding:20px; text-align:center;
+            border-right:1px solid #f0e8df;
+        }
+        .feature-item:last-child { border-right:none; }
+        .feature-icon { font-size:26px; margin-bottom:6px; }
+        .feature-title { font-size:14px; font-weight:700; color:#3b2a1e; }
+        .feature-sub { font-size:12px; color:#999; margin-top:2px; }
 
+        /* ── SECCIÓN PRODUCTOS ──────────────────────────────────────── */
+        .seccion-productos { padding:50px 60px; }
+        .sec-header {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:30px;
+        }
+        .sec-header h2 { font-size:26px; color:#3b2a1e; }
+        .btn-ver-todos {
+            padding:10px 20px; background:transparent; color:#4b2e2e;
+            border:2px solid #4b2e2e; border-radius:8px; font-size:14px;
+            font-weight:600; cursor:pointer; transition:all .2s;
+        }
+        .btn-ver-todos:hover { background:#4b2e2e; color:white; }
+
+        /* Grid productos */
+        #productosHome {
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+            gap:20px;
+        }
+        .card {
+            background:white; border-radius:14px;
+            box-shadow:0 4px 15px rgba(0,0,0,.07); overflow:hidden;
+            transition:all .3s ease; display:flex; flex-direction:column;
+            cursor:pointer;
+        }
+        .card:hover { transform:translateY(-5px); box-shadow:0 10px 28px rgba(0,0,0,.13); }
+        .card-img {
+            width:100%; height:160px; object-fit:cover;
+            background:#f5ede4;
+        }
+        .card-img-placeholder {
+            width:100%; height:160px; background:linear-gradient(135deg,#f5ede4,#e8d5c0);
+            display:flex; align-items:center; justify-content:center; font-size:40px;
+        }
+        .card-body { padding:16px; flex:1; display:flex; flex-direction:column; }
+        .card h3 { color:#3b2a1e; margin-bottom:5px; font-size:16px; }
+        .card p { color:#888; font-size:13px; flex:1; margin-bottom:10px; line-height:1.5; }
+        .card .precio { font-size:20px; color:#2e7d32; font-weight:700; margin-bottom:10px; }
+        .card .stock { font-size:12px; color:#999; margin-bottom:12px; }
+        .btn-agregar {
+            padding:9px; background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; border:none; border-radius:8px; cursor:pointer;
+            font-weight:600; font-size:13px; transition:all .2s;
+        }
+        .btn-agregar:hover { opacity:.9; transform:scale(1.02); }
+        .skeleton {
+            background:#eee; border-radius:8px; animation:pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+        /* ── FOOTER ─────────────────────────────────────────────────── */
         .footer-bar {
-            margin-top: 50px;
-            background: #2e1b1b;
-            padding: 30px;
-            text-align: center;
-            color: white;
+            margin-top:50px; background:#2e1b1b;
+            padding:30px; text-align:center; color:white;
         }
+        .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:12px; }
+        .footer-red {
+            color:rgba(255,255,255,.6); text-decoration:none; font-size:13px;
+            transition:color .2s;
+        }
+        .footer-red:hover { color:white; }
     </style>
 </head>
-
 <body>
 
 <div class="header">
-    <span>Sinfonía de Granos</span>
-
+    <span>☕ Sinfonía de Granos</span>
     <div class="header-right">
-        <button class="icon-btn" onclick="toggleCarrito()">🛒</button>
-
+        <button class="icon-btn" onclick="toggleCarrito()" title="Carrito">🛒</button>
         <div class="user-menu">
-            <button class="icon-btn" onclick="toggleMenu()">👤</button>
-
+            <!-- Pill de usuario con foto/inicial y nombre -->
+            <div class="user-pill" onclick="toggleMenu()" id="userPill">
+                <div class="pill-avatar" id="pillAvatar">?</div>
+                <span class="pill-name" id="pillNombre">Cargando…</span>
+                <span class="pill-arrow">▾</span>
+            </div>
             <div class="dropdown" id="menuUsuario">
                 <button onclick="irInicio()">🏠 Inicio</button>
                 <button onclick="irProductos()">📦 Productos</button>
-                <button onclick="historial()">📦 Historial</button>
-                <button id="btnAdmin" style="display:none; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="irPerfil()">👤 Mi Perfil</button>
+                <button onclick="historial()">🧾 Historial</button>
+                <button id="btnAdmin" style="display:none;border-top:1px solid #ddd;padding-top:10px;margin-top:10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
                 <button onclick="logout()">🚪 Cerrar sesión</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="contenedor">
-
-    <div class="descripcion">
-        <h2>Café de Tanetze de Zaragoza</h2>
-
-        <p>Producto artesanal de alta calidad.</p>
-
-        <div class="producto">
-            <h3>Café Molido - Medio Kilo</h3>
-            <div class="precio">$200 MXN</div>
-
-            <div class="contador">
-                <button onclick="disminuir()">-</button>
-                <span id="cantidad">1</span>
-                <button onclick="aumentar()">+</button>
+<!-- HERO con slider y resumen -->
+<div class="hero">
+    <div class="hero-texto">
+        <h1>Café de<br><span>Tanetze de Zaragoza</span></h1>
+        <p>Producto artesanal de alta montaña, cultivado con amor en Oaxaca.<br>
+           De la semilla a tu taza, cada grano cuenta una historia.</p>
+        <div class="hero-btns">
+            <button class="btn-hero-primary" onclick="verCatalogo()">Ver Catálogo Completo</button>
+            <button class="btn-hero-secondary" onclick="verCatalogo()">Conocer más ↓</button>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Artesanal</div>
             </div>
-
-            <div class="boton" onclick="comprar()">Comprar Ahora</div>
-
-            <div class="boton" onclick="verCatalogo()">Ver Catálogo Completo</div>
-
+            <div class="stat-item">
+                <div class="stat-num">Oaxaca</div>
+                <div class="stat-label">Origen</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">☕</div>
+                <div class="stat-label">Alta calidad</div>
+            </div>
         </div>
     </div>
-
-    <div class="slider-container">
+    <div class="hero-slider">
         <div class="slider">
             <div class="slides" id="slides">
-                <img src="Galeria/img1.jpg">
-                <img src="Galeria/img2.jpg">
-                <img src="Galeria/img3.jpg">
-                <img src="Galeria/img4.jpg">
+                <img src="Galeria/img1.jpg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'420\' height=\'320\'%3E%3Crect fill=\'%236b3a1f\' width=\'420\' height=\'320\'/%3E%3Ctext fill=\'%23e8b86d\' font-size=\'40\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E☕%3C/text%3E%3C/svg%3E'">
+                <img src="Galeria/img2.jpg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'420\' height=\'320\'%3E%3Crect fill=\'%234b2e1a\' width=\'420\' height=\'320\'/%3E%3Ctext fill=\'%23e8b86d\' font-size=\'40\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E🌱%3C/text%3E%3C/svg%3E'">
+                <img src="Galeria/img3.jpg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'420\' height=\'320\'%3E%3Crect fill=\'%233b2215\' width=\'420\' height=\'320\'/%3E%3Ctext fill=\'%23e8b86d\' font-size=\'40\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E🫘%3C/text%3E%3C/svg%3E'">
+                <img src="Galeria/img4.jpg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'420\' height=\'320\'%3E%3Crect fill=\'%235a3020\' width=\'420\' height=\'320\'/%3E%3Ctext fill=\'%23e8b86d\' font-size=\'40\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E🏔️%3C/text%3E%3C/svg%3E'">
             </div>
-
             <button class="btn-slide prev" onclick="moverSlide(-1)">❮</button>
             <button class="btn-slide next" onclick="moverSlide(1)">❯</button>
         </div>
     </div>
+</div>
 
+<!-- Características rápidas -->
+<div class="features">
+    <div class="feature-item">
+        <div class="feature-icon">🚚</div>
+        <div class="feature-title">Envío a todo México</div>
+        <div class="feature-sub">Rápido y seguro</div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">🌿</div>
+        <div class="feature-title">100% Orgánico</div>
+        <div class="feature-sub">Sin químicos</div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">🏔️</div>
+        <div class="feature-title">Alta montaña</div>
+        <div class="feature-sub">Oaxaca, México</div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">🤝</div>
+        <div class="feature-title">Comercio justo</div>
+        <div class="feature-sub">Apoya a familias locales</div>
+    </div>
+</div>
+
+<!-- PRODUCTOS destacados -->
+<div class="seccion-productos">
+    <div class="sec-header">
+        <h2>☕ Nuestros Productos</h2>
+        <button class="btn-ver-todos" onclick="verCatalogo()">Ver catálogo completo →</button>
+    </div>
+    <div id="productosHome">
+        <!-- Skeleton loaders mientras carga -->
+        <div class="card" style="pointer-events:none">
+            <div class="skeleton" style="height:160px"></div>
+            <div class="card-body">
+                <div class="skeleton" style="height:16px;width:70%;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:12px;width:90%;margin-bottom:4px"></div>
+                <div class="skeleton" style="height:12px;width:60%;margin-bottom:10px"></div>
+                <div class="skeleton" style="height:36px"></div>
+            </div>
+        </div>
+        <div class="card" style="pointer-events:none">
+            <div class="skeleton" style="height:160px"></div>
+            <div class="card-body">
+                <div class="skeleton" style="height:16px;width:80%;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:12px;width:85%;margin-bottom:4px"></div>
+                <div class="skeleton" style="height:12px;width:50%;margin-bottom:10px"></div>
+                <div class="skeleton" style="height:36px"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="footer-bar">
     <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+    <div class="footer-redes">
+        <!-- ⬇ Cambia estos href por tus URLs reales -->
+        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+    </div>
 </div>
 
-<!-- CARRITO -->
+<!-- CARRITO LATERAL -->
 <div class="carrito" id="carrito">
-    <h2>Carrito</h2>
+    <h2>🛒 Carrito</h2>
     <div id="items"></div>
+    <div style="margin-top:20px">
+        <button class="btn-agregar" onclick="finalizarCompra()" style="width:100%;padding:12px">Finalizar Compra</button>
+    </div>
 </div>
 
 <script>
 let indiceSlide = 0;
-let carrito = JSON.parse(localStorage.getItem('carrito')) || {};
+let carritoData = JSON.parse(localStorage.getItem('carrito')) || {};
 
+/* ── Slider ────────────────────────────────────────────────────────── */
 function moverSlide(dir) {
-    const slides = document.getElementById("slides");
-    const total = slides.children.length;
-
+    const slides = document.getElementById('slides');
+    const total  = slides.children.length;
     indiceSlide += dir;
-
     if (indiceSlide < 0) indiceSlide = total - 1;
     if (indiceSlide >= total) indiceSlide = 0;
-
     slides.style.transform = `translateX(-${indiceSlide * 100}%)`;
 }
+setInterval(() => moverSlide(1), 4500);
 
-setInterval(() => moverSlide(1), 4000);
+/* ── Cargar productos desde Supabase ──────────────────────────────── */
+async function cargarProductosHome() {
+    const { data, error } = await supabaseClient
+        .from('producto')
+        .select('*')
+        .limit(8); // solo mostramos los primeros 8 en home
 
-function aumentar() {
-    let c = document.getElementById("cantidad");
-    c.innerText = parseInt(c.innerText) + 1;
-}
+    const cont = document.getElementById('productosHome');
+    cont.innerHTML = '';
 
-function disminuir() {
-    let c = document.getElementById("cantidad");
-    if (parseInt(c.innerText) > 1) c.innerText--;
-}
-
-function comprar() {
-    let cantidad = document.getElementById("cantidad").innerText;
-    // Asumir id 1 para el producto principal
-    agregarCarrito('Café Molido - Medio Kilo', 200, 1, parseInt(cantidad));
-    alert("Agregaste " + cantidad + " producto(s) 🛒");
-}
-
-function verCatalogo() {
-    window.location.href = "productos.html";
-}
-
-function toggleCarrito() {
-    document.getElementById("carrito").classList.toggle("active");
-    renderCarrito();
-}
-
-function toggleMenu() {
-    const menu = document.getElementById("menuUsuario");
-    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-}
-
-function agregarCarrito(nombre, precio, id, cantidad = 1) {
-    if (carrito[id]) {
-        carrito[id].cantidad += cantidad;
-    } else {
-        carrito[id] = { nombre, precio, cantidad };
+    if (error || !data?.length) {
+        cont.innerHTML = '<p style="color:#999;grid-column:1/-1;text-align:center;padding:40px">No hay productos disponibles.</p>';
+        return;
     }
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    renderCarrito();
+
+    data.forEach(prod => {
+        const nombre     = (prod.nombre || 'Sin nombre').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const descripcion= (prod.descripcion || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const precio     = parseFloat(prod.precio || 0).toFixed(2);
+        const stock      = parseInt(prod.stock || 0);
+        const id         = prod.id_producto || prod.id;
+        // Imagen: busca en Productos/img/<id_producto>.jpg
+        const imgSrc     = `Productos/img/${id}.jpg`;
+
+        cont.innerHTML += `
+            <div class="card" onclick="verCatalogo()">
+                <img class="card-img"
+                     src="${imgSrc}"
+                     alt="${nombre}"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="card-img-placeholder" style="display:none">☕</div>
+                <div class="card-body">
+                    <h3>${nombre}</h3>
+                    <p>${descripcion || 'Café artesanal de alta calidad'}</p>
+                    <div class="precio">$${precio} MXN</div>
+                    <div class="stock">${stock > 0 ? `${stock} disponibles` : '⚠️ Agotado'}</div>
+                    <button class="btn-agregar"
+                        onclick="event.stopPropagation();agregarCarrito('${nombre.replace(/'/g,"\\'")}',${precio},${id})"
+                        ${stock <= 0 ? 'disabled style="opacity:.5;cursor:not-allowed"' : ''}>
+                        ${stock > 0 ? '🛒 Agregar al carrito' : 'Agotado'}
+                    </button>
+                </div>
+            </div>`;
+    });
 }
 
+/* ── Carrito ───────────────────────────────────────────────────────── */
+function toggleCarrito() {
+    document.getElementById('carrito').classList.toggle('active');
+    renderCarrito();
+}
+function agregarCarrito(nombre, precio, id) {
+    if (carritoData[id]) carritoData[id].cantidad++;
+    else carritoData[id] = { nombre, precio: parseFloat(precio), cantidad: 1 };
+    localStorage.setItem('carrito', JSON.stringify(carritoData));
+    renderCarrito();
+    document.getElementById('carrito').classList.add('active');
+}
 function renderCarrito() {
-    let cont = document.getElementById("items");
-    cont.innerHTML = "";
-
-    for (let id in carrito) {
-        let p = carrito[id];
+    const cont = document.getElementById('items');
+    cont.innerHTML = '';
+    let total = 0;
+    for (let id in carritoData) {
+        const p = carritoData[id];
+        total += p.precio * p.cantidad;
         cont.innerHTML += `
             <p>
-                ${p.nombre} - $${p.precio}
+                <span>${p.nombre}</span>
                 <div>
-                    <button onclick="cambiarCantidad(${id}, -1)">-</button>
-                    ${p.cantidad}
-                    <button onclick="cambiarCantidad(${id}, 1)">+</button>
-                    <button onclick="remover(${id})">X</button>
+                    <button onclick="cambiarCantidad(${id},-1)">-</button>
+                    <span>${p.cantidad}</span>
+                    <button onclick="cambiarCantidad(${id},1)">+</button>
+                    <button onclick="remover(${id})">✕</button>
                 </div>
-            </p>
-        `;
+            </p>`;
+    }
+    if (!Object.keys(carritoData).length) {
+        cont.innerHTML = '<p style="text-align:center;color:#999;justify-content:center">Carrito vacío</p>';
+    } else {
+        cont.innerHTML += `<p style="font-weight:700;font-size:15px">Total: $${total.toFixed(2)}</p>`;
     }
 }
-
-function cambiarCantidad(id, delta) {
-    if (carrito[id]) {
-        carrito[id].cantidad += delta;
-        if (carrito[id].cantidad <= 0) {
-            delete carrito[id];
-        }
-        localStorage.setItem('carrito', JSON.stringify(carrito));
-        renderCarrito();
-    }
-}
-
-function remover(id) {
-    delete carrito[id];
-    localStorage.setItem('carrito', JSON.stringify(carrito));
+function cambiarCantidad(id, d) {
+    if (!carritoData[id]) return;
+    carritoData[id].cantidad += d;
+    if (carritoData[id].cantidad <= 0) delete carritoData[id];
+    localStorage.setItem('carrito', JSON.stringify(carritoData));
     renderCarrito();
 }
+function remover(id) {
+    delete carritoData[id];
+    localStorage.setItem('carrito', JSON.stringify(carritoData));
+    renderCarrito();
+}
+function finalizarCompra() {
+    if (!Object.keys(carritoData).length) { alert('El carrito está vacío'); return; }
+    window.location.href = 'productos.html';
+}
 
-// Cerrar menú y carrito al click fuera
-document.addEventListener('click', function(event) {
-    const menu = document.getElementById("menuUsuario");
-    const carritoEl = document.getElementById("carrito");
-    const userMenu = document.querySelector('.user-menu');
-
-    if (!userMenu.contains(event.target)) {
-        menu.style.display = 'none';
-    }
-
-    if (!carritoEl.contains(event.target) && !event.target.closest('.icon-btn')) {
-        carritoEl.classList.remove('active');
-    }
+/* ── Menú usuario ─────────────────────────────────────────────────── */
+function toggleMenu() {
+    const m = document.getElementById('menuUsuario');
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+}
+document.addEventListener('click', e => {
+    const um = document.querySelector('.user-menu');
+    const c  = document.getElementById('carrito');
+    if (!um.contains(e.target)) document.getElementById('menuUsuario').style.display = 'none';
+    if (!c.contains(e.target) && !e.target.closest('.icon-btn')) c.classList.remove('active');
 });
+
+function irInicio()    { window.location.href = 'principal.html'; }
+function irProductos() { window.location.href = 'productos.html'; }
+function irPerfil()    { window.location.href = 'perfil.html'; }
+function irAdmin()     { window.location.href = 'admin.html'; }
+function verCatalogo() { window.location.href = 'productos.html'; }
+function historial()   { alert('Historial de compras próximamente 🧾'); }
 
 async function logout() {
     await supabaseClient.auth.signOut();
-    localStorage.removeItem('carrito');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userRoleNormalized');
-    window.location.href = "index.html";
+    ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userFoto']
+        .forEach(k => localStorage.removeItem(k));
+    window.location.href = 'index.html';
 }
 
-function irInicio() {
-    window.location.href = "principal.html";
-}
-
-function irProductos() {
-    window.location.href = "productos.html";
-}
-
-function irAdmin() {
-    window.location.href = "admin.html";
-}
-
-function historial() {
-    alert("Aquí irá el historial 🧠");
-}
-
-// Verificar rol del usuario y mostrar botón de admin si es necesario
-function verificarRol() {
-    const userRole = localStorage.getItem('userRole');
-    const btnAdmin = document.getElementById('btnAdmin');
-    
-    if (userRole === 'admin' && btnAdmin) {
-        btnAdmin.style.display = 'block';
+/* ── Pill de usuario ────────────────────────────────────────────────── */
+function cargarPill(nombre, fotoUrl) {
+    const avatar = document.getElementById('pillAvatar');
+    const nameEl = document.getElementById('pillNombre');
+    nameEl.textContent = nombre || 'Usuario';
+    if (fotoUrl) {
+        avatar.innerHTML = `<img src="${fotoUrl}" alt="avatar">`;
+    } else {
+        avatar.textContent = (nombre || 'U')[0].toUpperCase();
     }
 }
 
 async function checkSession() {
     const { data } = await supabaseClient.auth.getSession();
+    if (!data.session) { window.location.href = 'index.html'; return; }
 
-    if (!data.session) {
-        window.location.href = "index.html";
-        return;
+    // Obtener datos del usuario
+    const { data: user } = await supabaseClient
+        .from('usuarios')
+        .select('nombre, rol, foto_url')
+        .eq('id', data.session.user.id)
+        .single();
+
+    if (user) {
+        cargarPill(user.nombre, user.foto_url);
+        localStorage.setItem('userName', user.nombre || '');
+        localStorage.setItem('userRole', user.rol || '');
+        if (user.foto_url) localStorage.setItem('userFoto', user.foto_url);
+        if (user.rol === 'admin') document.getElementById('btnAdmin').style.display = 'block';
+    } else {
+        // fallback localStorage
+        const n = localStorage.getItem('userName');
+        const f = localStorage.getItem('userFoto');
+        cargarPill(n, f);
     }
-    
-    // Verificar rol al cargar
-    verificarRol();
+
+    if (localStorage.getItem('userRole') === 'admin') {
+        document.getElementById('btnAdmin').style.display = 'block';
+    }
+
+    cargarProductosHome();
 }
 
 checkSession();
 </script>
-
 </body>
 </html>

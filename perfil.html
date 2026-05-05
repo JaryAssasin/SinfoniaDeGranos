@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil - Sinfonía de Granos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            font-family:'Segoe UI',sans-serif;
+            background:linear-gradient(to bottom,#f4f1ee,#e8e2dc);
+            min-height:100vh;
+        }
+        .header {
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:18px 30px;
+            font-size:20px;
+        }
+        .header-right { display:flex; gap:15px; align-items:center; }
+        .icon-btn {
+            background:white; color:#2e1b1b; border:none;
+            padding:8px 12px; border-radius:8px; cursor:pointer;
+            transition:transform .2s,box-shadow .2s;
+        }
+        .icon-btn:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,0.2); }
+        .user-menu { position:relative; }
+        .dropdown {
+            position:absolute; top:42px; right:0; background:white;
+            color:black; border-radius:10px; display:none; flex-direction:column;
+            min-width:180px; border:1px solid #ccc;
+            box-shadow:0 8px 18px rgba(0,0,0,0.16); padding:4px 0;
+            animation:popup .15s ease; z-index:10;
+        }
+        .dropdown button {
+            padding:10px 14px; border:none; background:none;
+            text-align:left; cursor:pointer; width:100%; font-size:14px;
+        }
+        .dropdown button:hover { background:#f5f5f5; }
+        @keyframes popup {
+            0%{opacity:0;transform:translateY(-6px);}
+            100%{opacity:1;transform:translateY(0);}
+        }
+        /* Header user pill */
+        .user-pill {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.3);
+            border-radius:30px; padding:6px 14px 6px 6px; cursor:pointer;
+            transition:background .2s;
+        }
+        .user-pill:hover { background:rgba(255,255,255,0.22); }
+        .user-pill-avatar {
+            width:32px; height:32px; border-radius:50%;
+            background:#a0632a; color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
+        }
+        .user-pill-avatar img { width:100%; height:100%; object-fit:cover; }
+        .user-pill-name { font-size:14px; font-weight:600; color:white; }
+
+        /* CONTENIDO */
+        .container { max-width:700px; margin:40px auto; padding:0 20px; }
+        .perfil-card {
+            background:white; border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden;
+        }
+        .perfil-header {
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            padding:40px 30px; text-align:center; color:white;
+        }
+        .avatar-wrap {
+            position:relative; display:inline-block; margin-bottom:15px;
+        }
+        .avatar-grande {
+            width:110px; height:110px; border-radius:50%;
+            background:#a0632a; color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-size:40px; font-weight:700;
+            border:4px solid rgba(255,255,255,0.4);
+            overflow:hidden; margin:0 auto;
+        }
+        .avatar-grande img { width:100%; height:100%; object-fit:cover; }
+        .avatar-edit-btn {
+            position:absolute; bottom:4px; right:4px;
+            width:30px; height:30px; border-radius:50%;
+            background:#a0632a; color:white; border:2px solid white;
+            cursor:pointer; font-size:14px; display:flex;
+            align-items:center; justify-content:center;
+            transition:background .2s;
+        }
+        .avatar-edit-btn:hover { background:#c9965a; }
+        #fotoInput { display:none; }
+        .perfil-nombre { font-size:22px; font-weight:700; margin-bottom:4px; }
+        .perfil-rol {
+            font-size:13px; background:rgba(255,255,255,0.2);
+            display:inline-block; padding:3px 12px; border-radius:20px;
+        }
+        .perfil-body { padding:30px; }
+        .section-title {
+            font-size:16px; font-weight:700; color:#3b2a1e;
+            margin-bottom:16px; padding-bottom:8px;
+            border-bottom:2px solid #f0e8df;
+        }
+        .campo-grupo { margin-bottom:18px; }
+        .campo-grupo label {
+            display:block; font-size:13px; color:#7a5c47;
+            font-weight:600; margin-bottom:5px;
+        }
+        .campo-grupo input {
+            width:100%; padding:10px 12px;
+            border:1px solid #ddd; border-radius:8px;
+            font-size:14px; transition:border-color .2s;
+        }
+        .campo-grupo input:focus { outline:none; border-color:#4b2e2e; }
+        .campo-grupo input[readonly] {
+            background:#f9f9f9; color:#888; cursor:not-allowed;
+        }
+        .campo-grupo input.error { border-color:#e53e3e; }
+        .campo-grupo input.ok { border-color:#38a169; }
+        .field-error {
+            font-size:12px; color:#e53e3e; margin-top:4px;
+            display:none;
+        }
+        .field-error.show { display:block; }
+        .btn-guardar {
+            width:100%; padding:12px;
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; border:none; border-radius:8px;
+            cursor:pointer; font-size:15px; font-weight:600;
+            margin-top:10px; transition:opacity .2s;
+        }
+        .btn-guardar:hover { opacity:.9; }
+        .notif {
+            display:none; padding:12px 16px; border-radius:8px;
+            margin-bottom:16px; font-size:14px; font-weight:600;
+        }
+        .notif.success { display:block; background:#d4edda; color:#155724; }
+        .notif.error   { display:block; background:#f8d7da; color:#721c24; }
+        .footer-bar {
+            margin-top:50px; background:#2e1b1b;
+            padding:30px; text-align:center; color:white;
+        }
+        .upload-hint {
+            font-size:12px; color:#aaa; margin-top:5px; text-align:center;
+        }
+        .subiendo { font-size:13px; color:#7a5c47; margin-top:8px; display:none; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <span>Sinfonía de Granos</span>
+    <div class="header-right">
+        <div class="user-menu">
+            <div class="user-pill" onclick="toggleMenu()" id="userPill">
+                <div class="user-pill-avatar" id="headerAvatar">?</div>
+                <span class="user-pill-name" id="headerNombre">Cargando…</span>
+                ▾
+            </div>
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos</button>
+                <button onclick="irPerfil()">👤 Mi Perfil</button>
+                <button onclick="historial()">🧾 Historial</button>
+                <button id="btnAdmin" style="display:none;border-top:1px solid #ddd;padding-top:10px;margin-top:10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="perfil-card">
+        <div class="perfil-header">
+            <div class="avatar-wrap">
+                <div class="avatar-grande" id="avatarGrande">?</div>
+                <button class="avatar-edit-btn" onclick="document.getElementById('fotoInput').click()" title="Cambiar foto">✏️</button>
+            </div>
+            <input type="file" id="fotoInput" accept="image/*" onchange="subirFoto(this)">
+            <div class="perfil-nombre" id="perfilNombre">Cargando…</div>
+            <div class="perfil-rol" id="perfilRol">—</div>
+            <div class="upload-hint">Haz clic en ✏️ para cambiar tu foto</div>
+            <div class="subiendo" id="subiendoMsg">⏳ Subiendo foto…</div>
+        </div>
+
+        <div class="perfil-body">
+            <div class="notif" id="notif"></div>
+
+            <div class="section-title">📋 Mis datos</div>
+
+            <div class="campo-grupo">
+                <label>Nombre completo</label>
+                <input type="text" id="editNombre" placeholder="Tu nombre" oninput="validarNombreEdit(this)">
+                <div class="field-error" id="errNombre">⚠ Solo letras y espacios, mínimo 3 caracteres</div>
+            </div>
+
+            <div class="campo-grupo">
+                <label>Correo electrónico</label>
+                <input type="email" id="editCorreo" readonly>
+            </div>
+
+            <div class="campo-grupo">
+                <label>Rol en la plataforma</label>
+                <input type="text" id="editRol" readonly>
+            </div>
+
+            <button class="btn-guardar" onclick="guardarCambios()">💾 Guardar cambios</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+</div>
+
+<script>
+let usuarioActual = null;
+
+function validarNombreEdit(input) {
+    const val = input.value.trim();
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{3,}$/;
+    const err = document.getElementById('errNombre');
+    if (!regex.test(val)) {
+        input.classList.add('error'); input.classList.remove('ok');
+        err.classList.add('show'); return false;
+    }
+    input.classList.remove('error'); input.classList.add('ok');
+    err.classList.remove('show'); return true;
+}
+
+async function cargarPerfil() {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) { window.location.href = 'index.html'; return; }
+
+    const uid = sessionData.session.user.id;
+    const { data: user, error } = await supabaseClient
+        .from('usuarios')
+        .select('*')
+        .eq('id', uid)
+        .single();
+
+    if (error || !user) { alert('Error cargando perfil'); return; }
+    usuarioActual = user;
+
+    // Llenar campos
+    document.getElementById('perfilNombre').textContent = user.nombre || '—';
+    document.getElementById('perfilRol').textContent = user.rol || 'cliente';
+    document.getElementById('editNombre').value = user.nombre || '';
+    document.getElementById('editCorreo').value = user.correo || sessionData.session.user.email;
+    document.getElementById('editRol').value = user.rol || 'cliente';
+
+    // Avatar header
+    actualizarAvatares(user.nombre, user.foto_url);
+
+    // Botón admin
+    if (user.rol === 'admin') {
+        document.getElementById('btnAdmin').style.display = 'block';
+    }
+}
+
+function actualizarAvatares(nombre, fotoUrl) {
+    const inicial = (nombre || '?')[0].toUpperCase();
+
+    // Avatar grande en perfil
+    const ag = document.getElementById('avatarGrande');
+    if (fotoUrl) {
+        ag.innerHTML = `<img src="${fotoUrl}" alt="foto">`;
+    } else {
+        ag.textContent = inicial;
+    }
+
+    // Avatar en header
+    const ha = document.getElementById('headerAvatar');
+    if (fotoUrl) {
+        ha.innerHTML = `<img src="${fotoUrl}" alt="foto">`;
+    } else {
+        ha.textContent = inicial;
+    }
+
+    document.getElementById('headerNombre').textContent = nombre || 'Usuario';
+}
+
+/*
+ * ─── SUBIDA DE FOTO DE PERFIL ───────────────────────────────────────────────
+ *
+ * Las fotos se guardan en Supabase Storage, bucket "avatares".
+ * Para que funcione debes:
+ *   1. Ir a tu proyecto en supabase.com → Storage → Crear bucket llamado "avatares"
+ *   2. En "Policies" del bucket, agregar una política que permita
+ *      INSERT y SELECT a usuarios autenticados (authenticated users).
+ *   3. La URL pública queda guardada en la columna "foto_url" de la tabla "usuarios".
+ *
+ * Si no quieres usar Storage, puedes guardar la imagen en base64 directamente,
+ * pero Supabase tiene límite de 1MB por fila, así que Storage es la mejor opción.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+async function subirFoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Validar tipo y tamaño (máx 2 MB)
+    if (!file.type.startsWith('image/')) {
+        alert('❌ Solo se aceptan imágenes (JPG, PNG, WEBP)'); return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+        alert('❌ La imagen no debe pesar más de 2 MB'); return;
+    }
+
+    document.getElementById('subiendoMsg').style.display = 'block';
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const uid = sessionData.session.user.id;
+    const ext = file.name.split('.').pop();
+    const path = `${uid}/avatar.${ext}`; // Cada usuario tiene su carpeta
+
+    // Subir al bucket "avatares"
+    const { error: upErr } = await supabaseClient.storage
+        .from('avatares')
+        .upload(path, file, { upsert: true });
+
+    if (upErr) {
+        document.getElementById('subiendoMsg').style.display = 'none';
+        alert('Error subiendo foto: ' + upErr.message);
+        return;
+    }
+
+    // Obtener URL pública
+    const { data: urlData } = supabaseClient.storage
+        .from('avatares')
+        .getPublicUrl(path);
+
+    const foto_url = urlData.publicUrl;
+
+    // Guardar URL en la tabla usuarios
+    await supabaseClient.from('usuarios').update({ foto_url }).eq('id', uid);
+
+    usuarioActual.foto_url = foto_url;
+    actualizarAvatares(usuarioActual.nombre, foto_url);
+    // También actualizar localStorage para otras páginas
+    localStorage.setItem('userFoto', foto_url);
+
+    document.getElementById('subiendoMsg').style.display = 'none';
+    mostrarNotif('✅ Foto actualizada correctamente', 'success');
+}
+
+async function guardarCambios() {
+    const nombreOk = validarNombreEdit(document.getElementById('editNombre'));
+    if (!nombreOk) return;
+
+    const nuevoNombre = document.getElementById('editNombre').value.trim();
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const uid = sessionData.session.user.id;
+
+    const { error } = await supabaseClient
+        .from('usuarios')
+        .update({ nombre: nuevoNombre })
+        .eq('id', uid);
+
+    if (error) { mostrarNotif('❌ Error: ' + error.message, 'error'); return; }
+
+    localStorage.setItem('userName', nuevoNombre);
+    usuarioActual.nombre = nuevoNombre;
+    document.getElementById('perfilNombre').textContent = nuevoNombre;
+    document.getElementById('headerNombre').textContent = nuevoNombre;
+    mostrarNotif('✅ Nombre actualizado correctamente', 'success');
+}
+
+function mostrarNotif(msg, tipo) {
+    const n = document.getElementById('notif');
+    n.textContent = msg;
+    n.className = 'notif ' + tipo;
+    setTimeout(() => { n.className = 'notif'; }, 3500);
+}
+
+function toggleMenu() {
+    const menu = document.getElementById('menuUsuario');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+document.addEventListener('click', e => {
+    const userMenu = document.querySelector('.user-menu');
+    if (!userMenu.contains(e.target)) {
+        document.getElementById('menuUsuario').style.display = 'none';
+    }
+});
+
+function irInicio()    { window.location.href = 'principal.html'; }
+function irProductos() { window.location.href = 'productos.html'; }
+function irPerfil()    { window.location.href = 'perfil.html'; }
+function irAdmin()     { window.location.href = 'admin.html'; }
+function historial()   { alert('Historial de compras próximamente 📦'); }
+
+async function logout() {
+    await supabaseClient.auth.signOut();
+    ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userFoto']
+        .forEach(k => localStorage.removeItem(k));
+    window.location.href = 'index.html';
+}
+
+cargarPerfil();
+</script>
+</body>
+</html>

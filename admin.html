@@ -1,353 +1,354 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Sinfonía de Granos</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #1e1e1e;
-            color: #e0e0e0;
+        :root {
+            --espresso:#1c0f07; --dark-roast:#2e1b0e; --medium:#4b2e1a;
+            --caramel:#a0632a; --latte:#c9965a; --cream:#f3e4cc; --milk:#fdf6ec;
+            --text-main:#2e1b0e; --text-muted:#7a5c3c; --sidebar-w:230px; --transition:0.22s ease;
+            --badge-admin-bg:#3b0e0e; --badge-admin-fg:#f87171;
+            --badge-vendedor-bg:#0e2040; --badge-vendedor-fg:#93c5fd;
+            --badge-cliente-bg:#0e2a1a; --badge-cliente-fg:#6ee7b7;
+            --estado-pendiente-bg:#3b2a0e; --estado-pendiente-fg:#fbbf24;
+            --estado-completado-bg:#0e2a1a; --estado-completado-fg:#6ee7b7;
+            --estado-cancelado-bg:#3b0e0e; --estado-cancelado-fg:#f87171;
         }
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Lato',sans-serif; background:var(--espresso); color:var(--cream); height:100vh; overflow:hidden; }
 
-        .admin-container {
-            display: flex;
-            height: 100vh;
-        }
+        .admin-container { display:flex; height:100vh; }
 
         /* SIDEBAR */
         .sidebar {
-            width: 220px;
-            background: #111;
-            padding: 15px;
+            width:var(--sidebar-w); background:var(--dark-roast);
+            display:flex; flex-direction:column;
+            border-right:1px solid rgba(163,99,42,0.25); flex-shrink:0;
         }
-
-        .sidebar-header { margin-bottom: 20px; }
-
-        .nav-menu {
-            list-style: none;
-            padding: 0;
-        }
-
+        .sidebar-brand { padding:24px 20px 20px; border-bottom:1px solid rgba(163,99,42,0.2); }
+        .sidebar-brand .brand-title { font-family:'Playfair Display',serif; font-size:18px; color:var(--latte); letter-spacing:.3px; line-height:1.3; }
+        .sidebar-brand .brand-sub { font-size:11px; color:var(--text-muted); font-style:italic; margin-top:2px; }
+        .nav-menu { list-style:none; padding:12px 10px; flex:1; }
+        .nav-menu li { margin-bottom:2px; }
         .nav-link {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            color: #ccc;
-            background: none;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 5px;
+            display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px;
+            color:var(--cream); background:none; border:none; text-align:left; cursor:pointer;
+            border-radius:8px; font-family:'Lato',sans-serif; font-size:14px; font-weight:400;
+            transition:background var(--transition),color var(--transition);
         }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: #2563eb;
-            color: white;
-        }
+        .nav-link .nav-icon { font-size:16px; opacity:.75; }
+        .nav-link:hover { background:rgba(163,99,42,.18); color:var(--latte); }
+        .nav-link.active { background:linear-gradient(135deg,var(--caramel),var(--medium)); color:var(--milk); font-weight:700; box-shadow:0 2px 12px rgba(163,99,42,.35); }
+        .sidebar-footer { padding:16px 10px; border-top:1px solid rgba(163,99,42,0.2); display:flex; flex-direction:column; gap:8px; }
 
         /* MAIN */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--espresso); }
         .header {
-            background: #2a2a2a;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background:var(--dark-roast); padding:14px 24px; display:flex;
+            justify-content:space-between; align-items:center;
+            border-bottom:1px solid rgba(163,99,42,.25); flex-shrink:0;
         }
+        .header-title { font-family:'Playfair Display',serif; font-size:20px; color:var(--latte); }
+        .header-right { display:flex; gap:10px; align-items:center; }
 
-        .header-right {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        /* Pill usuario en header del admin */
+        .user-pill-admin {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(201,150,90,.15); border:1px solid rgba(201,150,90,.3);
+            border-radius:30px; padding:5px 12px 5px 5px;
         }
-
-        .role-badge {
-            background: #444;
-            padding: 5px 10px;
-            border-radius: 4px;
+        .pill-avatar-admin {
+            width:30px; height:30px; border-radius:50%; background:var(--caramel); color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:13px; overflow:hidden; flex-shrink:0;
         }
+        .pill-name-admin { font-size:13px; color:var(--cream); font-weight:600; }
+        .pill-role-admin { font-size:11px; color:var(--text-muted); text-transform:capitalize; }
 
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
+        .content-area { padding:24px; flex:1; overflow-y:auto; }
+        .content-area::-webkit-scrollbar { width:6px; }
+        .content-area::-webkit-scrollbar-track { background:var(--dark-roast); }
+        .content-area::-webkit-scrollbar-thumb { background:var(--caramel); border-radius:3px; }
 
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-edit    { background: #10b981; color: black; }
-        .btn-delete  { background: #ef4444; color: white; }
-        .btn-logout  { background: #ef4444; color: white; }
+        /* BOTONES */
+        .btn { padding:7px 14px; border:none; cursor:pointer; border-radius:6px; font-family:'Lato',sans-serif; font-size:13px; font-weight:700; transition:opacity var(--transition),transform var(--transition); }
+        .btn:hover { opacity:.88; transform:translateY(-1px); }
+        .btn:active { transform:translateY(0); }
+        .btn-primary { background:linear-gradient(135deg,var(--caramel),var(--medium)); color:var(--milk); }
+        .btn-edit { background:#14532d; color:#6ee7b7; border:1px solid #166534; }
+        .btn-delete { background:#450a0a; color:#fca5a5; border:1px solid #7f1d1d; }
+        .btn-logout { background:#450a0a; color:#fca5a5; border:1px solid #7f1d1d; font-size:13px; }
+        .btn-inicio { background:#0e2a1a; color:#6ee7b7; border:1px solid #166534; font-size:13px; }
+        .btn-pdf { background:#1e3a5f; color:#93c5fd; border:1px solid #1e40af; }
+        .btn-gray { background:#3a2e24; color:var(--cream); }
 
-        /* CONTENIDO */
-        .content-area {
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-        }
+        /* MODULE HEADER */
+        .module-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .module-header h2 { font-family:'Playfair Display',serif; font-size:22px; color:var(--latte); }
 
-        .module-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+        /* TABLA */
+        .table-wrap { background:var(--dark-roast); border-radius:12px; overflow:hidden; border:1px solid rgba(163,99,42,.2); }
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(163,99,42,.12); }
+        th { padding:11px 12px; text-align:left; color:var(--latte); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; border-bottom:1px solid rgba(163,99,42,.2); }
+        td { padding:10px 12px; border-bottom:1px solid rgba(163,99,42,.1); font-size:13.5px; color:var(--cream); vertical-align:middle; }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover td { background:rgba(163,99,42,.07); }
+        .td-descripcion { max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted); font-size:13px; }
+        .td-uuid { font-family:monospace; font-size:11px; color:var(--text-muted); }
+        .td-actions { display:flex; gap:6px; flex-wrap:wrap; }
 
-        /* TABLAS */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        /* BADGES */
+        .badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:capitalize; letter-spacing:.3px; }
+        .badge-admin { background:var(--badge-admin-bg); color:var(--badge-admin-fg); }
+        .badge-vendedor { background:var(--badge-vendedor-bg); color:var(--badge-vendedor-fg); }
+        .badge-cliente { background:var(--badge-cliente-bg); color:var(--badge-cliente-fg); }
+        .badge-pendiente { background:var(--estado-pendiente-bg); color:var(--estado-pendiente-fg); }
+        .badge-completado { background:var(--estado-completado-bg); color:var(--estado-completado-fg); }
+        .badge-cancelado { background:var(--estado-cancelado-bg); color:var(--estado-cancelado-fg); }
+        .badge-contraentrega { background:#2a1f0e; color:#fbbf24; }
+        .badge-transferencia { background:#0e1f3b; color:#93c5fd; }
 
-        th {
-            background: #2a2a2a;
-            padding: 10px 8px;
-            text-align: left;
-            color: #aaa;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #333;
-            font-size: 14px;
-        }
-
-        tr:hover td { background: #2a2a2a; }
-
-        .td-descripcion {
-            max-width: 220px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #aaa;
-            font-size: 13px;
-        }
-
-        .td-uuid {
-            font-family: monospace;
-            font-size: 12px;
-            color: #888;
-            cursor: default;
-        }
-
-        /* BADGES DE ROL */
-        .badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .badge-admin    { background: #4b1c1c; color: #f87171; }
-        .badge-vendedor { background: #1c2f4b; color: #60a5fa; }
-        .badge-cliente  { background: #1c3a2a; color: #34d399; }
-
-        /* INPUT */
-        .input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            background: #3a3a3a;
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: #e0e0e0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
-
-        .input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
-        textarea.input {
-            resize: vertical;
-            min-height: 70px;
-        }
-
-        select.input {
-            appearance: none;
-            cursor: pointer;
-        }
-
-        .input:disabled {
-            background: #2e2e2e;
-            color: #666;
-            cursor: not-allowed;
-            border-color: #444;
-        }
+        /* INPUTS */
+        .input { width:100%; padding:9px 12px; margin-bottom:12px; background:#1a0f08; border:1px solid rgba(163,99,42,.35); border-radius:7px; color:var(--cream); font-family:'Lato',sans-serif; font-size:14px; transition:border-color var(--transition); }
+        .input:focus { outline:none; border-color:var(--caramel); box-shadow:0 0 0 3px rgba(160,99,42,.15); }
+        .input:disabled { background:#0d0804; color:var(--text-muted); cursor:not-allowed; }
+        textarea.input { resize:vertical; min-height:70px; }
+        select.input { appearance:none; cursor:pointer; }
+        .form-label { display:block; font-size:11px; color:var(--latte); margin-bottom:4px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+        .form-group { margin-bottom:4px; }
 
         /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
+        .modal { display:none; position:fixed; inset:0; background:rgba(12,5,2,.75); backdrop-filter:blur(3px); justify-content:center; align-items:center; z-index:9999; }
+        .modal.open { display:flex; }
+        .modal-content { background:var(--dark-roast); border:1px solid rgba(163,99,42,.3); padding:28px; border-radius:14px; width:400px; max-width:95vw; max-height:90vh; overflow-y:auto; animation:modalIn .2s ease; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+        .modal-content.wide { width:560px; }
+        .modal-content h3 { font-family:'Playfair Display',serif; font-size:20px; color:var(--latte); margin-bottom:20px; }
+        @keyframes modalIn { from{transform:scale(.92) translateY(10px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+        .modal-actions { display:flex; gap:10px; margin-top:14px; }
+        .form-hint { font-size:11px; color:var(--text-muted); margin-bottom:10px; font-style:italic; }
 
-        .modal[style*="display: flex"] {
-            display: flex !important;
-        }
+        /* REPORTES */
+        .report-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin-top:20px; }
+        .report-card { background:var(--dark-roast); border:1px solid rgba(163,99,42,.2); border-radius:12px; padding:20px; }
+        .report-card h3 { font-family:'Playfair Display',serif; font-size:16px; color:var(--latte); margin-bottom:8px; }
+        .report-card p { font-size:13px; color:var(--text-muted); margin-bottom:14px; line-height:1.5; }
+        .report-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+        .report-filters .input { margin-bottom:0; flex:1; min-width:120px; }
 
-        .modal-content {
-            background: #2a2a2a;
-            padding: 24px;
-            border-radius: 10px;
-            width: 360px;
-            animation: fadeIn 0.2s ease;
-        }
+        /* STATS */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+        .stat-card { background:var(--dark-roast); border:1px solid rgba(163,99,42,.2); border-radius:10px; padding:16px 18px; }
+        .stat-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
+        .stat-value { font-family:'Playfair Display',serif; font-size:26px; color:var(--latte); }
+        .stat-value.green { color:#6ee7b7; }
+        .stat-value.blue  { color:#93c5fd; }
+        .stat-value.red   { color:#fca5a5; }
 
-        .modal-content h3 {
-            margin-bottom: 16px;
-            color: #fff;
-        }
-
-        .modal-content label {
-            display: block;
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        @keyframes fadeIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to   { transform: scale(1);   opacity: 1; }
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+        .empty-row td { text-align:center; color:var(--text-muted); padding:30px; font-style:italic; }
+        .detalle-list { background:#1a0f08; border-radius:8px; padding:12px; margin-bottom:12px; }
+        .detalle-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(163,99,42,.15); font-size:13px; }
+        .detalle-item:last-child { border-bottom:none; }
     </style>
 </head>
-
 <body>
+<div class="admin-container">
 
-    <div class="admin-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-title">Sinfonía de Granos</div>
+            <div class="brand-sub">"De la semilla a la taza"</div>
+        </div>
+        <ul class="nav-menu">
+            <li><button class="nav-link" data-module="inventario" onclick="loadModule('inventario')">
+                <span class="nav-icon">📦</span> Inventario
+            </button></li>
+            <li><button class="nav-link" data-module="pedidos" onclick="loadModule('pedidos')">
+                <span class="nav-icon">🛒</span> Pedidos
+            </button></li>
+            <li><button class="nav-link" data-module="pagos" onclick="loadModule('pagos')">
+                <span class="nav-icon">💳</span> Pagos
+            </button></li>
+            <li><button class="nav-link" data-module="usuarios" onclick="loadModule('usuarios')">
+                <span class="nav-icon">👤</span> Usuarios
+            </button></li>
+            <li><button class="nav-link" data-module="reportes" onclick="loadModule('reportes')">
+                <span class="nav-icon">📊</span> Reportes
+            </button></li>
+        </ul>
+        <div class="sidebar-footer">
+            <!-- Botón para ir a la página principal sin cerrar sesión -->
+            <button class="btn btn-inicio" style="width:100%" onclick="irInicioPrincipal()">
+                🏠 Ir al Inicio
+            </button>
+            <button class="btn btn-logout" style="width:100%" onclick="logoutAdmin()">
+                🚪 Cerrar sesión
+            </button>
+        </div>
+    </aside>
 
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Administración</h2>
-            </div>
-            <ul class="nav-menu">
-                <li>
-                    <button type="button" class="nav-link active" data-module="inventario"
-                        onclick="loadModule('inventario')">Inventario</button>
-                </li>
-                <li>
-                    <button type="button" class="nav-link" data-module="usuarios"
-                        onclick="loadModule('usuarios')">Usuarios</button>
-                </li>
-                <li>
-                    <button type="button" class="nav-link" data-module="reportes"
-                        onclick="loadModule('reportes')">Reportes</button>
-                </li>
-                <li>
-                    <button type="button" class="nav-link" data-module="pagos"
-                        onclick="loadModule('pagos')">Pagos</button>
-                </li>
-            </ul>
-        </aside>
-
-        <div class="main-content">
-
-            <header class="header">
-                <h2>Sinfonía de Granos</h2>
-                <div class="header-right">
-                    <span class="role-badge" id="currentUserRole">Usuario</span>
-                    <button type="button" class="btn btn-logout" onclick="logoutAdmin()">
-                        Cerrar sesión
-                    </button>
+    <!-- MAIN -->
+    <div class="main-content">
+        <header class="header">
+            <span class="header-title">Panel de Administración</span>
+            <div class="header-right">
+                <!-- Pill de usuario con foto/inicial y nombre -->
+                <div class="user-pill-admin">
+                    <div class="pill-avatar-admin" id="pillAvatar">?</div>
+                    <div>
+                        <div class="pill-name-admin" id="pillNombre">Cargando…</div>
+                        <div class="pill-role-admin" id="pillRole">—</div>
+                    </div>
                 </div>
-            </header>
-
-            <div class="content-area" id="moduleContent">
-                <!-- contenido dinámico -->
             </div>
+        </header>
+        <div class="content-area" id="moduleContent"></div>
+    </div>
+</div>
 
+<!-- MODAL PRODUCTO -->
+<div id="productoModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalProductoTitle">Nuevo Producto</h3>
+        <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input id="productoNombre" class="input" type="text" placeholder="Ej: Café Granulado Orgánico">
+            <p class="form-hint">Solo letras, sin números largos (ej: "Café Molido" ✓, "Café 12222" ✗)</p>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea id="productoDescripcion" class="input" placeholder="Esta descripción aparecerá en la tienda que verán los compradores…"></textarea>
+            <p class="form-hint">📢 Esta descripción la verán los clientes en la tienda.</p>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Stock</label>
+            <input id="productoStock" class="input" type="number" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Precio ($MXN)</label>
+            <input id="productoPrecio" class="input" type="number" placeholder="0.00" step="0.01" min="0.01">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Imagen del producto</label>
+            <p class="form-hint">
+                📁 Para agregar imagen: coloca el archivo en <strong>Productos/img/</strong><br>
+                El nombre del archivo debe ser el ID del producto (ej: <strong>1.jpg</strong>, <strong>2.jpg</strong>…)<br>
+                Formatos aceptados: JPG, PNG, WEBP
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button id="btnGuardarProducto" class="btn btn-primary">Guardar</button>
+            <button id="btnCancelarProducto" class="btn btn-gray">Cancelar</button>
         </div>
     </div>
+</div>
 
-    <!-- ── MODAL PRODUCTO ─────────────────────────────────────────────────── -->
-    <div id="productoModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle">Nuevo Producto</h3>
-
-            <label for="productoNombre">Nombre</label>
-            <input id="productoNombre" class="input" type="text" placeholder="Nombre del producto">
-
-            <label for="productoDescripcion">Descripción</label>
-            <textarea id="productoDescripcion" class="input" placeholder="Descripción (opcional)"></textarea>
-
-            <label for="productoStock">Stock</label>
-            <input id="productoStock" class="input" type="number" placeholder="0">
-
-            <label for="productoPrecio">Precio</label>
-            <input id="productoPrecio" class="input" type="number" placeholder="0.00" step="0.01">
-
-            <div class="modal-actions">
-                <button id="btnGuardarProducto"  class="btn btn-primary">Guardar</button>
-                <button id="btnCancelarProducto" class="btn" style="background:#666;">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── MODAL USUARIO ──────────────────────────────────────────────────── -->
-    <div id="usuarioModal" class="modal">
-        <div class="modal-content">
-            <h3 id="usuarioModalTitle">Nuevo Usuario</h3>
-
-            <label for="usuarioNombre">Nombre</label>
+<!-- MODAL USUARIO -->
+<div id="usuarioModal" class="modal">
+    <div class="modal-content">
+        <h3 id="usuarioModalTitle">Nuevo Usuario</h3>
+        <div class="form-group"><label class="form-label">Nombre</label>
             <input id="usuarioNombre" class="input" type="text" placeholder="Nombre completo">
-
-            <label for="usuarioCorreo">Correo</label>
+        </div>
+        <div class="form-group"><label class="form-label">Correo</label>
             <input id="usuarioCorreo" class="input" type="email" placeholder="correo@ejemplo.com">
-
-            <label for="usuarioRol">Rol</label>
+        </div>
+        <div class="form-group"><label class="form-label">Rol</label>
             <select id="usuarioRol" class="input">
                 <option value="cliente">cliente</option>
                 <option value="vendedor">vendedor</option>
                 <option value="admin">admin</option>
             </select>
-
-            <div class="modal-actions">
-                <button id="btnGuardarUsuario"  class="btn btn-primary">Guardar</button>
-                <button id="btnCancelarUsuario" class="btn" style="background:#666;">Cancelar</button>
-            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="btnGuardarUsuario" class="btn btn-primary">Guardar</button>
+            <button id="btnCancelarUsuario" class="btn btn-gray">Cancelar</button>
         </div>
     </div>
+</div>
 
-    <script src="js/admin.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", initAdmin);
-    </script>
+<!-- MODAL PEDIDO -->
+<div id="pedidoModal" class="modal">
+    <div class="modal-content wide">
+        <h3 id="pedidoModalTitle">Nuevo Pedido</h3>
+        <div class="form-group"><label class="form-label">Cliente (UUID)</label>
+            <input id="pedidoCliente" class="input" type="text" placeholder="UUID del cliente">
+        </div>
+        <div class="form-group"><label class="form-label">Vendedor (UUID, opcional)</label>
+            <input id="pedidoVendedor" class="input" type="text" placeholder="UUID del vendedor">
+        </div>
+        <div class="form-group"><label class="form-label">Estado</label>
+            <select id="pedidoEstado" class="input">
+                <option value="pendiente">Pendiente</option>
+                <option value="completado">Completado</option>
+                <option value="cancelado">Cancelado</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button id="btnGuardarPedido" class="btn btn-primary">Guardar</button>
+            <button id="btnCancelarPedido" class="btn btn-gray">Cancelar</button>
+        </div>
+    </div>
+</div>
 
+<!-- MODAL VER DETALLE PEDIDO -->
+<div id="detallePedidoModal" class="modal">
+    <div class="modal-content wide">
+        <h3>Detalle del Pedido <span id="detallePedidoId"></span></h3>
+        <div id="detallePedidoContent"></div>
+        <div class="modal-actions">
+            <button id="btnCerrarDetalle" class="btn btn-gray">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PAGO -->
+<div id="pagoModal" class="modal">
+    <div class="modal-content">
+        <h3 id="pagoModalTitle">Registrar Pago</h3>
+        <div class="form-group"><label class="form-label">Pedido ID</label>
+            <input id="pagoPedidoId" class="input" type="number" placeholder="ID del pedido" min="1">
+        </div>
+        <div class="form-group"><label class="form-label">Método de pago</label>
+            <select id="pagoMetodo" class="input">
+                <option value="contraentrega">Contraentrega</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="efectivo">Efectivo</option>
+            </select>
+        </div>
+        <div class="form-group"><label class="form-label">Monto ($MXN)</label>
+            <input id="pagoMonto" class="input" type="number" placeholder="0.00" step="0.01" min="0.01">
+        </div>
+        <div class="modal-actions">
+            <button id="btnGuardarPago" class="btn btn-primary">Guardar</button>
+            <button id="btnCancelarPago" class="btn btn-gray">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+    // El pillRole se llena desde admin.js initAdmin()
+    document.addEventListener("DOMContentLoaded", async () => {
+        await initAdmin();
+        // Llenar el role pill
+        const role = localStorage.getItem("userRole") || "—";
+        const roleEl = document.getElementById("pillRole");
+        if (roleEl) roleEl.textContent = role;
+    });
+</script>
 </body>
 </html>

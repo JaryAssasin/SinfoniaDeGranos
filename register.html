@@ -1,126 +1,201 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Registro - Sinfonía de Granos</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
-    
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
+            font-family:'Segoe UI',sans-serif;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            padding:20px;
         }
-
         .login-container {
-            background: white;
-            width: 380px;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-            text-align: center;
+            background:white;
+            width:400px;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 15px 40px rgba(0,0,0,0.25);
+            text-align:center;
         }
-
-        .login-container h1 {
-            color: #3b2a1e;
-        }
-
-        .eslogan {
-            font-style: italic;
-            color: #7a5c47;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            font-size: 14px;
-        }
-
+        .login-container h1 { color:#3b2a1e; }
+        .eslogan { font-style:italic; color:#7a5c47; margin-bottom:20px; }
+        .input-group { text-align:left; margin-bottom:14px; }
+        .input-group label { font-size:14px; color:#5a4636; font-weight:600; }
         .input-group input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+            width:100%; padding:10px; margin-top:5px;
+            border-radius:8px; border:1px solid #ccc;
+            font-size:14px; transition:border-color .2s;
         }
-
+        .input-group input:focus { outline:none; border-color:#4b2e2e; }
+        .input-group input.error { border-color:#e53e3e; }
+        .input-group input.ok { border-color:#38a169; }
+        .field-error {
+            font-size:12px; color:#e53e3e; margin-top:4px;
+            display:none; align-items:center; gap:4px;
+        }
+        .field-error.show { display:flex; }
         .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(to right, #4b2e2e, #2e1b1b);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
+            width:100%; padding:12px;
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; border:none; border-radius:8px;
+            cursor:pointer; font-size:15px; margin-top:10px;
+            transition:opacity .2s;
         }
-
-        .extra {
-            margin-top: 15px;
-            font-size: 13px;
+        .btn-login:hover { opacity:.9; }
+        .extra { margin-top:15px; font-size:13px; color:#777; }
+        .extra a { cursor:pointer; color:#4b2e2e; font-weight:bold; text-decoration:none; }
+        /* Redes sociales */
+        .redes { margin-top:20px; padding-top:16px; border-top:1px solid #eee; }
+        .redes p { font-size:13px; color:#777; margin-bottom:10px; }
+        .redes-links { display:flex; gap:10px; justify-content:center; }
+        .red-btn {
+            display:flex; align-items:center; gap:6px;
+            padding:8px 14px; border-radius:8px;
+            font-size:13px; font-weight:600;
+            text-decoration:none; transition:opacity .2s;
         }
-
-        .extra a {
-            cursor: pointer;
-            color: #4b2e2e;
-            font-weight: bold;
-        }
+        .red-btn:hover { opacity:.85; }
+        .red-ig { background:#e1306c; color:white; }
+        .red-fb { background:#1877f2; color:white; }
+        .hint { font-size:11px; color:#aaa; margin-top:3px; }
     </style>
 </head>
-
 <body>
-
     <div class="login-container">
-
         <h1>Sinfonía de Granos</h1>
         <div class="eslogan">"De la semilla a la taza"</div>
 
-        <form onsubmit="register(event)">
-
+        <form onsubmit="registrar(event)" novalidate>
             <div class="input-group">
-                <label>Nombre</label>
-                <input type="text" id="nombre" required>
+                <label>Nombre completo</label>
+                <input type="text" id="nombre" placeholder="Ej: María López" oninput="validarNombre(this)" required>
+                <div class="field-error" id="err-nombre">⚠ Solo letras y espacios (mínimo 3 caracteres, sin números)</div>
+                <div class="hint">Tu nombre aparecerá en los envíos</div>
             </div>
 
             <div class="input-group">
                 <label>Correo electrónico</label>
-                <input type="email" id="email" required>
+                <input type="email" id="email" placeholder="tucorreo@gmail.com" oninput="validarCorreo(this)" required>
+                <div class="field-error" id="err-email">⚠ Ingresa un correo válido (ej: nombre@gmail.com)</div>
             </div>
 
             <div class="input-group">
                 <label>Contraseña</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" placeholder="Mínimo 6 caracteres" oninput="validarPassword(this)" required>
+                <div class="field-error" id="err-password">⚠ La contraseña debe tener al menos 6 caracteres</div>
             </div>
 
-            <button type="submit" class="btn-login">
-                Registrarse
-            </button>
-
+            <button type="submit" class="btn-login">Registrarse</button>
         </form>
 
-        <div class="extra">
-            ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
-        </div>
+        <div class="extra">¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></div>
 
+        <!-- REDES SOCIALES - Sustituye los href con tus enlaces reales -->
+        <div class="redes">
+            <p>Síguenos en redes</p>
+            <div class="redes-links">
+                <!-- ⬇ Cambia este href por tu URL de Instagram -->
+                <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="red-btn red-ig">
+                    <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    Instagram
+                </a>
+                <!-- ⬇ Cambia este href por tu URL de Facebook -->
+                <a href="https://facebook.com/TU_PAGINA_FB" target="_blank" class="red-btn red-fb">
+                    <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    Facebook
+                </a>
+            </div>
+        </div>
     </div>
 
-</body>
+    <script>
+        // ── Validaciones individuales ───────────────────────────────────────────
 
+        function validarNombre(input) {
+            // Solo letras (incluye acentos), espacios, mínimo 3 chars, sin números
+            const val = input.value.trim();
+            const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{3,}$/;
+            const err = document.getElementById('err-nombre');
+            if (!regex.test(val) || val.length < 3) {
+                input.classList.add('error'); input.classList.remove('ok');
+                err.classList.add('show');
+                return false;
+            }
+            input.classList.remove('error'); input.classList.add('ok');
+            err.classList.remove('show');
+            return true;
+        }
+
+        function validarCorreo(input) {
+            const val = input.value.trim().toLowerCase();
+            const err = document.getElementById('err-email');
+            // Regex estricto: usuario@dominio.ext — rechaza .com.com, dobles puntos, etc.
+            const regex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9\-]+(\.[a-zA-Z]{2,}){1,2}$/;
+            // Verificar que no haya extensiones duplicadas tipo .com.com
+            const dominioParte = val.split('@')[1] || '';
+            const partes = dominioParte.split('.');
+            const extensiones = partes.slice(1); // todo después del primer segmento
+            const hayDuplicados = extensiones.length > 1 &&
+                extensiones.some((ext, i) => extensiones.indexOf(ext) !== i);
+
+            if (!regex.test(val) || hayDuplicados || partes[partes.length - 1].length < 2) {
+                input.classList.add('error'); input.classList.remove('ok');
+                err.classList.add('show');
+                return false;
+            }
+            input.classList.remove('error'); input.classList.add('ok');
+            err.classList.remove('show');
+            return true;
+        }
+
+        function validarPassword(input) {
+            const err = document.getElementById('err-password');
+            if (input.value.length < 6) {
+                input.classList.add('error'); input.classList.remove('ok');
+                err.classList.add('show');
+                return false;
+            }
+            input.classList.remove('error'); input.classList.add('ok');
+            err.classList.remove('show');
+            return true;
+        }
+
+        // ── Envío del formulario ────────────────────────────────────────────────
+        async function registrar(e) {
+            e.preventDefault();
+
+            const nomOk  = validarNombre(document.getElementById('nombre'));
+            const mailOk = validarCorreo(document.getElementById('email'));
+            const passOk = validarPassword(document.getElementById('password'));
+
+            if (!nomOk || !mailOk || !passOk) return;
+
+            const nombre   = document.getElementById('nombre').value.trim();
+            const email    = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+            if (error) { alert('Error: ' + error.message); return; }
+            if (!data.user) { alert('Revisa tu correo para confirmar la cuenta.'); return; }
+
+            const { error: insertError } = await supabaseClient
+                .from('usuarios')
+                .insert([{ id: data.user.id, correo: email, nombre, rol: 'cliente' }]);
+
+            if (insertError) { alert('Error guardando usuario: ' + insertError.message); return; }
+
+            alert('¡Registro exitoso! Ya puedes iniciar sesión.');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
 </html>
