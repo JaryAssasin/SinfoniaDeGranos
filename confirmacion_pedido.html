@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>¡Pedido Confirmado! - Sinfonía de Granos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/header.js"></script>
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); min-height:100vh; }
+
+        .header {
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b); color:white;
+            display:flex; justify-content:space-between; align-items:center;
+            padding:18px 30px; font-size:20px;
+        }
+        .header-right { display:flex; gap:15px; align-items:center; }
+        .user-menu { position:relative; }
+        .user-pill { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3); border-radius:30px; padding:6px 14px 6px 6px; cursor:pointer; }
+        .pill-avatar { width:32px; height:32px; border-radius:50%; background:#a0632a; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0; }
+        .pill-name { font-size:14px; font-weight:600; }
+        .dropdown { position:absolute; top:46px; right:0; background:white; color:black; border-radius:10px; display:none; flex-direction:column; min-width:200px; border:1px solid #ccc; box-shadow:0 8px 18px rgba(0,0,0,.16); padding:4px 0; z-index:200; }
+        .dropdown button { padding:10px 14px; border:none; background:none; text-align:left; cursor:pointer; width:100%; font-size:14px; }
+        .dropdown button:hover { background:#f5f5f5; }
+
+        .container { max-width:600px; margin:50px auto; padding:0 20px; }
+
+        /* Tarjeta principal */
+        .confirm-card { background:white; border-radius:20px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,.1); text-align:center; }
+        .check-icon { font-size:72px; margin-bottom:16px; animation:pop .5s ease; }
+        @keyframes pop { 0%{transform:scale(0);opacity:0} 80%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+        .confirm-title { font-size:28px; font-weight:700; color:#2d6a4f; margin-bottom:8px; }
+        .confirm-sub   { font-size:15px; color:#666; margin-bottom:28px; }
+        .pedido-id-box { background:#f0fdf4; border:2px solid #86efac; border-radius:12px; padding:16px 24px; margin-bottom:24px; }
+        .pedido-id-box p  { font-size:13px; color:#666; margin-bottom:4px; }
+        .pedido-id-box h2 { font-size:24px; color:#065f46; font-weight:800; }
+
+        /* Resumen */
+        .resumen-section { text-align:left; background:#fdf6ec; border-radius:12px; padding:18px; margin-bottom:20px; }
+        .resumen-section h3 { font-size:16px; color:#3b2a1e; margin-bottom:14px; }
+        .resumen-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0e8df; font-size:14px; }
+        .resumen-item:last-child { border-bottom:none; }
+        .resumen-item .nombre { color:#3b2a1e; font-weight:600; }
+        .resumen-item .precio { color:#2e7d32; font-weight:700; }
+        .resumen-total-row { display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:2px solid #e5e7eb; font-size:17px; font-weight:700; }
+        .resumen-total-row .total-val { color:#2e7d32; }
+
+        /* Info pago */
+        .pago-info { text-align:left; background:#fef3c7; border:1px solid #fbbf24; border-radius:12px; padding:16px; margin-bottom:20px; }
+        .pago-info h3 { color:#92400e; margin-bottom:8px; font-size:15px; }
+        .pago-info p  { font-size:14px; color:#78350f; margin-bottom:4px; }
+        .cuenta-dato  { font-size:16px; font-weight:700; color:#78350f; letter-spacing:.5px; }
+
+        /* Dirección */
+        .dir-info { text-align:left; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:16px; margin-bottom:24px; }
+        .dir-info h3 { color:#0369a1; margin-bottom:6px; font-size:15px; }
+        .dir-info p  { font-size:14px; color:#0c4a6e; }
+
+        /* Botones */
+        .acciones { display:flex; gap:12px; flex-direction:column; }
+        .btn-historial { padding:13px; background:linear-gradient(to right,#4b2e2e,#2e1b1b); color:white; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity .2s; }
+        .btn-historial:hover { opacity:.9; }
+        .btn-seguir { padding:13px; background:transparent; color:#4b2e2e; border:2px solid #4b2e2e; border-radius:10px; font-size:15px; cursor:pointer; transition:all .2s; }
+        .btn-seguir:hover { background:#4b2e2e; color:white; }
+
+        .footer-bar { margin-top:50px; background:#2e1b1b; padding:30px; text-align:center; color:white; }
+        .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:10px; }
+        .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; }
+        .footer-red:hover { color:white; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <span>☕ Sinfonía de Granos</span>
+    <div class="header-right">
+        <div class="user-menu">
+            <div class="user-pill" onclick="toggleMenu()">
+                <div class="pill-avatar" id="pillAvatar">?</div>
+                <span class="pill-name" id="pillNombre">Cargando…</span>
+                <span style="font-size:10px;opacity:.7">▾</span>
+            </div>
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos</button>
+                <button onclick="irPerfil()">👤 Mi Perfil</button>
+                <button onclick="irHistorial()">🧾 Mis Pedidos</button>
+                <button id="btnAdmin" style="display:none;border-top:1px solid #ddd;padding-top:10px;margin-top:10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="confirm-card">
+        <div class="check-icon">✅</div>
+        <div class="confirm-title">¡Pedido Confirmado!</div>
+        <div class="confirm-sub">Tu pedido fue registrado correctamente. Pronto recibirás novedades.</div>
+
+        <div class="pedido-id-box">
+            <p>Número de pedido</p>
+            <h2 id="numPedido">#—</h2>
+        </div>
+
+        <!-- Resumen de productos -->
+        <div class="resumen-section">
+            <h3>📦 Productos pedidos</h3>
+            <div id="itemsConfirmacion"></div>
+            <div class="resumen-total-row">
+                <span>Total pagado</span>
+                <span class="total-val" id="totalConfirmacion">$0.00</span>
+            </div>
+        </div>
+
+        <!-- Info de pago -->
+        <div id="infoTransferenciaConfirm" class="pago-info" style="display:none">
+            <h3>🏦 Instrucciones de pago</h3>
+            <p>Realiza tu transferencia por el monto exacto a:</p>
+            <p>Banco: <span class="cuenta-dato">BBVA</span></p>
+            <!-- ⬇ Cambia por tu número de cuenta real -->
+            <p>Cuenta: <span class="cuenta-dato">XXXX XXXX XXXX XXXX</span></p>
+            <p>Titular: <span class="cuenta-dato">Sinfonía de Granos</span></p>
+            <p style="margin-top:8px;font-size:12px">📸 Envía tu comprobante por WhatsApp para confirmar y procesar tu envío.</p>
+        </div>
+
+        <!-- Dirección de entrega -->
+        <div class="dir-info" id="dirConfirmacion">
+            <h3>📍 Se enviará a:</h3>
+            <p id="textoDir">—</p>
+        </div>
+
+        <div class="acciones">
+            <button class="btn-historial" onclick="irHistorial()">📋 Ver mis pedidos</button>
+            <button class="btn-seguir"    onclick="irProductos()">🛒 Seguir comprando</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+    <div class="footer-redes">
+        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+    </div>
+</div>
+
+<script>
+function cargarDatosConfirmacion() {
+    const raw = sessionStorage.getItem('ultimoPedido');
+    if (!raw) {
+        // Si no hay datos, redirigir al inicio
+        document.querySelector('.confirm-card').innerHTML = `
+            <div style="text-align:center;padding:20px">
+                <p style="color:#666;margin-bottom:16px">No hay información de pedido reciente.</p>
+                <button onclick="irHistorial()" style="padding:12px 24px;background:#4b2e2e;color:white;border:none;border-radius:8px;cursor:pointer">Ver mis pedidos</button>
+            </div>`;
+        return;
+    }
+
+    const pedido = JSON.parse(raw);
+    document.getElementById('numPedido').textContent = '#' + pedido.id;
+    document.getElementById('totalConfirmacion').textContent = `$${parseFloat(pedido.total).toFixed(2)} MXN`;
+
+    // Items
+    const cont = document.getElementById('itemsConfirmacion');
+    cont.innerHTML = Object.values(pedido.items || {}).map(p =>
+        `<div class="resumen-item">
+            <span class="nombre">${p.nombre} × ${p.cantidad}</span>
+            <span class="precio">$${(p.precio * p.cantidad).toFixed(2)}</span>
+        </div>`
+    ).join('');
+
+    // Pago
+    if (pedido.metodo === 'transferencia') {
+        document.getElementById('infoTransferenciaConfirm').style.display = 'block';
+    }
+
+    // Dirección
+    if (pedido.direccion) {
+        document.getElementById('textoDir').textContent = pedido.direccion;
+    }
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('ultimoPedido');
+}
+
+initHeader();
+cargarDatosConfirmacion();
+</script>
+</body>
+</html>

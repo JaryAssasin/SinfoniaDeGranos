@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Pedidos - Sinfonía de Granos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/header.js"></script>
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); min-height:100vh; }
+
+        /* ── HEADER ── */
+        .header {
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; display:flex; justify-content:space-between;
+            align-items:center; padding:18px 30px; font-size:20px; position:sticky; top:0; z-index:100;
+        }
+        .header-right { display:flex; gap:15px; align-items:center; }
+        .user-menu { position:relative; }
+        .user-pill {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3);
+            border-radius:30px; padding:6px 14px 6px 6px; cursor:pointer; transition:background .2s;
+        }
+        .user-pill:hover { background:rgba(255,255,255,.22); }
+        .pill-avatar {
+            width:32px; height:32px; border-radius:50%; background:#a0632a; color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
+        }
+        .pill-name { font-size:14px; font-weight:600; }
+        .dropdown {
+            position:absolute; top:46px; right:0; background:white; color:black;
+            border-radius:10px; display:none; flex-direction:column; min-width:200px;
+            border:1px solid #ccc; box-shadow:0 8px 18px rgba(0,0,0,.16);
+            padding:4px 0; z-index:200;
+        }
+        .dropdown button { padding:10px 14px; border:none; background:none; text-align:left; cursor:pointer; width:100%; font-size:14px; }
+        .dropdown button:hover { background:#f5f5f5; }
+
+        /* ── CONTENIDO ── */
+        .container { max-width:900px; margin:0 auto; padding:30px 20px; }
+        .page-title { font-size:28px; color:#3b2a1e; margin-bottom:6px; }
+        .page-sub   { color:#7a5c47; font-style:italic; margin-bottom:28px; }
+
+        /* ── FILTROS ── */
+        .filtros { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; align-items:center; }
+        .filtros select, .filtros input {
+            padding:9px 12px; border:1px solid #ccc; border-radius:8px;
+            font-size:14px; background:white; min-width:160px;
+        }
+        .btn-filtrar {
+            padding:9px 20px; background:#4b2e2e; color:white;
+            border:none; border-radius:8px; cursor:pointer; font-size:14px; transition:opacity .2s;
+        }
+        .btn-filtrar:hover { opacity:.85; }
+
+        /* ── PEDIDO CARD ── */
+        .pedido-card {
+            background:white; border-radius:16px; padding:22px 24px; margin-bottom:18px;
+            box-shadow:0 4px 16px rgba(0,0,0,.08); transition:box-shadow .2s;
+        }
+        .pedido-card:hover { box-shadow:0 6px 22px rgba(0,0,0,.12); }
+        .pedido-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+        .pedido-id { font-size:18px; font-weight:700; color:#3b2a1e; }
+        .pedido-fecha { font-size:13px; color:#999; margin-top:3px; }
+
+        .badge-estado {
+            padding:5px 14px; border-radius:20px; font-size:13px; font-weight:700; text-transform:capitalize;
+        }
+        .badge-pendiente   { background:#fef3c7; color:#92400e; }
+        .badge-completado  { background:#d1fae5; color:#065f46; }
+        .badge-cancelado   { background:#fee2e2; color:#991b1b; }
+        .badge-en_proceso  { background:#dbeafe; color:#1e40af; }
+
+        /* Items del pedido */
+        .pedido-items { border-top:1px solid #f0e8df; padding-top:14px; margin-bottom:14px; }
+        .item-row { display:flex; align-items:center; gap:14px; padding:8px 0; border-bottom:1px solid #f9f4ef; }
+        .item-row:last-child { border-bottom:none; }
+        .item-img {
+            width:56px; height:56px; border-radius:8px; object-fit:cover;
+            background:linear-gradient(135deg,#f5ede4,#e8d5c0);
+            display:flex; align-items:center; justify-content:center; font-size:22px;
+            flex-shrink:0; overflow:hidden;
+        }
+        .item-img img { width:100%; height:100%; object-fit:cover; }
+        .item-info { flex:1; }
+        .item-nombre { font-size:15px; font-weight:600; color:#3b2a1e; }
+        .item-cant   { font-size:13px; color:#888; }
+        .item-precio { font-size:15px; font-weight:700; color:#2e7d32; }
+
+        /* Footer del pedido */
+        .pedido-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid #f0e8df; padding-top:14px; }
+        .pedido-total { font-size:18px; font-weight:700; color:#2e7d32; }
+        .pedido-metodo { font-size:13px; color:#888; }
+        .pedido-acciones { display:flex; gap:8px; }
+
+        .btn-cancelar-pedido {
+            padding:8px 16px; background:#fee2e2; color:#991b1b;
+            border:1px solid #fca5a5; border-radius:8px; cursor:pointer;
+            font-size:13px; font-weight:600; transition:all .2s;
+        }
+        .btn-cancelar-pedido:hover { background:#fecaca; }
+        .btn-cancelar-pedido:disabled { opacity:.4; cursor:not-allowed; }
+
+        /* Vacío */
+        .vacio {
+            text-align:center; padding:60px 20px; background:white;
+            border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,.06);
+        }
+        .vacio-icon { font-size:52px; margin-bottom:16px; }
+        .vacio h3 { color:#3b2a1e; margin-bottom:8px; }
+        .vacio p  { color:#999; font-size:14px; margin-bottom:20px; }
+        .btn-ir-tienda {
+            padding:12px 24px; background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px;
+        }
+
+        /* Loading */
+        .loading { text-align:center; padding:40px; color:#888; font-size:15px; }
+        .spinner { display:inline-block; width:30px; height:30px; border:3px solid #ddd; border-top-color:#4b2e2e; border-radius:50%; animation:spin .7s linear infinite; margin-bottom:10px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Footer */
+        .footer-bar { margin-top:50px; background:#2e1b1b; padding:30px; text-align:center; color:white; }
+        .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:10px; }
+        .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; transition:color .2s; }
+        .footer-red:hover { color:white; }
+
+        /* Modal cancelar */
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,.5); z-index:300;
+            justify-content:center; align-items:center;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:white; border-radius:16px; padding:30px; width:480px;
+            max-width:95vw; animation:popIn .2s ease;
+        }
+        @keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+        .modal-box h3 { color:#3b2a1e; margin-bottom:6px; font-size:20px; }
+        .modal-box p  { color:#666; font-size:14px; margin-bottom:18px; }
+        .modal-items  { background:#fdf6ec; border-radius:10px; padding:14px; margin-bottom:18px; max-height:220px; overflow-y:auto; }
+        .modal-item   { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0e8df; font-size:14px; }
+        .modal-item:last-child { border-bottom:none; }
+        .modal-total  { font-weight:700; color:#2e7d32; font-size:16px; margin-bottom:16px; }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+        .btn-confirmar-cancel { padding:10px 20px; background:#dc2626; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:opacity .2s; }
+        .btn-confirmar-cancel:hover { opacity:.85; }
+        .btn-no-cancel { padding:10px 20px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <span>☕ Mis Pedidos</span>
+    <div class="header-right">
+        <div class="user-menu">
+            <div class="user-pill" onclick="toggleMenu()">
+                <div class="pill-avatar" id="pillAvatar">?</div>
+                <span class="pill-name" id="pillNombre">Cargando…</span>
+                <span style="font-size:10px;opacity:.7">▾</span>
+            </div>
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos</button>
+                <button onclick="irPerfil()">👤 Mi Perfil</button>
+                <button onclick="irHistorial()">🧾 Mis Pedidos</button>
+                <button id="btnAdmin" style="display:none;border-top:1px solid #ddd;padding-top:10px;margin-top:10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page-title">🧾 Mis Pedidos</div>
+    <div class="page-sub">Historial completo de tus compras</div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <select id="filtroEstado" onchange="filtrarPedidos()">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+        </select>
+        <button class="btn-filtrar" onclick="cargarHistorial()">🔄 Actualizar</button>
+    </div>
+
+    <!-- Lista de pedidos -->
+    <div id="listaPedidos">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Cargando tus pedidos…</p>
+        </div>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+    <div class="footer-redes">
+        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+    </div>
+</div>
+
+<!-- Modal de confirmación de cancelación -->
+<div class="modal-overlay" id="modalCancelar">
+    <div class="modal-box">
+        <h3>⚠️ Cancelar pedido</h3>
+        <p>¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.</p>
+        <div class="modal-items" id="modalCancelarItems"></div>
+        <div class="modal-total" id="modalCancelarTotal"></div>
+        <div class="modal-actions">
+            <button class="btn-no-cancel" onclick="cerrarModalCancelar()">No, mantener pedido</button>
+            <button class="btn-confirmar-cancel" onclick="confirmarCancelacion()">Sí, cancelar pedido</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let pedidosCargados = [];
+let pedidoCancelando = null;
+let usuarioId = null;
+
+async function cargarHistorial() {
+    const lista = document.getElementById('listaPedidos');
+    lista.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando tus pedidos…</p></div>';
+
+    try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (!sessionData.session) { window.location.href = 'index.html'; return; }
+        usuarioId = sessionData.session.user.id;
+
+        // Cargar pedidos del usuario con sus detalles
+        const { data: pedidos, error } = await supabaseClient
+            .from('pedido')
+            .select('*')
+            .eq('id_cliente', usuarioId)
+            .order('fecha', { ascending: false });
+
+        if (error) throw error;
+
+        if (!pedidos || pedidos.length === 0) {
+            lista.innerHTML = `
+                <div class="vacio">
+                    <div class="vacio-icon">🛒</div>
+                    <h3>Aún no tienes pedidos</h3>
+                    <p>Explora nuestro catálogo y realiza tu primera compra</p>
+                    <button class="btn-ir-tienda" onclick="irProductos()">Ver productos</button>
+                </div>`;
+            return;
+        }
+
+        // Para cada pedido cargar sus detalles
+        const pedidosConDetalle = await Promise.all(pedidos.map(async ped => {
+            const { data: detalles } = await supabaseClient
+                .from('detalle_pedido')
+                .select('*, producto(id_producto, nombre, precio)')
+                .eq('id_pedido', ped.id_pedido);
+            return { ...ped, detalles: detalles || [] };
+        }));
+
+        pedidosCargados = pedidosConDetalle;
+        filtrarPedidos();
+
+    } catch (err) {
+        console.error('Error cargando historial:', err);
+        lista.innerHTML = '<p style="text-align:center;color:#e53e3e;padding:40px">Error cargando pedidos. Intenta de nuevo.</p>';
+    }
+}
+
+function filtrarPedidos() {
+    const filtro = document.getElementById('filtroEstado').value;
+    const filtrados = filtro
+        ? pedidosCargados.filter(p => p.estado === filtro)
+        : pedidosCargados;
+    renderPedidos(filtrados);
+}
+
+function renderPedidos(pedidos) {
+    const lista = document.getElementById('listaPedidos');
+
+    if (!pedidos.length) {
+        lista.innerHTML = `
+            <div class="vacio">
+                <div class="vacio-icon">🔍</div>
+                <h3>Sin pedidos con ese estado</h3>
+                <p>Prueba con otro filtro</p>
+            </div>`;
+        return;
+    }
+
+    lista.innerHTML = pedidos.map(ped => {
+        const fecha  = ped.fecha ? new Date(ped.fecha).toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' }) : '—';
+        const total  = parseFloat(ped.total || 0).toFixed(2);
+        const estado = ped.estado || 'pendiente';
+        const puedeCancel = (estado === 'pendiente' || estado === 'en_proceso');
+
+        const itemsHTML = (ped.detalles || []).map(d => {
+            const idProd = d.producto?.id_producto || d.id_producto || '';
+            const imgSrc = `Productos/img/${idProd}.jpg`;
+            const nombre = d.producto?.nombre || 'Producto';
+            const subt   = parseFloat(d.subtotal || 0).toFixed(2);
+            return `
+                <div class="item-row">
+                    <div class="item-img">
+                        <img src="${imgSrc}" alt="${nombre}"
+                             onerror="this.parentElement.innerHTML='☕'">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-nombre">${nombre}</div>
+                        <div class="item-cant">${d.cantidad} unidad(es)</div>
+                    </div>
+                    <div class="item-precio">$${subt}</div>
+                </div>`;
+        }).join('') || '<p style="color:#999;font-size:13px">Sin detalles registrados</p>';
+
+        const metodoLabel = ped.metodo_pago ? `💳 ${ped.metodo_pago}` : '';
+
+        return `
+            <div class="pedido-card" id="pedido-${ped.id_pedido}">
+                <div class="pedido-header">
+                    <div>
+                        <div class="pedido-id">Pedido #${ped.id_pedido}</div>
+                        <div class="pedido-fecha">📅 ${fecha}</div>
+                    </div>
+                    <span class="badge-estado badge-${estado}">${estadoLabel(estado)}</span>
+                </div>
+
+                <div class="pedido-items">${itemsHTML}</div>
+
+                <div class="pedido-footer">
+                    <div>
+                        <div class="pedido-total">Total: $${total} MXN</div>
+                        ${metodoLabel ? `<div class="pedido-metodo">${metodoLabel}</div>` : ''}
+                    </div>
+                    <div class="pedido-acciones">
+                        ${puedeCancel ? `
+                            <button class="btn-cancelar-pedido"
+                                onclick="abrirModalCancelar(${ped.id_pedido})">
+                                ✕ Cancelar pedido
+                            </button>` : ''}
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+function estadoLabel(e) {
+    const map = { pendiente:'⏳ Pendiente', en_proceso:'🔄 En proceso', completado:'✅ Completado', cancelado:'❌ Cancelado' };
+    return map[e] || e;
+}
+
+// ── Modal cancelar ──────────────────────────────────────────────────────────
+function abrirModalCancelar(idPedido) {
+    const ped = pedidosCargados.find(p => p.id_pedido === idPedido);
+    if (!ped) return;
+    pedidoCancelando = idPedido;
+
+    const itemsEl = document.getElementById('modalCancelarItems');
+    const totalEl = document.getElementById('modalCancelarTotal');
+
+    itemsEl.innerHTML = (ped.detalles || []).map(d =>
+        `<div class="modal-item">
+            <span>${d.producto?.nombre || 'Producto'} × ${d.cantidad}</span>
+            <span>$${parseFloat(d.subtotal||0).toFixed(2)}</span>
+         </div>`
+    ).join('') || '<p style="color:#999;font-size:13px">Sin detalles</p>';
+
+    totalEl.textContent = `Total a cancelar: $${parseFloat(ped.total||0).toFixed(2)} MXN`;
+    document.getElementById('modalCancelar').classList.add('open');
+}
+
+function cerrarModalCancelar() {
+    document.getElementById('modalCancelar').classList.remove('open');
+    pedidoCancelando = null;
+}
+
+async function confirmarCancelacion() {
+    if (!pedidoCancelando) return;
+
+    const btn = document.querySelector('.btn-confirmar-cancel');
+    btn.textContent = 'Cancelando…';
+    btn.disabled = true;
+
+    try {
+        const { error } = await supabaseClient
+            .from('pedido')
+            .update({ estado: 'cancelado' })
+            .eq('id_pedido', pedidoCancelando)
+            .eq('id_cliente', usuarioId); // seguridad: solo puede cancelar los suyos
+
+        if (error) throw error;
+
+        cerrarModalCancelar();
+        await cargarHistorial();
+        mostrarToast('✅ Pedido cancelado correctamente');
+
+    } catch (err) {
+        console.error('Error cancelando:', err);
+        alert('Error al cancelar el pedido: ' + err.message);
+    } finally {
+        btn.textContent = 'Sí, cancelar pedido';
+        btn.disabled = false;
+    }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+function mostrarToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:#2e1b1b;color:white;padding:14px 20px;border-radius:10px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:fadeIn .3s ease`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+// Cerrar modal al click fuera
+document.getElementById('modalCancelar').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalCancelar')) cerrarModalCancelar();
+});
+
+// ── Init ────────────────────────────────────────────────────────────────────
+initHeader().then(() => cargarHistorial());
+</script>
+</body>
+</html>

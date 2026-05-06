@@ -5,6 +5,7 @@
     <title>Productos - Sinfonía de Granos</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/header.js"></script>
     <script src="js/productos.js"></script>
     <style>
         * { box-sizing:border-box; margin:0; padding:0; }
@@ -280,29 +281,7 @@ function buscarProductos() {
 }
 document.getElementById('searchProductos')?.addEventListener('keyup', buscarProductos);
 
-async function checkSession() {
-    const { data } = await supabaseClient.auth.getSession();
-    if (!data.session) { window.location.href = 'index.html'; return; }
-
-    const { data: user } = await supabaseClient
-        .from('usuarios')
-        .select('nombre, rol, foto_url')
-        .eq('id', data.session.user.id)
-        .single();
-
-    const nombre  = user?.nombre  || localStorage.getItem('userName') || 'Usuario';
-    const fotoUrl = user?.foto_url || localStorage.getItem('userFoto') || '';
-    const rol     = user?.rol      || localStorage.getItem('userRole') || '';
-
-    const avatar = document.getElementById('pillAvatar');
-    document.getElementById('pillNombre').textContent = nombre;
-    if (fotoUrl) avatar.innerHTML = `<img src="${fotoUrl}" alt="avatar">`;
-    else avatar.textContent = nombre[0].toUpperCase();
-
-    if (rol === 'admin') document.getElementById('btnAdmin').style.display = 'block';
-}
-
-checkSession();
+initHeader();
 </script>
 </body>
 </html>

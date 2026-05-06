@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Finalizar Compra - Sinfonía de Granos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/header.js"></script>
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); min-height:100vh; }
+
+        .header {
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b); color:white;
+            display:flex; justify-content:space-between; align-items:center;
+            padding:18px 30px; font-size:20px; position:sticky; top:0; z-index:100;
+        }
+        .header-right { display:flex; gap:15px; align-items:center; }
+        .user-menu { position:relative; }
+        .user-pill {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3);
+            border-radius:30px; padding:6px 14px 6px 6px; cursor:pointer;
+        }
+        .pill-avatar {
+            width:32px; height:32px; border-radius:50%; background:#a0632a; color:white;
+            display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
+        }
+        .pill-name { font-size:14px; font-weight:600; }
+        .dropdown {
+            position:absolute; top:46px; right:0; background:white; color:black;
+            border-radius:10px; display:none; flex-direction:column; min-width:200px;
+            border:1px solid #ccc; box-shadow:0 8px 18px rgba(0,0,0,.16); padding:4px 0; z-index:200;
+        }
+        .dropdown button { padding:10px 14px; border:none; background:none; text-align:left; cursor:pointer; width:100%; font-size:14px; }
+        .dropdown button:hover { background:#f5f5f5; }
+
+        /* Breadcrumb */
+        .breadcrumb { display:flex; align-items:center; gap:8px; padding:16px 30px; font-size:13px; color:#888; }
+        .breadcrumb a { color:#4b2e2e; text-decoration:none; }
+        .breadcrumb span { color:#bbb; }
+
+        /* Layout */
+        .checkout-wrap { max-width:1000px; margin:0 auto; padding:10px 20px 50px; display:grid; grid-template-columns:1fr 380px; gap:24px; }
+        @media(max-width:760px) { .checkout-wrap { grid-template-columns:1fr; } }
+
+        /* Sección izquierda */
+        .section-card { background:white; border-radius:16px; padding:24px; margin-bottom:20px; box-shadow:0 4px 16px rgba(0,0,0,.07); }
+        .section-title { font-size:18px; font-weight:700; color:#3b2a1e; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid #f5ede4; }
+
+        /* Dirección */
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .form-group { margin-bottom:14px; }
+        .form-group label { display:block; font-size:13px; color:#5a4636; font-weight:600; margin-bottom:5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; transition:border-color .2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:#4b2e2e; }
+        .form-group input.error { border-color:#e53e3e; }
+        .field-error { font-size:12px; color:#e53e3e; margin-top:3px; display:none; }
+        .field-error.show { display:block; }
+
+        /* Métodos de pago */
+        .metodo-opciones { display:flex; flex-direction:column; gap:12px; }
+        .metodo-opcion {
+            border:2px solid #e5e7eb; border-radius:12px; padding:16px;
+            cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:14px;
+        }
+        .metodo-opcion:hover { border-color:#a0632a; }
+        .metodo-opcion.selected { border-color:#4b2e2e; background:#fdf6ec; }
+        .metodo-opcion input[type="radio"] { width:18px; height:18px; accent-color:#4b2e2e; flex-shrink:0; }
+        .metodo-icon { font-size:28px; }
+        .metodo-info { flex:1; }
+        .metodo-nombre { font-size:15px; font-weight:700; color:#3b2a1e; }
+        .metodo-desc   { font-size:13px; color:#888; margin-top:2px; }
+
+        /* Info transferencia */
+        .transferencia-info {
+            display:none; background:#fef3c7; border:1px solid #fbbf24;
+            border-radius:10px; padding:14px 16px; margin-top:14px;
+        }
+        .transferencia-info.show { display:block; }
+        .transferencia-info h4 { color:#92400e; margin-bottom:6px; font-size:14px; }
+        .cuenta-dato { font-size:16px; font-weight:700; color:#78350f; letter-spacing:.5px; margin:4px 0; }
+        .transferencia-info p { font-size:13px; color:#92400e; }
+
+        /* Resumen */
+        .resumen-card { background:white; border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.07); position:sticky; top:80px; }
+        .resumen-title { font-size:18px; font-weight:700; color:#3b2a1e; margin-bottom:16px; }
+        .resumen-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #f5ede4; }
+        .resumen-item:last-of-type { border-bottom:none; }
+        .resumen-img {
+            width:48px; height:48px; border-radius:8px; object-fit:cover;
+            background:linear-gradient(135deg,#f5ede4,#e8d5c0); flex-shrink:0;
+            display:flex; align-items:center; justify-content:center; font-size:18px; overflow:hidden;
+        }
+        .resumen-img img { width:100%; height:100%; object-fit:cover; }
+        .resumen-nombre { font-size:14px; font-weight:600; color:#3b2a1e; flex:1; }
+        .resumen-cant   { font-size:13px; color:#888; }
+        .resumen-precio { font-size:14px; font-weight:700; color:#2e7d32; }
+        .resumen-divider { border:none; border-top:2px solid #f5ede4; margin:14px 0; }
+        .resumen-linea { display:flex; justify-content:space-between; font-size:14px; color:#666; margin-bottom:8px; }
+        .resumen-total { display:flex; justify-content:space-between; font-size:20px; font-weight:700; color:#2e7d32; margin-top:10px; }
+
+        .btn-comprar {
+            width:100%; padding:14px; margin-top:18px;
+            background:linear-gradient(to right,#4b2e2e,#2e1b1b); color:white;
+            border:none; border-radius:10px; font-size:16px; font-weight:700;
+            cursor:pointer; transition:opacity .2s;
+        }
+        .btn-comprar:hover { opacity:.9; }
+        .btn-comprar:disabled { opacity:.5; cursor:not-allowed; }
+        .btn-volver { width:100%; padding:11px; margin-top:10px; background:transparent; color:#4b2e2e; border:2px solid #4b2e2e; border-radius:10px; font-size:15px; cursor:pointer; transition:all .2s; }
+        .btn-volver:hover { background:#4b2e2e; color:white; }
+
+        /* Footer */
+        .footer-bar { background:#2e1b1b; padding:30px; text-align:center; color:white; }
+        .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:10px; }
+        .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; }
+        .footer-red:hover { color:white; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <span>☕ Finalizar Compra</span>
+    <div class="header-right">
+        <div class="user-menu">
+            <div class="user-pill" onclick="toggleMenu()">
+                <div class="pill-avatar" id="pillAvatar">?</div>
+                <span class="pill-name" id="pillNombre">Cargando…</span>
+                <span style="font-size:10px;opacity:.7">▾</span>
+            </div>
+            <div class="dropdown" id="menuUsuario">
+                <button onclick="irInicio()">🏠 Inicio</button>
+                <button onclick="irProductos()">📦 Productos</button>
+                <button onclick="irPerfil()">👤 Mi Perfil</button>
+                <button onclick="irHistorial()">🧾 Mis Pedidos</button>
+                <button id="btnAdmin" style="display:none;border-top:1px solid #ddd;padding-top:10px;margin-top:10px;" onclick="irAdmin()">⚙️ Panel Admin</button>
+                <button onclick="logout()">🚪 Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="productos.html">Productos</a>
+    <span>›</span>
+    <strong>Finalizar compra</strong>
+</div>
+
+<div class="checkout-wrap">
+
+    <!-- IZQUIERDA: Dirección + Método de pago -->
+    <div>
+
+        <!-- Dirección de entrega -->
+        <div class="section-card">
+            <div class="section-title">📍 Dirección de entrega</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nombre del destinatario *</label>
+                    <input type="text" id="dirNombre" placeholder="Nombre completo">
+                    <div class="field-error" id="errDirNombre">⚠ Este campo es obligatorio</div>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono de contacto *</label>
+                    <input type="tel" id="dirTelefono" placeholder="10 dígitos" maxlength="10">
+                    <div class="field-error" id="errDirTelefono">⚠ Ingresa 10 dígitos</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Calle y número *</label>
+                <input type="text" id="dirCalle" placeholder="Ej: Av. Reforma 123">
+                <div class="field-error" id="errDirCalle">⚠ Este campo es obligatorio</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Colonia *</label>
+                    <input type="text" id="dirColonia" placeholder="Colonia">
+                    <div class="field-error" id="errDirColonia">⚠ Este campo es obligatorio</div>
+                </div>
+                <div class="form-group">
+                    <label>Ciudad / Municipio *</label>
+                    <input type="text" id="dirCiudad" placeholder="Ciudad">
+                    <div class="field-error" id="errDirCiudad">⚠ Este campo es obligatorio</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Estado *</label>
+                    <input type="text" id="dirEstado" placeholder="Estado" value="Oaxaca">
+                    <div class="field-error" id="errDirEstado">⚠ Este campo es obligatorio</div>
+                </div>
+                <div class="form-group">
+                    <label>Código Postal *</label>
+                    <input type="text" id="dirCP" placeholder="5 dígitos" maxlength="5">
+                    <div class="field-error" id="errDirCP">⚠ Ingresa 5 dígitos</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Referencias (opcional)</label>
+                <textarea id="dirReferencias" rows="2" placeholder="Entre calles, color de fachada, etc."></textarea>
+            </div>
+        </div>
+
+        <!-- Método de pago -->
+        <div class="section-card">
+            <div class="section-title">💳 Método de pago</div>
+            <div class="metodo-opciones">
+                <label class="metodo-opcion" id="opcionTransferencia" onclick="seleccionarMetodo('transferencia')">
+                    <input type="radio" name="metodo" value="transferencia" id="radioTransferencia">
+                    <span class="metodo-icon">🏦</span>
+                    <div class="metodo-info">
+                        <div class="metodo-nombre">Transferencia bancaria</div>
+                        <div class="metodo-desc">Pago anticipado por transferencia a BBVA</div>
+                    </div>
+                </label>
+
+                <label class="metodo-opcion" id="opcionContraentrega" onclick="seleccionarMetodo('contraentrega')">
+                    <input type="radio" name="metodo" value="contraentrega" id="radioContraentrega">
+                    <span class="metodo-icon">💵</span>
+                    <div class="metodo-info">
+                        <div class="metodo-nombre">Pago contra entrega</div>
+                        <div class="metodo-desc">Paga en efectivo al recibir tu pedido</div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Datos de transferencia (se muestra al elegir transferencia) -->
+            <div class="transferencia-info" id="infoTransferencia">
+                <h4>📋 Datos para transferencia:</h4>
+                <!-- ⬇ Cambia estos datos por los de tu cuenta bancaria real -->
+                <p>Banco: <span class="cuenta-dato">BBVA</span></p>
+                <p>CLABE / Número de cuenta: <span class="cuenta-dato" id="numeroCuenta">XXXX XXXX XXXX XXXX</span></p>
+                <p>Titular: <span class="cuenta-dato">Sinfonía de Granos</span></p>
+                <p style="margin-top:8px;font-size:12px">📸 Envía tu comprobante de pago por WhatsApp o correo para confirmar tu pedido.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DERECHA: Resumen de compra -->
+    <div>
+        <div class="resumen-card">
+            <div class="resumen-title">🛒 Resumen de tu compra</div>
+
+            <div id="resumenItems">
+                <!-- Se genera dinámicamente -->
+            </div>
+
+            <hr class="resumen-divider">
+            <div class="resumen-linea">
+                <span>Subtotal</span>
+                <span id="resumenSubtotal">$0.00</span>
+            </div>
+            <div class="resumen-linea">
+                <span>Envío</span>
+                <span style="color:#2e7d32">Gratis</span>
+            </div>
+            <div class="resumen-total">
+                <span>Total</span>
+                <span id="resumenTotal">$0.00</span>
+            </div>
+
+            <button class="btn-comprar" id="btnComprar" onclick="realizarCompra()">
+                Confirmar pedido →
+            </button>
+            <button class="btn-volver" onclick="irProductos()">
+                ← Seguir comprando
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="footer-bar">
+    <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
+    <div class="footer-redes">
+        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+    </div>
+</div>
+
+<script>
+let carritoData = JSON.parse(localStorage.getItem('carrito')) || {};
+let metodoSeleccionado = '';
+let usuarioSesion = null;
+
+// ── Cargar resumen del carrito ──────────────────────────────────────────────
+function cargarResumen() {
+    if (!Object.keys(carritoData).length) {
+        // Carrito vacío → regresar
+        alert('Tu carrito está vacío. Agrega productos antes de continuar.');
+        window.location.href = 'productos.html';
+        return;
+    }
+
+    const cont = document.getElementById('resumenItems');
+    let total = 0;
+    cont.innerHTML = '';
+
+    for (let id in carritoData) {
+        const p = carritoData[id];
+        const subtotal = p.precio * p.cantidad;
+        total += subtotal;
+        const imgSrc = `Productos/img/${id}.jpg`;
+
+        cont.innerHTML += `
+            <div class="resumen-item">
+                <div class="resumen-img">
+                    <img src="${imgSrc}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='☕'">
+                </div>
+                <div style="flex:1">
+                    <div class="resumen-nombre">${p.nombre}</div>
+                    <div class="resumen-cant">${p.cantidad} × $${parseFloat(p.precio).toFixed(2)}</div>
+                </div>
+                <div class="resumen-precio">$${subtotal.toFixed(2)}</div>
+            </div>`;
+    }
+
+    document.getElementById('resumenSubtotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('resumenTotal').textContent     = `$${total.toFixed(2)} MXN`;
+}
+
+// ── Seleccionar método de pago ──────────────────────────────────────────────
+function seleccionarMetodo(metodo) {
+    metodoSeleccionado = metodo;
+
+    document.querySelectorAll('.metodo-opcion').forEach(el => el.classList.remove('selected'));
+    document.getElementById('opcion' + metodo.charAt(0).toUpperCase() + metodo.slice(1))
+        ?.classList.add('selected');
+
+    const infoT = document.getElementById('infoTransferencia');
+    infoT.classList.toggle('show', metodo === 'transferencia');
+}
+
+// ── Validaciones de dirección ───────────────────────────────────────────────
+function validarCampo(id, errId, condicion) {
+    const input = document.getElementById(id);
+    const err   = document.getElementById(errId);
+    if (!condicion(input.value)) {
+        input.classList.add('error');
+        err.classList.add('show');
+        return false;
+    }
+    input.classList.remove('error');
+    err.classList.remove('show');
+    return true;
+}
+
+function validarDireccion() {
+    const notEmpty = v => v.trim().length > 0;
+    const isTel    = v => /^\d{10}$/.test(v.trim());
+    const isCP     = v => /^\d{5}$/.test(v.trim());
+
+    const checks = [
+        validarCampo('dirNombre',    'errDirNombre',    notEmpty),
+        validarCampo('dirTelefono',  'errDirTelefono',  isTel),
+        validarCampo('dirCalle',     'errDirCalle',     notEmpty),
+        validarCampo('dirColonia',   'errDirColonia',   notEmpty),
+        validarCampo('dirCiudad',    'errDirCiudad',    notEmpty),
+        validarCampo('dirEstado',    'errDirEstado',    notEmpty),
+        validarCampo('dirCP',        'errDirCP',        isCP),
+    ];
+    return checks.every(Boolean);
+}
+
+// ── Realizar compra ─────────────────────────────────────────────────────────
+async function realizarCompra() {
+    if (!validarDireccion()) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+    if (!metodoSeleccionado) {
+        alert('⚠️ Selecciona un método de pago para continuar.');
+        return;
+    }
+
+    const btn = document.getElementById('btnComprar');
+    btn.disabled = true;
+    btn.textContent = 'Procesando…';
+
+    try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (!sessionData.session) { window.location.href = 'index.html'; return; }
+        const uid = sessionData.session.user.id;
+
+        // Calcular total
+        let total = 0;
+        for (let id in carritoData) {
+            total += carritoData[id].precio * carritoData[id].cantidad;
+        }
+
+        // Armar dirección
+        const direccion = [
+            document.getElementById('dirCalle').value.trim(),
+            document.getElementById('dirColonia').value.trim(),
+            document.getElementById('dirCiudad').value.trim(),
+            document.getElementById('dirEstado').value.trim(),
+            'CP ' + document.getElementById('dirCP').value.trim()
+        ].join(', ');
+
+        // 1. Crear pedido
+        const { data: pedido, error: pedErr } = await supabaseClient
+            .from('pedido')
+            .insert([{
+                id_cliente:    uid,
+                fecha:         new Date().toISOString(),
+                total:         parseFloat(total.toFixed(2)),
+                estado:        'pendiente',
+                metodo_pago:   metodoSeleccionado,
+                direccion:     direccion,
+                telefono:      document.getElementById('dirTelefono').value.trim(),
+                destinatario:  document.getElementById('dirNombre').value.trim(),
+                referencias:   document.getElementById('dirReferencias').value.trim() || null,
+            }])
+            .select()
+            .single();
+
+        if (pedErr) throw pedErr;
+
+        // 2. Crear detalles del pedido
+        const detalles = Object.entries(carritoData).map(([id, item]) => ({
+            id_pedido:   pedido.id_pedido,
+            id_producto: parseInt(id),
+            cantidad:    item.cantidad,
+            subtotal:    parseFloat((item.precio * item.cantidad).toFixed(2)),
+        }));
+
+        const { error: detErr } = await supabaseClient
+            .from('detalle_pedido')
+            .insert(detalles);
+
+        if (detErr) throw detErr;
+
+        // 3. Crear registro de pago
+        const { error: pagoErr } = await supabaseClient
+            .from('pago')
+            .insert([{
+                id_pedido:   pedido.id_pedido,
+                metodo:      metodoSeleccionado,
+                monto:       parseFloat(total.toFixed(2)),
+                fecha_pago:  new Date().toISOString(),
+            }]);
+
+        // El error de pago no es crítico, continuar de todas formas
+        if (pagoErr) console.warn('Aviso pago:', pagoErr.message);
+
+        // 4. Limpiar carrito
+        localStorage.removeItem('carrito');
+
+        // 5. Guardar info del pedido para la página de confirmación
+        sessionStorage.setItem('ultimoPedido', JSON.stringify({
+            id:       pedido.id_pedido,
+            total:    total,
+            metodo:   metodoSeleccionado,
+            items:    carritoData,
+            direccion
+        }));
+
+        // 6. Redirigir a confirmación
+        window.location.href = 'confirmacion_pedido.html';
+
+    } catch (err) {
+        console.error('Error en compra:', err);
+        alert('❌ Error al procesar el pedido: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Confirmar pedido →';
+    }
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+initHeader().then(user => {
+    if (!user) return;
+    usuarioSesion = user;
+
+    // Pre-llenar nombre si ya está guardado
+    const nombre = localStorage.getItem('userName') || '';
+    if (nombre && document.getElementById('dirNombre').value === '') {
+        document.getElementById('dirNombre').value = nombre;
+    }
+
+    cargarResumen();
+});
+</script>
+</body>
+</html>

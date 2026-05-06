@@ -5,6 +5,7 @@
     <title>Sinfonía de Granos</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/header.js"></script>
     <style>
         * { box-sizing:border-box; margin:0; padding:0; }
         body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); }
@@ -491,38 +492,7 @@ function cargarPill(nombre, fotoUrl) {
     }
 }
 
-async function checkSession() {
-    const { data } = await supabaseClient.auth.getSession();
-    if (!data.session) { window.location.href = 'index.html'; return; }
-
-    // Obtener datos del usuario
-    const { data: user } = await supabaseClient
-        .from('usuarios')
-        .select('nombre, rol, foto_url')
-        .eq('id', data.session.user.id)
-        .single();
-
-    if (user) {
-        cargarPill(user.nombre, user.foto_url);
-        localStorage.setItem('userName', user.nombre || '');
-        localStorage.setItem('userRole', user.rol || '');
-        if (user.foto_url) localStorage.setItem('userFoto', user.foto_url);
-        if (user.rol === 'admin') document.getElementById('btnAdmin').style.display = 'block';
-    } else {
-        // fallback localStorage
-        const n = localStorage.getItem('userName');
-        const f = localStorage.getItem('userFoto');
-        cargarPill(n, f);
-    }
-
-    if (localStorage.getItem('userRole') === 'admin') {
-        document.getElementById('btnAdmin').style.display = 'block';
-    }
-
-    cargarProductosHome();
-}
-
-checkSession();
+initHeader();
 </script>
 </body>
 </html>
