@@ -392,7 +392,7 @@ function irInicio()    { window.location.href = 'principal.html'; }
 function irProductos() { window.location.href = 'productos.html'; }
 function irPerfil()    { window.location.href = 'perfil.html'; }
 function irAdmin()     { window.location.href = 'admin.html'; }
-function historial()   { alert('Historial de compras próximamente 📦'); }
+function historial()   { window.location.href = 'historial.html'; }
 
 async function logout() {
     await supabaseClient.auth.signOut();
