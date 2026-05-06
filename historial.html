@@ -40,7 +40,7 @@
         .dropdown button:hover { background:#f5f5f5; }
 
         /* ── CONTENIDO ── */
-        .container { max-width:900px; margin:0 auto; padding:30px 20px; }
+        .container { max-width:940px; margin:0 auto; padding:30px 20px; }
         .page-title { font-size:28px; color:#3b2a1e; margin-bottom:6px; }
         .page-sub   { color:#7a5c47; font-style:italic; margin-bottom:28px; }
 
@@ -66,6 +66,7 @@
         .pedido-id { font-size:18px; font-weight:700; color:#3b2a1e; }
         .pedido-fecha { font-size:13px; color:#999; margin-top:3px; }
 
+        /* ── BADGES ESTADO ── */
         .badge-estado {
             padding:5px 14px; border-radius:20px; font-size:13px; font-weight:700; text-transform:capitalize;
         }
@@ -73,6 +74,42 @@
         .badge-completado  { background:#d1fae5; color:#065f46; }
         .badge-cancelado   { background:#fee2e2; color:#991b1b; }
         .badge-en_proceso  { background:#dbeafe; color:#1e40af; }
+        .badge-reembolsado { background:#f3e8ff; color:#6b21a8; }
+        .badge-cancelacion_solicitada { background:#ffedd5; color:#9a3412; }
+
+        /* ── SECCIÓN DE PAGO ── */
+        .pago-seccion {
+            background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;
+            padding:14px 16px; margin-bottom:14px;
+        }
+        .pago-seccion.pago-pendiente-trans {
+            background:#fefce8; border-color:#fde68a;
+        }
+        .pago-seccion.pago-fallido {
+            background:#fef2f2; border-color:#fecaca;
+        }
+        .pago-seccion.pago-reembolso {
+            background:#f5f3ff; border-color:#ddd6fe;
+        }
+        .pago-titulo { font-size:13px; font-weight:700; margin-bottom:8px; color:#374151; }
+        .pago-fila { display:flex; gap:24px; flex-wrap:wrap; }
+        .pago-dato { font-size:13px; color:#555; }
+        .pago-dato span { font-weight:700; color:#1f2937; }
+        .pago-badge {
+            display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;
+        }
+        .pago-badge-confirmado { background:#d1fae5; color:#065f46; }
+        .pago-badge-pendiente  { background:#fef3c7; color:#92400e; }
+        .pago-badge-fallido    { background:#fee2e2; color:#991b1b; }
+        .pago-badge-reembolsado{ background:#f3e8ff; color:#6b21a8; }
+
+        /* ── NOTA DE INCIDENTE ── */
+        .incidente-nota {
+            background:#fff7ed; border:1px solid #fed7aa; border-radius:8px;
+            padding:10px 14px; margin-bottom:12px; font-size:13px; color:#9a3412;
+            display:flex; gap:8px; align-items:flex-start;
+        }
+        .incidente-nota-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
 
         /* Items del pedido */
         .pedido-items { border-top:1px solid #f0e8df; padding-top:14px; margin-bottom:14px; }
@@ -94,7 +131,7 @@
         .pedido-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid #f0e8df; padding-top:14px; }
         .pedido-total { font-size:18px; font-weight:700; color:#2e7d32; }
         .pedido-metodo { font-size:13px; color:#888; }
-        .pedido-acciones { display:flex; gap:8px; }
+        .pedido-acciones { display:flex; gap:8px; flex-wrap:wrap; }
 
         .btn-cancelar-pedido {
             padding:8px 16px; background:#fee2e2; color:#991b1b;
@@ -128,28 +165,52 @@
         .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; transition:color .2s; }
         .footer-red:hover { color:white; }
 
-        /* Modal cancelar */
+        /* ── MODAL BASE ── */
         .modal-overlay {
             display:none; position:fixed; inset:0;
-            background:rgba(0,0,0,.5); z-index:300;
-            justify-content:center; align-items:center;
+            background:rgba(0,0,0,.55); z-index:300;
+            justify-content:center; align-items:center; padding:16px;
         }
         .modal-overlay.open { display:flex; }
         .modal-box {
-            background:white; border-radius:16px; padding:30px; width:480px;
-            max-width:95vw; animation:popIn .2s ease;
+            background:white; border-radius:18px; padding:30px; width:520px;
+            max-width:100%; animation:popIn .2s ease; max-height:90vh; overflow-y:auto;
         }
-        @keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
-        .modal-box h3 { color:#3b2a1e; margin-bottom:6px; font-size:20px; }
-        .modal-box p  { color:#666; font-size:14px; margin-bottom:18px; }
-        .modal-items  { background:#fdf6ec; border-radius:10px; padding:14px; margin-bottom:18px; max-height:220px; overflow-y:auto; }
+        @keyframes popIn { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
+        .modal-box h3 { color:#3b2a1e; margin-bottom:8px; font-size:20px; }
+        .modal-box p  { color:#666; font-size:14px; margin-bottom:16px; line-height:1.5; }
+        .modal-items  { background:#fdf6ec; border-radius:10px; padding:14px; margin-bottom:14px; max-height:200px; overflow-y:auto; }
         .modal-item   { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0e8df; font-size:14px; }
         .modal-item:last-child { border-bottom:none; }
-        .modal-total  { font-weight:700; color:#2e7d32; font-size:16px; margin-bottom:16px; }
-        .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+        .modal-total  { font-weight:700; color:#2e7d32; font-size:16px; margin-bottom:18px; }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
         .btn-confirmar-cancel { padding:10px 20px; background:#dc2626; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:700; transition:opacity .2s; }
         .btn-confirmar-cancel:hover { opacity:.85; }
+        .btn-confirmar-cancel:disabled { opacity:.45; cursor:not-allowed; }
         .btn-no-cancel { padding:10px 20px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
+
+        /* ── SECCIÓN REEMBOLSO EN MODAL ── */
+        .reembolso-seccion {
+            background:#fef3c7; border:1px solid #fde68a; border-radius:12px;
+            padding:16px; margin-bottom:16px;
+        }
+        .reembolso-seccion h4 { color:#92400e; font-size:15px; margin-bottom:6px; }
+        .reembolso-seccion p  { font-size:13px; color:#78350f; margin-bottom:14px; }
+        .form-group-modal { margin-bottom:12px; }
+        .form-group-modal label { display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:5px; }
+        .form-group-modal input, .form-group-modal select {
+            width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px;
+            font-size:14px; transition:border-color .2s;
+        }
+        .form-group-modal input:focus, .form-group-modal select:focus { outline:none; border-color:#4b2e2e; }
+        .form-group-modal input.error-input { border-color:#dc2626; }
+        .error-msg { font-size:12px; color:#dc2626; margin-top:3px; display:none; }
+        .error-msg.show { display:block; }
+        .alerta-reembolso {
+            background:#fff7ed; border:1px solid #fed7aa; border-radius:8px;
+            padding:10px 12px; font-size:12px; color:#9a3412; margin-top:8px;
+            display:flex; gap:8px; align-items:flex-start;
+        }
     </style>
 </head>
 <body>
@@ -179,19 +240,19 @@
     <div class="page-title">🧾 Mis Pedidos</div>
     <div class="page-sub">Historial completo de tus compras</div>
 
-    <!-- Filtros -->
     <div class="filtros">
         <select id="filtroEstado" onchange="filtrarPedidos()">
             <option value="">Todos los estados</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="en_proceso">En proceso</option>
-            <option value="completado">Completado</option>
-            <option value="cancelado">Cancelado</option>
+            <option value="pendiente">⏳ Pendiente</option>
+            <option value="en_proceso">🔄 En proceso</option>
+            <option value="completado">✅ Completado</option>
+            <option value="cancelado">❌ Cancelado</option>
+            <option value="cancelacion_solicitada">🕐 Cancelación solicitada</option>
+            <option value="reembolsado">💜 Reembolsado</option>
         </select>
         <button class="btn-filtrar" onclick="cargarHistorial()">🔄 Actualizar</button>
     </div>
 
-    <!-- Lista de pedidos -->
     <div id="listaPedidos">
         <div class="loading">
             <div class="spinner"></div>
@@ -208,16 +269,60 @@
     </div>
 </div>
 
-<!-- Modal de confirmación de cancelación -->
+<!-- ══════════ MODAL CANCELAR ══════════ -->
 <div class="modal-overlay" id="modalCancelar">
     <div class="modal-box">
-        <h3>⚠️ Cancelar pedido</h3>
-        <p>¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.</p>
+        <h3 id="modalCancelarTitulo">⚠️ Cancelar pedido</h3>
+        <p id="modalCancelarDesc">¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.</p>
+
         <div class="modal-items" id="modalCancelarItems"></div>
         <div class="modal-total" id="modalCancelarTotal"></div>
+
+        <!-- SECCIÓN REEMBOLSO (se muestra si el pago ya estaba confirmado) -->
+        <div class="reembolso-seccion" id="seccionReembolso" style="display:none">
+            <h4>💳 Datos para reembolso</h4>
+            <p>Ya realizaste el pago de este pedido. Para procesar tu reembolso necesitamos los datos de tu cuenta bancaria.</p>
+
+            <div class="form-group-modal">
+                <label>Banco *</label>
+                <select id="reembolsoBanco">
+                    <option value="">— Selecciona tu banco —</option>
+                    <option>BBVA</option>
+                    <option>Banamex / Citibanamex</option>
+                    <option>Santander</option>
+                    <option>Banorte</option>
+                    <option>HSBC</option>
+                    <option>Scotiabank</option>
+                    <option>Inbursa</option>
+                    <option>Azteca</option>
+                    <option>Nu (Nubank)</option>
+                    <option>Otro</option>
+                </select>
+                <div class="error-msg" id="errBanco">⚠ Selecciona tu banco</div>
+            </div>
+
+            <div class="form-group-modal">
+                <label>CLABE interbancaria (18 dígitos) *</label>
+                <input type="text" id="reembolsoClabe" placeholder="18 dígitos" maxlength="18" oninput="this.value=this.value.replace(/\D/g,'')">
+                <div class="error-msg" id="errClabe">⚠ La CLABE debe tener exactamente 18 dígitos</div>
+            </div>
+
+            <div class="form-group-modal">
+                <label>Nombre completo del titular *</label>
+                <input type="text" id="reembolsoTitular" placeholder="Como aparece en tu cuenta">
+                <div class="error-msg" id="errTitular">⚠ Ingresa el nombre del titular</div>
+            </div>
+
+            <div class="alerta-reembolso">
+                ⚠️ El reembolso se procesará en un plazo de 3 a 5 días hábiles una vez que el equipo verifique la solicitud. Asegúrate de que los datos sean correctos.
+            </div>
+        </div>
+
         <div class="modal-actions">
-            <button class="btn-no-cancel" onclick="cerrarModalCancelar()">No, mantener pedido</button>
-            <button class="btn-confirmar-cancel" onclick="confirmarCancelacion()">Sí, cancelar pedido</button>
+            <button class="btn-no-cancel" onclick="cerrarModalCancelar()">Mantener pedido</button>
+            <button class="btn-confirmar-cancel" id="btnConfirmarCancelar" onclick="confirmarCancelacion()">
+                Sí, cancelar pedido
+            </button>
         </div>
     </div>
 </div>
@@ -225,8 +330,10 @@
 <script>
 let pedidosCargados = [];
 let pedidoCancelando = null;
+let pedidoCancelandoData = null;
 let usuarioId = null;
 
+// ── Cargar historial ─────────────────────────────────────────────────────────
 async function cargarHistorial() {
     const lista = document.getElementById('listaPedidos');
     lista.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando tus pedidos…</p></div>';
@@ -236,7 +343,6 @@ async function cargarHistorial() {
         if (!sessionData.session) { window.location.href = 'index.html'; return; }
         usuarioId = sessionData.session.user.id;
 
-        // Cargar pedidos del usuario con sus detalles
         const { data: pedidos, error } = await supabaseClient
             .from('pedido')
             .select('*')
@@ -256,13 +362,20 @@ async function cargarHistorial() {
             return;
         }
 
-        // Para cada pedido cargar sus detalles
+        // Cargar detalles y pagos en paralelo
         const pedidosConDetalle = await Promise.all(pedidos.map(async ped => {
-            const { data: detalles } = await supabaseClient
-                .from('detalle_pedido')
-                .select('*, producto(id_producto, nombre, precio)')
-                .eq('id_pedido', ped.id_pedido);
-            return { ...ped, detalles: detalles || [] };
+            const [detallesRes, pagoRes] = await Promise.all([
+                supabaseClient
+                    .from('detalle_pedido')
+                    .select('*, producto(id_producto, nombre, precio)')
+                    .eq('id_pedido', ped.id_pedido),
+                supabaseClient
+                    .from('pago')
+                    .select('*')
+                    .eq('id_pedido', ped.id_pedido)
+                    .maybeSingle()
+            ]);
+            return { ...ped, detalles: detallesRes.data || [], pago: pagoRes.data || null };
         }));
 
         pedidosCargados = pedidosConDetalle;
@@ -282,6 +395,7 @@ function filtrarPedidos() {
     renderPedidos(filtrados);
 }
 
+// ── Render pedidos ───────────────────────────────────────────────────────────
 function renderPedidos(pedidos) {
     const lista = document.getElementById('listaPedidos');
 
@@ -295,73 +409,188 @@ function renderPedidos(pedidos) {
         return;
     }
 
-    lista.innerHTML = pedidos.map(ped => {
-        const fecha  = ped.fecha ? new Date(ped.fecha).toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' }) : '—';
-        const total  = parseFloat(ped.total || 0).toFixed(2);
-        const estado = ped.estado || 'pendiente';
-        const puedeCancel = (estado === 'pendiente' || estado === 'en_proceso');
+    lista.innerHTML = pedidos.map(ped => buildPedidoCard(ped)).join('');
+}
 
-        const itemsHTML = (ped.detalles || []).map(d => {
-            const idProd = d.producto?.id_producto || d.id_producto || '';
-            const imgSrc = `Productos/img/${idProd}.jpg`;
-            const nombre = d.producto?.nombre || 'Producto';
-            const subt   = parseFloat(d.subtotal || 0).toFixed(2);
-            return `
-                <div class="item-row">
-                    <div class="item-img">
-                        <img src="${imgSrc}" alt="${nombre}"
-                             onerror="this.parentElement.innerHTML='☕'">
-                    </div>
-                    <div class="item-info">
-                        <div class="item-nombre">${nombre}</div>
-                        <div class="item-cant">${d.cantidad} unidad(es)</div>
-                    </div>
-                    <div class="item-precio">$${subt}</div>
-                </div>`;
-        }).join('') || '<p style="color:#999;font-size:13px">Sin detalles registrados</p>';
+function buildPedidoCard(ped) {
+    const fecha  = ped.fecha
+        ? new Date(ped.fecha).toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' })
+        : '—';
+    const total  = parseFloat(ped.total || 0).toFixed(2);
+    const estado = ped.estado || 'pendiente';
+    const pago   = ped.pago;
 
-        const metodoLabel = ped.metodo_pago ? `💳 ${ped.metodo_pago}` : '';
+    // Determinar si puede cancelar
+    const puedeCancel = (estado === 'pendiente' || estado === 'en_proceso');
 
+    // Items HTML
+    const itemsHTML = (ped.detalles || []).map(d => {
+        const idProd = d.producto?.id_producto || d.id_producto || '';
+        const imgSrc = `Productos/img/${idProd}.jpg`;
+        const nombre = d.producto?.nombre || 'Producto';
+        const subt   = parseFloat(d.subtotal || 0).toFixed(2);
         return `
-            <div class="pedido-card" id="pedido-${ped.id_pedido}">
-                <div class="pedido-header">
-                    <div>
-                        <div class="pedido-id">Pedido #${ped.id_pedido}</div>
-                        <div class="pedido-fecha">📅 ${fecha}</div>
-                    </div>
-                    <span class="badge-estado badge-${estado}">${estadoLabel(estado)}</span>
+            <div class="item-row">
+                <div class="item-img">
+                    <img src="${imgSrc}" alt="${nombre}" onerror="this.parentElement.innerHTML='☕'">
                 </div>
-
-                <div class="pedido-items">${itemsHTML}</div>
-
-                <div class="pedido-footer">
-                    <div>
-                        <div class="pedido-total">Total: $${total} MXN</div>
-                        ${metodoLabel ? `<div class="pedido-metodo">${metodoLabel}</div>` : ''}
-                    </div>
-                    <div class="pedido-acciones">
-                        ${puedeCancel ? `
-                            <button class="btn-cancelar-pedido"
-                                onclick="abrirModalCancelar(${ped.id_pedido})">
-                                ✕ Cancelar pedido
-                            </button>` : ''}
-                    </div>
+                <div class="item-info">
+                    <div class="item-nombre">${nombre}</div>
+                    <div class="item-cant">${d.cantidad} unidad(es) · $${parseFloat(d.producto?.precio||0).toFixed(2)} c/u</div>
                 </div>
+                <div class="item-precio">$${subt}</div>
             </div>`;
-    }).join('');
+    }).join('') || '<p style="color:#999;font-size:13px;padding:8px 0">Sin detalles registrados</p>';
+
+    // Sección de pago
+    const pagoHTML = buildPagoHTML(pago, ped.metodo_pago, estado);
+
+    // Nota de incidente / reembolso
+    const incidenteHTML = buildIncidenteHTML(ped, estado);
+
+    // Botones
+    let botones = '';
+    if (puedeCancel) {
+        botones = `<button class="btn-cancelar-pedido" onclick="abrirModalCancelar(${ped.id_pedido})">✕ Cancelar pedido</button>`;
+    } else if (estado === 'cancelacion_solicitada') {
+        botones = `<span style="font-size:13px;color:#9a3412;font-weight:600">🕐 Cancelación en revisión</span>`;
+    }
+
+    return `
+        <div class="pedido-card" id="pedido-${ped.id_pedido}">
+            <div class="pedido-header">
+                <div>
+                    <div class="pedido-id">Pedido #${ped.id_pedido}</div>
+                    <div class="pedido-fecha">📅 ${fecha}</div>
+                </div>
+                <span class="badge-estado badge-${estado.replace(/_/g,'-')}">${estadoLabel(estado)}</span>
+            </div>
+
+            ${incidenteHTML}
+            ${pagoHTML}
+
+            <div class="pedido-items">${itemsHTML}</div>
+
+            <div class="pedido-footer">
+                <div>
+                    <div class="pedido-total">Total: $${total} MXN</div>
+                    ${ped.metodo_pago ? `<div class="pedido-metodo">💳 ${metodoLabel(ped.metodo_pago)}</div>` : ''}
+                    ${ped.direccion   ? `<div class="pedido-metodo">📍 ${ped.direccion}</div>` : ''}
+                </div>
+                <div class="pedido-acciones">${botones}</div>
+            </div>
+        </div>`;
+}
+
+function buildPagoHTML(pago, metodoPago, estadoPedido) {
+    if (!pago && !metodoPago) return '';
+
+    // Determinar estado visual del pago
+    let estadoPago = 'pendiente';
+    let claseExtra  = 'pago-pendiente-trans';
+    let iconoPago   = '⏳';
+
+    if (pago) {
+        if (pago.estado_pago === 'confirmado') { estadoPago = 'confirmado'; claseExtra = ''; iconoPago = '✅'; }
+        else if (pago.estado_pago === 'fallido') { estadoPago = 'fallido'; claseExtra = 'pago-fallido'; iconoPago = '❌'; }
+        else if (pago.estado_pago === 'reembolsado') { estadoPago = 'reembolsado'; claseExtra = 'pago-reembolso'; iconoPago = '💜'; }
+        else if (metodoPago === 'contraentrega') { estadoPago = 'pago_entrega'; claseExtra = ''; iconoPago = '💵'; }
+    } else if (metodoPago === 'contraentrega') {
+        estadoPago = 'pago_entrega'; claseExtra = ''; iconoPago = '💵';
+    }
+
+    const metodo = metodoPago ? metodoLabel(metodoPago) : '—';
+    const fechaPago = pago?.fecha_pago ? new Date(pago.fecha_pago).toLocaleDateString('es-MX') : '—';
+    const monto     = pago?.monto ? `$${parseFloat(pago.monto).toFixed(2)} MXN` : '—';
+
+    let etiqueta = '';
+    if (estadoPago === 'confirmado')   etiqueta = '<span class="pago-badge pago-badge-confirmado">✅ Confirmado</span>';
+    else if (estadoPago === 'fallido') etiqueta = '<span class="pago-badge pago-badge-fallido">❌ Fallido</span>';
+    else if (estadoPago === 'reembolsado') etiqueta = '<span class="pago-badge pago-badge-reembolsado">💜 Reembolsado</span>';
+    else if (estadoPago === 'pago_entrega') etiqueta = '<span class="pago-badge pago-badge-pendiente">💵 Pago contra entrega</span>';
+    else etiqueta = '<span class="pago-badge pago-badge-pendiente">⏳ Pendiente de confirmación</span>';
+
+    // Datos extra de reembolso
+    let reembolsoInfo = '';
+    if (pago?.datos_reembolso) {
+        let dr = {};
+        try { dr = JSON.parse(pago.datos_reembolso); } catch(_){}
+        if (dr.banco) {
+            reembolsoInfo = `<div class="pago-dato" style="margin-top:8px">
+                🏦 Reembolso a: <span>${dr.banco} · ${dr.clabe || '—'} · ${dr.titular || '—'}</span>
+            </div>`;
+        }
+    }
+
+    return `
+        <div class="pago-seccion ${claseExtra}" style="margin-bottom:14px">
+            <div class="pago-titulo">${iconoPago} Estado del pago</div>
+            <div class="pago-fila">
+                <div class="pago-dato">Método: <span>${metodo}</span></div>
+                ${pago ? `<div class="pago-dato">Monto: <span>${monto}</span></div>` : ''}
+                ${pago ? `<div class="pago-dato">Fecha: <span>${fechaPago}</span></div>` : ''}
+                <div class="pago-dato">${etiqueta}</div>
+            </div>
+            ${reembolsoInfo}
+            ${estadoPago === 'pendiente' && metodoPago === 'transferencia'
+                ? `<div style="font-size:12px;color:#92400e;margin-top:8px">📸 Recuerda enviar tu comprobante de transferencia por WhatsApp para confirmar tu pedido.</div>`
+                : ''}
+            ${estadoPago === 'fallido'
+                ? `<div style="font-size:12px;color:#991b1b;margin-top:8px">⚠️ Hubo un problema con tu pago. Contáctanos para resolverlo.</div>`
+                : ''}
+        </div>`;
+}
+
+function buildIncidenteHTML(ped, estado) {
+    if (estado === 'cancelacion_solicitada') {
+        let reembolsoTexto = '';
+        if (ped.datos_cancelacion) {
+            let dc = {};
+            try { dc = JSON.parse(ped.datos_cancelacion); } catch(_){}
+            if (dc.banco) {
+                reembolsoTexto = ` Reembolso solicitado a ${dc.banco} · CLABE: ${dc.clabe?.replace(/(\d{6})\d{6}(\d{6})/, '$1******$2') || '—'}.`;
+            }
+        }
+        return `<div class="incidente-nota">
+            <div class="incidente-nota-icon">🕐</div>
+            <div>Tu solicitud de cancelación está siendo revisada por nuestro equipo.${reembolsoTexto} Te notificaremos pronto.</div>
+        </div>`;
+    }
+    if (estado === 'reembolsado') {
+        return `<div class="incidente-nota" style="background:#f5f3ff;border-color:#ddd6fe;color:#6b21a8">
+            <div class="incidente-nota-icon">💜</div>
+            <div>Tu reembolso fue procesado. Si no lo recibes en 5 días hábiles, contáctanos.</div>
+        </div>`;
+    }
+    return '';
 }
 
 function estadoLabel(e) {
-    const map = { pendiente:'⏳ Pendiente', en_proceso:'🔄 En proceso', completado:'✅ Completado', cancelado:'❌ Cancelado' };
+    const map = {
+        pendiente:'⏳ Pendiente',
+        en_proceso:'🔄 En proceso',
+        completado:'✅ Completado',
+        cancelado:'❌ Cancelado',
+        cancelacion_solicitada:'🕐 Cancelación solicitada',
+        reembolsado:'💜 Reembolsado'
+    };
     return map[e] || e;
 }
 
-// ── Modal cancelar ──────────────────────────────────────────────────────────
+function metodoLabel(m) {
+    if (!m) return '';
+    const map = { transferencia:'Transferencia bancaria', contraentrega:'Pago contra entrega' };
+    return map[m] || m;
+}
+
+// ── Modal cancelar ───────────────────────────────────────────────────────────
 function abrirModalCancelar(idPedido) {
     const ped = pedidosCargados.find(p => p.id_pedido === idPedido);
     if (!ped) return;
-    pedidoCancelando = idPedido;
+    pedidoCancelando     = idPedido;
+    pedidoCancelandoData = ped;
 
+    // Items en el modal
     const itemsEl = document.getElementById('modalCancelarItems');
     const totalEl = document.getElementById('modalCancelarTotal');
 
@@ -372,51 +601,151 @@ function abrirModalCancelar(idPedido) {
          </div>`
     ).join('') || '<p style="color:#999;font-size:13px">Sin detalles</p>';
 
-    totalEl.textContent = `Total a cancelar: $${parseFloat(ped.total||0).toFixed(2)} MXN`;
+    totalEl.textContent = `Total del pedido: $${parseFloat(ped.total||0).toFixed(2)} MXN`;
+
+    // Determinar si el pago ya fue confirmado (necesita datos de reembolso)
+    const pagoConfirmado = ped.pago && ped.pago.estado_pago === 'confirmado';
+    const esTransferencia = ped.metodo_pago === 'transferencia';
+    const necesitaReembolso = pagoConfirmado && esTransferencia;
+
+    const secReembolso = document.getElementById('seccionReembolso');
+    if (necesitaReembolso) {
+        secReembolso.style.display = 'block';
+        document.getElementById('modalCancelarTitulo').textContent = '⚠️ Cancelar pedido y solicitar reembolso';
+        document.getElementById('modalCancelarDesc').textContent =
+            'Tu pago ya fue confirmado. Al cancelar, procesaremos el reembolso a la cuenta que indiques a continuación.';
+        document.getElementById('btnConfirmarCancelar').textContent = 'Cancelar y solicitar reembolso';
+        // Limpiar campos
+        document.getElementById('reembolsoBanco').value    = '';
+        document.getElementById('reembolsoClabe').value    = '';
+        document.getElementById('reembolsoTitular').value  = '';
+        ['errBanco','errClabe','errTitular'].forEach(id => document.getElementById(id).classList.remove('show'));
+        ['reembolsoBanco','reembolsoClabe','reembolsoTitular'].forEach(id =>
+            document.getElementById(id).classList.remove('error-input'));
+    } else {
+        secReembolso.style.display = 'none';
+        document.getElementById('modalCancelarTitulo').textContent = '⚠️ Cancelar pedido';
+        document.getElementById('modalCancelarDesc').textContent =
+            '¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.';
+        document.getElementById('btnConfirmarCancelar').textContent = 'Sí, cancelar pedido';
+    }
+
     document.getElementById('modalCancelar').classList.add('open');
 }
 
 function cerrarModalCancelar() {
     document.getElementById('modalCancelar').classList.remove('open');
     pedidoCancelando = null;
+    pedidoCancelandoData = null;
 }
 
+// ── Validar campos de reembolso ──────────────────────────────────────────────
+function validarReembolso() {
+    let ok = true;
+    const banco   = document.getElementById('reembolsoBanco').value;
+    const clabe   = document.getElementById('reembolsoClabe').value;
+    const titular = document.getElementById('reembolsoTitular').value.trim();
+
+    if (!banco) {
+        document.getElementById('errBanco').classList.add('show');
+        document.getElementById('reembolsoBanco').classList.add('error-input');
+        ok = false;
+    } else {
+        document.getElementById('errBanco').classList.remove('show');
+        document.getElementById('reembolsoBanco').classList.remove('error-input');
+    }
+
+    if (!/^\d{18}$/.test(clabe)) {
+        document.getElementById('errClabe').classList.add('show');
+        document.getElementById('reembolsoClabe').classList.add('error-input');
+        ok = false;
+    } else {
+        document.getElementById('errClabe').classList.remove('show');
+        document.getElementById('reembolsoClabe').classList.remove('error-input');
+    }
+
+    if (titular.length < 3) {
+        document.getElementById('errTitular').classList.add('show');
+        document.getElementById('reembolsoTitular').classList.add('error-input');
+        ok = false;
+    } else {
+        document.getElementById('errTitular').classList.remove('show');
+        document.getElementById('reembolsoTitular').classList.remove('error-input');
+    }
+
+    return ok;
+}
+
+// ── Confirmar cancelación ─────────────────────────────────────────────────────
 async function confirmarCancelacion() {
     if (!pedidoCancelando) return;
 
-    const btn = document.querySelector('.btn-confirmar-cancel');
-    btn.textContent = 'Cancelando…';
+    const ped  = pedidoCancelandoData;
+    const pagoConfirmado = ped?.pago?.estado_pago === 'confirmado';
+    const esTransferencia = ped?.metodo_pago === 'transferencia';
+    const necesitaReembolso = pagoConfirmado && esTransferencia;
+
+    // Validar datos de reembolso si aplica
+    if (necesitaReembolso) {
+        if (!validarReembolso()) return;
+    }
+
+    const btn = document.getElementById('btnConfirmarCancelar');
+    btn.textContent = 'Procesando…';
     btn.disabled = true;
 
     try {
+        let nuevoEstado = 'cancelado';
+        let datosCancelacion = null;
+
+        if (necesitaReembolso) {
+            // Si tiene pago confirmado → estado "cancelacion_solicitada" para revisión admin
+            nuevoEstado = 'cancelacion_solicitada';
+            datosCancelacion = JSON.stringify({
+                banco:   document.getElementById('reembolsoBanco').value,
+                clabe:   document.getElementById('reembolsoClabe').value,
+                titular: document.getElementById('reembolsoTitular').value.trim(),
+                fecha_solicitud: new Date().toISOString()
+            });
+        }
+
+        // Actualizar pedido
+        const updateData = { estado: nuevoEstado };
+        if (datosCancelacion) updateData.datos_cancelacion = datosCancelacion;
+
         const { error } = await supabaseClient
             .from('pedido')
-            .update({ estado: 'cancelado' })
+            .update(updateData)
             .eq('id_pedido', pedidoCancelando)
-            .eq('id_cliente', usuarioId); // seguridad: solo puede cancelar los suyos
+            .eq('id_cliente', usuarioId);
 
         if (error) throw error;
 
         cerrarModalCancelar();
         await cargarHistorial();
-        mostrarToast('✅ Pedido cancelado correctamente');
+
+        if (necesitaReembolso) {
+            mostrarToast('🕐 Cancelación solicitada. Revisaremos tu reembolso en 3-5 días hábiles.');
+        } else {
+            mostrarToast('✅ Pedido cancelado correctamente');
+        }
 
     } catch (err) {
         console.error('Error cancelando:', err);
         alert('Error al cancelar el pedido: ' + err.message);
     } finally {
-        btn.textContent = 'Sí, cancelar pedido';
+        btn.textContent = necesitaReembolso ? 'Cancelar y solicitar reembolso' : 'Sí, cancelar pedido';
         btn.disabled = false;
     }
 }
 
-// ── Toast ───────────────────────────────────────────────────────────────────
+// ── Toast ────────────────────────────────────────────────────────────────────
 function mostrarToast(msg) {
     const t = document.createElement('div');
-    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:#2e1b1b;color:white;padding:14px 20px;border-radius:10px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:fadeIn .3s ease`;
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:#2e1b1b;color:white;padding:14px 20px;border-radius:10px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)`;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    setTimeout(() => t.remove(), 4000);
 }
 
 // Cerrar modal al click fuera
@@ -424,7 +753,13 @@ document.getElementById('modalCancelar').addEventListener('click', e => {
     if (e.target === document.getElementById('modalCancelar')) cerrarModalCancelar();
 });
 
-// ── Init ────────────────────────────────────────────────────────────────────
+document.addEventListener('click', e => {
+    const um = document.querySelector('.user-menu');
+    const m  = document.getElementById('menuUsuario');
+    if (um && m && !um.contains(e.target)) m.style.display = 'none';
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
 initHeader().then(() => cargarHistorial());
 </script>
 </body>

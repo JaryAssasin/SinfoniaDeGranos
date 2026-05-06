@@ -27,11 +27,21 @@ async function initHeader() {
         const uid = sessionData.session.user.id;
 
         // Intentar cargar desde Supabase primero
-        const { data: user } = await supabaseClient
+        const { data: user, error: userError } = await supabaseClient
             .from('usuarios')
             .select('nombre, rol, foto_url')
             .eq('id', uid)
             .single();
+
+        // Si el usuario fue eliminado de la tabla usuarios (aunque tenga sesión auth),
+        // cerrar sesión y redirigir al login
+        if (userError || !user) {
+            await supabaseClient.auth.signOut();
+            ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userFoto','userId']
+                .forEach(k => localStorage.removeItem(k));
+            window.location.href = 'index.html';
+            return null;
+        }
 
         const nombre  = user?.nombre   || localStorage.getItem('userName') || 'Usuario';
         const fotoUrl = user?.foto_url  || localStorage.getItem('userFoto') || '';

@@ -250,7 +250,7 @@ function remover(id) {
 }
 function finalizarCompra() {
     if (!Object.keys(carritoData).length) { alert('❌ Tu carrito está vacío'); return; }
-    alert('✅ Gracias por tu compra. Funcionalidad de pago próximamente.');
+    window.location.href = 'checkout.html';
 }
 
 document.addEventListener('click', e => {

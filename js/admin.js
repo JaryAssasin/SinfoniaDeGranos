@@ -741,17 +741,20 @@ function fmtDate(d)   { return new Date(d).toLocaleDateString("es-MX"); }
 function newPDF(title, subtitle) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFillColor(46, 27, 14);
-  doc.rect(0, 0, 210, 28, "F");
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(16); doc.setTextColor(201, 150, 90);
-  doc.text("Sinfonía de Granos", 14, 12);
-  doc.setFontSize(10); doc.setTextColor(163, 99, 42);
-  doc.text(title, 14, 20);
-  if (subtitle) { doc.setFontSize(9); doc.setTextColor(160,120,80); doc.text(subtitle, 14, 26); }
-  doc.setFont("helvetica","normal"); doc.setTextColor(30, 20, 10);
-  doc.setFontSize(8); doc.setTextColor(130,90,50);
-  doc.text("Generado: " + new Date().toLocaleString("es-MX"), 140, 10);
+  // Encabezado limpio en blanco y negro
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18); doc.setTextColor(0, 0, 0);
+  doc.text("Sinfonía de Granos", 14, 14);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11); doc.setTextColor(60, 60, 60);
+  doc.text(title, 14, 22);
+  if (subtitle) { doc.setFontSize(9); doc.setTextColor(100,100,100); doc.text(subtitle, 14, 28); }
+  doc.setFontSize(8); doc.setTextColor(120,120,120);
+  doc.text("Generado: " + new Date().toLocaleString("es-MX"), 196, 10, { align: "right" });
+  // Línea separadora
+  doc.setDrawColor(0); doc.setLineWidth(0.6);
+  doc.line(14, 31, 196, 31);
+  doc.setTextColor(0, 0, 0);
   return doc;
 }
 
@@ -778,14 +781,14 @@ async function generarReporteVentas() {
   const doc = newPDF("Reporte de Ventas", subtitulo);
   const totalGeneral = (data??[]).reduce((s,p)=>s+Number(p.total??0),0);
   doc.autoTable({
-    startY:33,
+    startY:36,
     head:[["ID Pedido","Fecha","Cliente (UUID)","Total","Estado"]],
     body:(data??[]).map(p=>[p.id_pedido,fmtDate(p.fecha),p.id_cliente?p.id_cliente.substring(0,14)+"…":"—","$"+Number(p.total??0).toFixed(2),p.estado??"—"]),
     foot:[["","","TOTAL","$"+totalGeneral.toFixed(2),""]],
-    styles:{fontSize:9,cellPadding:4},
-    headStyles:{fillColor:[46,27,14],textColor:[201,150,90],fontStyle:"bold"},
-    footStyles:{fillColor:[30,18,8],textColor:[201,150,90],fontStyle:"bold"},
-    alternateRowStyles:{fillColor:[252,244,230]},theme:"striped"
+    styles:{fontSize:9,cellPadding:4,textColor:[0,0,0]},
+    headStyles:{fillColor:[30,30,30],textColor:[255,255,255],fontStyle:"bold"},
+    footStyles:{fillColor:[240,240,240],textColor:[0,0,0],fontStyle:"bold"},
+    alternateRowStyles:{fillColor:[248,248,248]},theme:"striped"
   });
   doc.save(`reporte_ventas_${tipo}_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}.pdf`);
 }
@@ -795,11 +798,11 @@ async function generarReporteProductos() {
   if (error) { alert("Error al obtener datos."); return; }
   const doc = newPDF("Reporte de Inventario","Estado actual del inventario");
   doc.autoTable({
-    startY:33,head:[["ID","Nombre","Descripción","Stock","Precio"]],
+    startY:36,head:[["ID","Nombre","Descripción","Stock","Precio"]],
     body:(data??[]).map(p=>[p.id_producto,p.nombre,p.descripcion?(p.descripcion.length>40?p.descripcion.substring(0,40)+"…":p.descripcion):"—",p.stock,"$"+Number(p.precio).toFixed(2)]),
-    styles:{fontSize:9,cellPadding:4},
-    headStyles:{fillColor:[46,27,14],textColor:[201,150,90],fontStyle:"bold"},
-    alternateRowStyles:{fillColor:[252,244,230]},theme:"striped"
+    styles:{fontSize:9,cellPadding:4,textColor:[0,0,0]},
+    headStyles:{fillColor:[30,30,30],textColor:[255,255,255],fontStyle:"bold"},
+    alternateRowStyles:{fillColor:[248,248,248]},theme:"striped"
   });
   doc.save(`inventario_${new Date().toISOString().slice(0,10)}.pdf`);
 }
@@ -814,13 +817,13 @@ async function generarReportePagos() {
   const doc = newPDF("Reporte de Pagos", subtitulo);
   const totalGeneral = (data??[]).reduce((s,pg)=>s+Number(pg.monto??0),0);
   doc.autoTable({
-    startY:33,head:[["ID Pago","Pedido","Método","Monto","Fecha Pago"]],
-    body:(data??[]).map(pg=>[pg.id_pago,"#"+pg.id_pedido,pg.metodo??"—","$"+Number(pg.monto??0).toFixed(2),pg.fecha_pago?fmtDate(pg.fecha_pago):"—"]),
-    foot:[["","","TOTAL","$"+totalGeneral.toFixed(2),""]],
-    styles:{fontSize:9,cellPadding:4},
-    headStyles:{fillColor:[46,27,14],textColor:[201,150,90],fontStyle:"bold"},
-    footStyles:{fillColor:[30,18,8],textColor:[201,150,90],fontStyle:"bold"},
-    alternateRowStyles:{fillColor:[252,244,230]},theme:"striped"
+    startY:36,head:[["ID Pago","Pedido","Método","Monto","Fecha Pago","Estado"]],
+    body:(data??[]).map(pg=>[pg.id_pago,"#"+pg.id_pedido,pg.metodo??"—","$"+Number(pg.monto??0).toFixed(2),pg.fecha_pago?fmtDate(pg.fecha_pago):"—",pg.estado_pago??"pendiente"]),
+    foot:[["","","","TOTAL","$"+totalGeneral.toFixed(2),""]],
+    styles:{fontSize:9,cellPadding:4,textColor:[0,0,0]},
+    headStyles:{fillColor:[30,30,30],textColor:[255,255,255],fontStyle:"bold"},
+    footStyles:{fillColor:[240,240,240],textColor:[0,0,0],fontStyle:"bold"},
+    alternateRowStyles:{fillColor:[248,248,248]},theme:"striped"
   });
   doc.save(`reporte_pagos_${new Date().toISOString().slice(0,10)}.pdf`);
 }

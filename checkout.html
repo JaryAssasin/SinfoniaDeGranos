@@ -35,20 +35,15 @@
         .dropdown button { padding:10px 14px; border:none; background:none; text-align:left; cursor:pointer; width:100%; font-size:14px; }
         .dropdown button:hover { background:#f5f5f5; }
 
-        /* Breadcrumb */
         .breadcrumb { display:flex; align-items:center; gap:8px; padding:16px 30px; font-size:13px; color:#888; }
         .breadcrumb a { color:#4b2e2e; text-decoration:none; }
-        .breadcrumb span { color:#bbb; }
 
-        /* Layout */
         .checkout-wrap { max-width:1000px; margin:0 auto; padding:10px 20px 50px; display:grid; grid-template-columns:1fr 380px; gap:24px; }
         @media(max-width:760px) { .checkout-wrap { grid-template-columns:1fr; } }
 
-        /* Sección izquierda */
         .section-card { background:white; border-radius:16px; padding:24px; margin-bottom:20px; box-shadow:0 4px 16px rgba(0,0,0,.07); }
         .section-title { font-size:18px; font-weight:700; color:#3b2a1e; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid #f5ede4; }
 
-        /* Dirección */
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .form-group { margin-bottom:14px; }
         .form-group label { display:block; font-size:13px; color:#5a4636; font-weight:600; margin-bottom:5px; }
@@ -59,6 +54,39 @@
         .form-group input.error { border-color:#e53e3e; }
         .field-error { font-size:12px; color:#e53e3e; margin-top:3px; display:none; }
         .field-error.show { display:block; }
+
+        /* Mapa */
+        .map-section { margin-bottom:14px; }
+        .map-section label { display:block; font-size:13px; color:#5a4636; font-weight:600; margin-bottom:8px; }
+        .map-toggle-btn {
+            display:flex; align-items:center; gap:8px;
+            padding:10px 16px; background:#f0fdf4; border:2px solid #86efac;
+            border-radius:10px; cursor:pointer; font-size:14px; color:#15803d; font-weight:600;
+            transition:all .2s; width:100%;
+        }
+        .map-toggle-btn:hover { background:#dcfce7; border-color:#4ade80; }
+        .map-toggle-btn.active { background:#15803d; color:white; border-color:#15803d; }
+        #mapContainer {
+            display:none; margin-top:12px; border-radius:12px; overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,.15); border:2px solid #e5e7eb;
+        }
+        #mapContainer.visible { display:block; }
+        #map { width:100%; height:300px; }
+        .map-search-bar {
+            display:flex; gap:8px; padding:10px; background:#f9f9f9; border-bottom:1px solid #eee;
+        }
+        .map-search-bar input {
+            flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px;
+        }
+        .map-search-bar button {
+            padding:8px 14px; background:#4b2e2e; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px;
+        }
+        .map-coords-info {
+            padding:10px 14px; background:#f0fdf4; border-top:1px solid #e5e7eb;
+            font-size:13px; color:#15803d; display:none;
+        }
+        .map-coords-info.visible { display:block; }
+        .map-help { font-size:12px; color:#888; margin-top:6px; font-style:italic; }
 
         /* Métodos de pago */
         .metodo-opciones { display:flex; flex-direction:column; gap:12px; }
@@ -74,7 +102,6 @@
         .metodo-nombre { font-size:15px; font-weight:700; color:#3b2a1e; }
         .metodo-desc   { font-size:13px; color:#888; margin-top:2px; }
 
-        /* Info transferencia */
         .transferencia-info {
             display:none; background:#fef3c7; border:1px solid #fbbf24;
             border-radius:10px; padding:14px 16px; margin-top:14px;
@@ -83,6 +110,20 @@
         .transferencia-info h4 { color:#92400e; margin-bottom:6px; font-size:14px; }
         .cuenta-dato { font-size:16px; font-weight:700; color:#78350f; letter-spacing:.5px; margin:4px 0; }
         .transferencia-info p { font-size:13px; color:#92400e; }
+        .btn-whatsapp {
+            display:inline-flex; align-items:center; gap:8px;
+            margin-top:12px; padding:10px 18px; background:#25D366; color:white;
+            border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;
+            text-decoration:none; transition:opacity .2s;
+        }
+        .btn-whatsapp:hover { opacity:.9; }
+
+        .contraentrega-info {
+            display:none; background:#f0fdf4; border:1px solid #86efac;
+            border-radius:10px; padding:14px 16px; margin-top:14px;
+        }
+        .contraentrega-info.show { display:block; }
+        .contraentrega-info p { font-size:13px; color:#15803d; }
 
         /* Resumen */
         .resumen-card { background:white; border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.07); position:sticky; top:80px; }
@@ -112,8 +153,8 @@
         .btn-comprar:disabled { opacity:.5; cursor:not-allowed; }
         .btn-volver { width:100%; padding:11px; margin-top:10px; background:transparent; color:#4b2e2e; border:2px solid #4b2e2e; border-radius:10px; font-size:15px; cursor:pointer; transition:all .2s; }
         .btn-volver:hover { background:#4b2e2e; color:white; }
+        .seguridad-info { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:12px; font-size:12px; color:#888; }
 
-        /* Footer */
         .footer-bar { background:#2e1b1b; padding:30px; text-align:center; color:white; }
         .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:10px; }
         .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; }
@@ -151,12 +192,11 @@
 
 <div class="checkout-wrap">
 
-    <!-- IZQUIERDA: Dirección + Método de pago -->
+    <!-- IZQUIERDA -->
     <div>
-
-        <!-- Dirección de entrega -->
+        <!-- Datos del destinatario -->
         <div class="section-card">
-            <div class="section-title">📍 Dirección de entrega</div>
+            <div class="section-title">👤 Datos de contacto</div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Nombre del destinatario *</label>
@@ -165,10 +205,38 @@
                 </div>
                 <div class="form-group">
                     <label>Teléfono de contacto *</label>
-                    <input type="tel" id="dirTelefono" placeholder="10 dígitos" maxlength="10">
+                    <input type="tel" id="dirTelefono" placeholder="10 dígitos" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
                     <div class="field-error" id="errDirTelefono">⚠ Ingresa 10 dígitos</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Dirección de entrega -->
+        <div class="section-card">
+            <div class="section-title">📍 Dirección de entrega</div>
+
+            <!-- Mapa interactivo -->
+            <div class="map-section">
+                <label>📌 Ubicación exacta en el mapa <span style="color:#888;font-weight:400">(recomendado)</span></label>
+                <button class="map-toggle-btn" id="btnToggleMap" onclick="toggleMap()">
+                    <span>🗺️</span> Seleccionar mi ubicación en el mapa
+                </button>
+                <div class="map-help">Haz clic en el mapa para colocar un pin en tu dirección exacta. Los campos de texto se llenarán automáticamente.</div>
+
+                <div id="mapContainer">
+                    <div class="map-search-bar">
+                        <input type="text" id="mapSearchInput" placeholder="Buscar dirección en el mapa…" onkeydown="if(event.key==='Enter') buscarEnMapa()">
+                        <button onclick="buscarEnMapa()">🔍 Buscar</button>
+                        <button onclick="usarMiUbicacion()" title="Usar mi ubicación GPS" style="background:#2563eb">📍 GPS</button>
+                    </div>
+                    <div id="map"></div>
+                    <div class="map-coords-info" id="mapCoordsInfo">
+                        📍 <span id="mapDireccionTexto">Seleccionando…</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos de dirección (se rellenan automáticamente con el mapa o manualmente) -->
             <div class="form-group">
                 <label>Calle y número *</label>
                 <input type="text" id="dirCalle" placeholder="Ej: Av. Reforma 123">
@@ -194,14 +262,18 @@
                 </div>
                 <div class="form-group">
                     <label>Código Postal *</label>
-                    <input type="text" id="dirCP" placeholder="5 dígitos" maxlength="5">
+                    <input type="text" id="dirCP" placeholder="5 dígitos" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')">
                     <div class="field-error" id="errDirCP">⚠ Ingresa 5 dígitos</div>
                 </div>
             </div>
             <div class="form-group">
                 <label>Referencias (opcional)</label>
-                <textarea id="dirReferencias" rows="2" placeholder="Entre calles, color de fachada, etc."></textarea>
+                <textarea id="dirReferencias" rows="2" placeholder="Entre calles, color de fachada, referencias visibles…"></textarea>
             </div>
+
+            <!-- Coordenadas ocultas (se guardan si el usuario usó el mapa) -->
+            <input type="hidden" id="geoLat">
+            <input type="hidden" id="geoLng">
         </div>
 
         <!-- Método de pago -->
@@ -213,7 +285,7 @@
                     <span class="metodo-icon">🏦</span>
                     <div class="metodo-info">
                         <div class="metodo-nombre">Transferencia bancaria</div>
-                        <div class="metodo-desc">Pago anticipado por transferencia a BBVA</div>
+                        <div class="metodo-desc">Pago anticipado por transferencia a BBVA · Confirmación manual</div>
                     </div>
                 </label>
 
@@ -227,28 +299,35 @@
                 </label>
             </div>
 
-            <!-- Datos de transferencia (se muestra al elegir transferencia) -->
+            <!-- Info transferencia -->
             <div class="transferencia-info" id="infoTransferencia">
                 <h4>📋 Datos para transferencia:</h4>
-                <!-- ⬇ Cambia estos datos por los de tu cuenta bancaria real -->
                 <p>Banco: <span class="cuenta-dato">BBVA</span></p>
-                <p>CLABE / Número de cuenta: <span class="cuenta-dato" id="numeroCuenta">XXXX XXXX XXXX XXXX</span></p>
+                <p>Número de cuenta: <span class="cuenta-dato">XXXX XXXX XXXX XXXX XX</span></p>
                 <p>Titular: <span class="cuenta-dato">Sinfonía de Granos</span></p>
-                <p style="margin-top:8px;font-size:12px">📸 Envía tu comprobante de pago por WhatsApp o correo para confirmar tu pedido.</p>
+                <p style="margin-top:10px;font-size:12px">📸 Una vez que realices la transferencia, envía tu comprobante por WhatsApp:</p>
+                <a class="btn-whatsapp" href="https://wa.me/529511607647" target="_blank">
+                    <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Enviar comprobante: 951 160 7647
+                </a>
+                <p style="margin-top:8px;font-size:12px;color:#78350f;font-weight:600">⚠️ Tu pedido quedará "Pendiente" hasta que confirmemos el pago.</p>
+            </div>
+
+            <!-- Info contraentrega -->
+            <div class="contraentrega-info" id="infoContraentrega">
+                <p>✅ Pagarás en efectivo al momento de recibir tu pedido. No olvides tener el monto exacto.</p>
+                <p style="margin-top:6px;font-size:12px;color:#15803d">¿Dudas? Escríbenos por WhatsApp:
+                    <a href="https://wa.me/529511607647" target="_blank" style="color:#15803d;font-weight:700">951 160 7647</a>
+                </p>
             </div>
         </div>
-
     </div>
 
-    <!-- DERECHA: Resumen de compra -->
+    <!-- DERECHA: Resumen -->
     <div>
         <div class="resumen-card">
             <div class="resumen-title">🛒 Resumen de tu compra</div>
-
-            <div id="resumenItems">
-                <!-- Se genera dinámicamente -->
-            </div>
-
+            <div id="resumenItems"></div>
             <hr class="resumen-divider">
             <div class="resumen-linea">
                 <span>Subtotal</span>
@@ -269,6 +348,7 @@
             <button class="btn-volver" onclick="irProductos()">
                 ← Seguir comprando
             </button>
+            <div class="seguridad-info">🔒 Pago seguro · Datos protegidos</div>
         </div>
     </div>
 </div>
@@ -281,30 +361,172 @@
     </div>
 </div>
 
+<!-- Google Maps API — reemplaza YOUR_API_KEY con tu clave real -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
+
 <script>
 let carritoData = JSON.parse(localStorage.getItem('carrito')) || {};
 let metodoSeleccionado = '';
 let usuarioSesion = null;
 
-// ── Cargar resumen del carrito ──────────────────────────────────────────────
+// ── Google Maps ─────────────────────────────────────────────────────────────
+let map, marker, geocoder, placesService, autocomplete;
+let mapaAbierto = false;
+
+function initMap() {
+    // Centro inicial: Oaxaca de Juárez
+    const oaxaca = { lat: 17.0669, lng: -96.7203 };
+
+    geocoder = new google.maps.Geocoder();
+
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: oaxaca,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        gestureHandling: 'greedy',
+    });
+
+    marker = new google.maps.Marker({
+        map,
+        draggable: true,
+        animation: google.maps.Animation.DROP,
+        title: 'Arrastra el pin a tu dirección exacta',
+    });
+
+    // Clic en mapa → poner pin
+    map.addListener('click', e => colocarPin(e.latLng));
+
+    // Arrastrar pin → actualizar dirección
+    marker.addListener('dragend', e => geocodificarPosicion(e.latLng));
+
+    // Autocomplete en el buscador del mapa
+    autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('mapSearchInput'),
+        { componentRestrictions: { country: 'mx' } }
+    );
+    autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        map.setCenter(place.geometry.location);
+        map.setZoom(17);
+        colocarPin(place.geometry.location);
+    });
+}
+
+function toggleMap() {
+    mapaAbierto = !mapaAbierto;
+    const container = document.getElementById('mapContainer');
+    const btn = document.getElementById('btnToggleMap');
+    container.classList.toggle('visible', mapaAbierto);
+    btn.classList.toggle('active', mapaAbierto);
+    btn.innerHTML = mapaAbierto
+        ? '<span>✅</span> Mapa abierto — haz clic para colocar tu pin'
+        : '<span>🗺️</span> Seleccionar mi ubicación en el mapa';
+
+    if (mapaAbierto && map) {
+        // Forzar redibujado del mapa
+        setTimeout(() => google.maps.event.trigger(map, 'resize'), 100);
+    }
+}
+
+function colocarPin(latLng) {
+    marker.setPosition(latLng);
+    marker.setVisible(true);
+    geocodificarPosicion(latLng);
+}
+
+function geocodificarPosicion(latLng) {
+    geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            const comp = results[0].address_components;
+            const get = type => comp.find(c => c.types.includes(type))?.long_name || '';
+
+            // Rellenar campos automáticamente
+            const numero   = get('street_number');
+            const calle    = get('route');
+            const colonia  = get('sublocality_level_1') || get('neighborhood') || get('sublocality');
+            const ciudad   = get('locality') || get('administrative_area_level_2');
+            const estado   = get('administrative_area_level_1');
+            const cp       = get('postal_code');
+
+            if (calle)   document.getElementById('dirCalle').value   = numero ? `${calle} ${numero}` : calle;
+            if (colonia) document.getElementById('dirColonia').value = colonia;
+            if (ciudad)  document.getElementById('dirCiudad').value  = ciudad;
+            if (estado)  document.getElementById('dirEstado').value  = estado;
+            if (cp)      document.getElementById('dirCP').value      = cp;
+
+            // Guardar coordenadas
+            document.getElementById('geoLat').value = latLng.lat();
+            document.getElementById('geoLng').value = latLng.lng();
+
+            // Mostrar dirección detectada
+            const textoDir = results[0].formatted_address;
+            document.getElementById('mapDireccionTexto').textContent = textoDir;
+            document.getElementById('mapCoordsInfo').classList.add('visible');
+
+            // Limpiar errores de campos que se rellenaron
+            ['dirCalle','dirColonia','dirCiudad','dirEstado'].forEach(id => {
+                if (document.getElementById(id).value) {
+                    document.getElementById(id).classList.remove('error');
+                }
+            });
+        }
+    });
+}
+
+function buscarEnMapa() {
+    const query = document.getElementById('mapSearchInput').value.trim();
+    if (!query) return;
+    geocoder.geocode({ address: query + ', Oaxaca, México' }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            map.setCenter(results[0].geometry.location);
+            map.setZoom(17);
+            colocarPin(results[0].geometry.location);
+        } else {
+            alert('No se encontró esa dirección. Intenta ser más específico.');
+        }
+    });
+}
+
+function usarMiUbicacion() {
+    if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización.'); return; }
+    const btn = event.currentTarget;
+    btn.textContent = '⏳ Localizando…';
+    btn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            const latLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            map.setCenter(latLng);
+            map.setZoom(17);
+            colocarPin(latLng);
+            btn.textContent = '📍 GPS';
+            btn.disabled = false;
+        },
+        err => {
+            alert('No se pudo obtener tu ubicación. Verifica los permisos del navegador.');
+            btn.textContent = '📍 GPS';
+            btn.disabled = false;
+        }
+    );
+}
+
+// ── Resumen del carrito ─────────────────────────────────────────────────────
 function cargarResumen() {
     if (!Object.keys(carritoData).length) {
-        // Carrito vacío → regresar
         alert('Tu carrito está vacío. Agrega productos antes de continuar.');
         window.location.href = 'productos.html';
         return;
     }
-
     const cont = document.getElementById('resumenItems');
     let total = 0;
     cont.innerHTML = '';
-
     for (let id in carritoData) {
         const p = carritoData[id];
         const subtotal = p.precio * p.cantidad;
         total += subtotal;
         const imgSrc = `Productos/img/${id}.jpg`;
-
         cont.innerHTML += `
             <div class="resumen-item">
                 <div class="resumen-img">
@@ -317,7 +539,6 @@ function cargarResumen() {
                 <div class="resumen-precio">$${subtotal.toFixed(2)}</div>
             </div>`;
     }
-
     document.getElementById('resumenSubtotal').textContent = `$${total.toFixed(2)}`;
     document.getElementById('resumenTotal').textContent     = `$${total.toFixed(2)} MXN`;
 }
@@ -325,16 +546,14 @@ function cargarResumen() {
 // ── Seleccionar método de pago ──────────────────────────────────────────────
 function seleccionarMetodo(metodo) {
     metodoSeleccionado = metodo;
-
     document.querySelectorAll('.metodo-opcion').forEach(el => el.classList.remove('selected'));
-    document.getElementById('opcion' + metodo.charAt(0).toUpperCase() + metodo.slice(1))
-        ?.classList.add('selected');
-
-    const infoT = document.getElementById('infoTransferencia');
-    infoT.classList.toggle('show', metodo === 'transferencia');
+    const opId = 'opcion' + metodo.charAt(0).toUpperCase() + metodo.slice(1);
+    document.getElementById(opId)?.classList.add('selected');
+    document.getElementById('infoTransferencia').classList.toggle('show', metodo === 'transferencia');
+    document.getElementById('infoContraentrega').classList.toggle('show', metodo === 'contraentrega');
 }
 
-// ── Validaciones de dirección ───────────────────────────────────────────────
+// ── Validaciones ────────────────────────────────────────────────────────────
 function validarCampo(id, errId, condicion) {
     const input = document.getElementById(id);
     const err   = document.getElementById(errId);
@@ -352,17 +571,15 @@ function validarDireccion() {
     const notEmpty = v => v.trim().length > 0;
     const isTel    = v => /^\d{10}$/.test(v.trim());
     const isCP     = v => /^\d{5}$/.test(v.trim());
-
-    const checks = [
-        validarCampo('dirNombre',    'errDirNombre',    notEmpty),
-        validarCampo('dirTelefono',  'errDirTelefono',  isTel),
-        validarCampo('dirCalle',     'errDirCalle',     notEmpty),
-        validarCampo('dirColonia',   'errDirColonia',   notEmpty),
-        validarCampo('dirCiudad',    'errDirCiudad',    notEmpty),
-        validarCampo('dirEstado',    'errDirEstado',    notEmpty),
-        validarCampo('dirCP',        'errDirCP',        isCP),
-    ];
-    return checks.every(Boolean);
+    return [
+        validarCampo('dirNombre',   'errDirNombre',   notEmpty),
+        validarCampo('dirTelefono', 'errDirTelefono', isTel),
+        validarCampo('dirCalle',    'errDirCalle',    notEmpty),
+        validarCampo('dirColonia',  'errDirColonia',  notEmpty),
+        validarCampo('dirCiudad',   'errDirCiudad',   notEmpty),
+        validarCampo('dirEstado',   'errDirEstado',   notEmpty),
+        validarCampo('dirCP',       'errDirCP',       isCP),
+    ].every(Boolean);
 }
 
 // ── Realizar compra ─────────────────────────────────────────────────────────
@@ -371,7 +588,6 @@ async function realizarCompra() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
-
     if (!metodoSeleccionado) {
         alert('⚠️ Selecciona un método de pago para continuar.');
         return;
@@ -386,14 +602,15 @@ async function realizarCompra() {
         if (!sessionData.session) { window.location.href = 'index.html'; return; }
         const uid = sessionData.session.user.id;
 
-        // Calcular total
         let total = 0;
         for (let id in carritoData) {
             total += carritoData[id].precio * carritoData[id].cantidad;
         }
 
-        // Armar dirección
-        const direccion = [
+        const lat = document.getElementById('geoLat').value;
+        const lng = document.getElementById('geoLng').value;
+
+        const direccionTexto = [
             document.getElementById('dirCalle').value.trim(),
             document.getElementById('dirColonia').value.trim(),
             document.getElementById('dirCiudad').value.trim(),
@@ -401,65 +618,62 @@ async function realizarCompra() {
             'CP ' + document.getElementById('dirCP').value.trim()
         ].join(', ');
 
+        // Incluir coordenadas en la dirección si el usuario usó el mapa
+        const direccionFinal = (lat && lng)
+            ? `${direccionTexto} [geo:${parseFloat(lat).toFixed(6)},${parseFloat(lng).toFixed(6)}]`
+            : direccionTexto;
+
         // 1. Crear pedido
         const { data: pedido, error: pedErr } = await supabaseClient
             .from('pedido')
             .insert([{
-                id_cliente:    uid,
-                fecha:         new Date().toISOString(),
-                total:         parseFloat(total.toFixed(2)),
-                estado:        'pendiente',
-                metodo_pago:   metodoSeleccionado,
-                direccion:     direccion,
-                telefono:      document.getElementById('dirTelefono').value.trim(),
-                destinatario:  document.getElementById('dirNombre').value.trim(),
-                referencias:   document.getElementById('dirReferencias').value.trim() || null,
+                id_cliente:   uid,
+                fecha:        new Date().toISOString(),
+                total:        parseFloat(total.toFixed(2)),
+                estado:       'pendiente',
+                metodo_pago:  metodoSeleccionado,
+                direccion:    direccionFinal,
+                telefono:     document.getElementById('dirTelefono').value.trim(),
+                destinatario: document.getElementById('dirNombre').value.trim(),
+                referencias:  document.getElementById('dirReferencias').value.trim() || null,
             }])
             .select()
             .single();
 
         if (pedErr) throw pedErr;
 
-        // 2. Crear detalles del pedido
+        // 2. Detalles
         const detalles = Object.entries(carritoData).map(([id, item]) => ({
             id_pedido:   pedido.id_pedido,
             id_producto: parseInt(id),
             cantidad:    item.cantidad,
             subtotal:    parseFloat((item.precio * item.cantidad).toFixed(2)),
         }));
-
-        const { error: detErr } = await supabaseClient
-            .from('detalle_pedido')
-            .insert(detalles);
-
+        const { error: detErr } = await supabaseClient.from('detalle_pedido').insert(detalles);
         if (detErr) throw detErr;
 
-        // 3. Crear registro de pago
-        const { error: pagoErr } = await supabaseClient
-            .from('pago')
-            .insert([{
-                id_pedido:   pedido.id_pedido,
-                metodo:      metodoSeleccionado,
-                monto:       parseFloat(total.toFixed(2)),
-                fecha_pago:  new Date().toISOString(),
-            }]);
-
-        // El error de pago no es crítico, continuar de todas formas
-        if (pagoErr) console.warn('Aviso pago:', pagoErr.message);
+        // 3. Pago
+        await supabaseClient.from('pago').insert([{
+            id_pedido:   pedido.id_pedido,
+            metodo:      metodoSeleccionado,
+            monto:       parseFloat(total.toFixed(2)),
+            fecha_pago:  new Date().toISOString(),
+            estado_pago: 'pendiente',
+        }]);
 
         // 4. Limpiar carrito
         localStorage.removeItem('carrito');
 
-        // 5. Guardar info del pedido para la página de confirmación
+        // 5. Datos para confirmación
         sessionStorage.setItem('ultimoPedido', JSON.stringify({
             id:       pedido.id_pedido,
-            total:    total,
+            total,
             metodo:   metodoSeleccionado,
             items:    carritoData,
-            direccion
+            direccion: direccionTexto,
+            lat, lng
         }));
 
-        // 6. Redirigir a confirmación
         window.location.href = 'confirmacion_pedido.html';
 
     } catch (err) {
@@ -470,17 +684,19 @@ async function realizarCompra() {
     }
 }
 
-// ── Init ────────────────────────────────────────────────────────────────────
+// ── Misc ────────────────────────────────────────────────────────────────────
+document.addEventListener('click', e => {
+    const um = document.querySelector('.user-menu');
+    if (um && !um.contains(e.target)) document.getElementById('menuUsuario').style.display = 'none';
+});
+
 initHeader().then(user => {
     if (!user) return;
     usuarioSesion = user;
-
-    // Pre-llenar nombre si ya está guardado
     const nombre = localStorage.getItem('userName') || '';
-    if (nombre && document.getElementById('dirNombre').value === '') {
+    if (nombre && !document.getElementById('dirNombre').value) {
         document.getElementById('dirNombre').value = nombre;
     }
-
     cargarResumen();
 });
 </script>
