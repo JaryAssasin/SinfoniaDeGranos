@@ -8,17 +8,17 @@
     <script src="js/header.js"></script>
     <style>
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#F5EDD5,#EDE0B8); }
 
         /* ── HEADER ─────────────────────────────────────────────────── */
         .header {
-            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            background:linear-gradient(to right,#735B1F,#3D3010);
             color:white; display:flex; justify-content:space-between;
             align-items:center; padding:18px 30px; font-size:20px;
         }
         .header-right { display:flex; gap:15px; align-items:center; }
         .icon-btn {
-            background:white; color:#2e1b1b; border:none;
+            background:white; color:#3D3010; border:none;
             padding:8px 12px; border-radius:8px; cursor:pointer;
             transition:transform .2s,box-shadow .2s;
         }
@@ -35,7 +35,7 @@
         .user-pill:hover { background:rgba(255,255,255,.22); }
         .pill-avatar {
             width:32px; height:32px; border-radius:50%;
-            background:#a0632a; color:white;
+            background:#8F7228; color:white;
             display:flex; align-items:center; justify-content:center;
             font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
         }
@@ -67,7 +67,7 @@
             padding:24px; transition:right .3s ease; z-index:20;
         }
         .carrito.active { right:0; }
-        .carrito h2 { margin-bottom:14px; color:#2e1b1b; }
+        .carrito h2 { margin-bottom:14px; color:#3D3010; }
         #items p {
             margin:10px 0; padding:8px 10px; border:1px solid #ddd;
             border-radius:8px; display:flex; justify-content:space-between;
@@ -75,13 +75,13 @@
         }
         #items p div { display:flex; align-items:center; gap:5px; }
         #items p div button {
-            width:25px; height:25px; background:#4b2e2e; color:white;
+            width:25px; height:25px; background:#735B1F; color:white;
             border:none; border-radius:4px; cursor:pointer;
         }
 
         /* ── HERO / RESUMEN ──────────────────────────────────────────── */
         .hero {
-            background:linear-gradient(135deg,#3b2215 0%,#6b3a1f 50%,#2e1b0e 100%);
+            background:linear-gradient(135deg,#3D3010 0%,#735B1F 50%,#3D3010 100%);
             color:white; padding:60px 80px; display:flex;
             align-items:center; gap:60px;
         }
@@ -90,11 +90,11 @@
             font-size:42px; font-weight:800; line-height:1.15;
             margin-bottom:14px;
         }
-        .hero-texto h1 span { color:#e8b86d; }
+        .hero-texto h1 span { color:#C4A245; }
         .hero-texto p { font-size:16px; line-height:1.8; opacity:.85; margin-bottom:24px; }
         .hero-btns { display:flex; gap:12px; flex-wrap:wrap; }
         .btn-hero-primary {
-            padding:14px 28px; background:#e8b86d; color:#2e1b0e;
+            padding:14px 28px; background:#C4A245; color:#3D3010;
             border:none; border-radius:10px; font-size:15px; font-weight:700;
             cursor:pointer; transition:transform .2s,box-shadow .2s;
         }
@@ -108,7 +108,7 @@
         /* Datos destacados */
         .hero-stats { display:flex; gap:30px; margin-top:28px; }
         .stat-item { text-align:center; }
-        .stat-num { font-size:28px; font-weight:800; color:#e8b86d; }
+        .stat-num { font-size:28px; font-weight:800; color:#C4A245; }
         .stat-label { font-size:12px; opacity:.7; }
 
         /* Slider */
@@ -134,11 +134,11 @@
         }
         .feature-item {
             flex:1; padding:20px; text-align:center;
-            border-right:1px solid #f0e8df;
+            border-right:1px solid #EDE0B8;
         }
         .feature-item:last-child { border-right:none; }
         .feature-icon { font-size:26px; margin-bottom:6px; }
-        .feature-title { font-size:14px; font-weight:700; color:#3b2a1e; }
+        .feature-title { font-size:14px; font-weight:700; color:#5A4718; }
         .feature-sub { font-size:12px; color:#999; margin-top:2px; }
 
         /* ── SECCIÓN PRODUCTOS ──────────────────────────────────────── */
@@ -147,13 +147,13 @@
             display:flex; justify-content:space-between; align-items:center;
             margin-bottom:30px;
         }
-        .sec-header h2 { font-size:26px; color:#3b2a1e; }
+        .sec-header h2 { font-size:26px; color:#5A4718; }
         .btn-ver-todos {
-            padding:10px 20px; background:transparent; color:#4b2e2e;
-            border:2px solid #4b2e2e; border-radius:8px; font-size:14px;
+            padding:10px 20px; background:transparent; color:#735B1F;
+            border:2px solid #735B1F; border-radius:8px; font-size:14px;
             font-weight:600; cursor:pointer; transition:all .2s;
         }
-        .btn-ver-todos:hover { background:#4b2e2e; color:white; }
+        .btn-ver-todos:hover { background:#735B1F; color:white; }
 
         /* Grid productos */
         #productosHome {
@@ -170,19 +170,19 @@
         .card:hover { transform:translateY(-5px); box-shadow:0 10px 28px rgba(0,0,0,.13); }
         .card-img {
             width:100%; height:160px; object-fit:cover;
-            background:#f5ede4;
+            background:#F5EDD5;
         }
         .card-img-placeholder {
-            width:100%; height:160px; background:linear-gradient(135deg,#f5ede4,#e8d5c0);
+            width:100%; height:160px; background:linear-gradient(135deg,#F5EDD5,#E8D9A0);
             display:flex; align-items:center; justify-content:center; font-size:40px;
         }
         .card-body { padding:16px; flex:1; display:flex; flex-direction:column; }
-        .card h3 { color:#3b2a1e; margin-bottom:5px; font-size:16px; }
+        .card h3 { color:#5A4718; margin-bottom:5px; font-size:16px; }
         .card p { color:#888; font-size:13px; flex:1; margin-bottom:10px; line-height:1.5; }
         .card .precio { font-size:20px; color:#2e7d32; font-weight:700; margin-bottom:10px; }
         .card .stock { font-size:12px; color:#999; margin-bottom:12px; }
         .btn-agregar {
-            padding:9px; background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            padding:9px; background:linear-gradient(to right,#735B1F,#3D3010);
             color:white; border:none; border-radius:8px; cursor:pointer;
             font-weight:600; font-size:13px; transition:all .2s;
         }
@@ -192,9 +192,22 @@
         }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
+        /* ── CTA CATÁLOGO ────────────────────────────────────────────── */
+        .cta-catalogo {
+            display:flex; align-items:center; justify-content:space-between;
+            background:linear-gradient(135deg,#fff8ec,#fef3d0);
+            border:2px solid #C4A245; border-radius:18px;
+            padding:30px 40px; gap:30px; flex-wrap:wrap;
+        }
+        .cta-texto h2 { font-size:22px; color:#5A4718; margin-bottom:6px; }
+        .cta-texto p  { color:#888; font-size:14px; max-width:500px; line-height:1.7; }
+        .btn-ir-catalogo {
+            padding:14px 28px !important; font-size:15px !important; white-space:nowrap;
+        }
+
         /* ── FOOTER ─────────────────────────────────────────────────── */
         .footer-bar {
-            margin-top:50px; background:#2e1b1b;
+            margin-top:50px; background:#3D3010;
             padding:30px; text-align:center; color:white;
         }
         .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:12px; }
@@ -238,7 +251,7 @@
            De la semilla a tu taza, cada grano cuenta una historia.</p>
         <div class="hero-btns">
             <button class="btn-hero-primary" onclick="verCatalogo()">Ver Catálogo Completo</button>
-            <button class="btn-hero-secondary" onclick="verCatalogo()">Conocer más ↓</button>
+            <button class="btn-hero-secondary" onclick="window.location.href='tanetze.html'">Conocer más ↓</button>
         </div>
         <div class="hero-stats">
             <div class="stat-item">
@@ -293,13 +306,16 @@
     </div>
 </div>
 
-<!-- PRODUCTOS destacados -->
+<!-- CTA hacia catálogo -->
 <div class="seccion-productos">
-    <div class="sec-header">
-        <h2>☕ Nuestros Productos</h2>
-        <button class="btn-ver-todos" onclick="verCatalogo()">Ver catálogo completo →</button>
+    <div class="cta-catalogo">
+        <div class="cta-texto">
+            <h2>☕ Descubre nuestros cafés</h2>
+            <p>Granos de altura cultivados en la Sierra Juárez de Oaxaca, procesados con métodos artesanales y tostados con pasión.</p>
+        </div>
+        <button class="btn-ver-todos btn-ir-catalogo" onclick="verCatalogo()">Ver catálogo completo →</button>
     </div>
-    <div id="productosHome">
+    <div id="productosHome" style="display:none">
         <!-- Skeleton loaders mientras carga -->
         <div class="card" style="pointer-events:none">
             <div class="skeleton" style="height:160px"></div>
@@ -326,8 +342,8 @@
     <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
     <div class="footer-redes">
         <!-- ⬇ Cambia estos href por tus URLs reales -->
-        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
-        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+        <a href="https://www.instagram.com/sinfoniadegranos00/" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61555563284916"  target="_blank" class="footer-red">👍 Facebook</a>
     </div>
 </div>
 

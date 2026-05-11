@@ -2,11 +2,8 @@
  * header.js — Funciones compartidas del header (pill de usuario, sesión, navegación)
  * Incluir en todas las páginas con: <script src="js/header.js"></script>
  *
- * Requiere que el HTML tenga:
- *   - id="pillAvatar"   → div/span del avatar
- *   - id="pillNombre"   → span del nombre
- *   - id="menuUsuario"  → div del dropdown
- *   - id="btnAdmin"     → botón admin (opcional, se oculta si no es admin)
+ * Tabla usuarios: id, nombre, correo, rol
+ * Fotos de perfil: Storage bucket "avatares" → avatares/{uid}/avatar.png
  */
 
 // ── Primer nombre solamente ─────────────────────────────────────────────────
@@ -15,79 +12,124 @@ function primerNombre(nombreCompleto) {
     return nombreCompleto.trim().split(/\s+/)[0];
 }
 
+// ── URL pública del avatar desde Storage ────────────────────────────────────
+function getAvatarUrl(uid) {
+    // Bucket público: construimos la URL directamente
+    const { data } = supabaseClient.storage
+        .from('avatares')
+        .getPublicUrl(`${uid}/avatar.png`);
+    // Añadir cache-buster para que siempre cargue la versión más reciente
+    return data?.publicUrl ? data.publicUrl + '?t=' + Date.now() : null;
+}
+
+// ── Espera la sesión real de Supabase (evita race condition al cargar) ──────
+function esperarSesion() {
+    return new Promise((resolve) => {
+        const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+            (event, session) => {
+                subscription.unsubscribe();
+                resolve(session);
+            }
+        );
+        setTimeout(() => resolve(null), 4000);
+    });
+}
+
 // ── Cargar pill de usuario en header ───────────────────────────────────────
 async function initHeader() {
     try {
-        const { data: sessionData } = await supabaseClient.auth.getSession();
+        // 1. Obtener sesión
+        let { data: sessionData } = await supabaseClient.auth.getSession();
+
+        // 2. Si aún no hay sesión, esperar al evento de Auth (resuelve race condition)
         if (!sessionData.session) {
-            window.location.href = 'index.html';
-            return null;
+            const session = await esperarSesion();
+            if (!session) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            sessionData = { session };
         }
 
         const uid = sessionData.session.user.id;
 
-        // Intentar cargar desde Supabase primero
+        // 3. Leer datos del usuario desde la tabla
         const { data: user, error: userError } = await supabaseClient
             .from('usuarios')
-            .select('nombre, rol, foto_url')
+            .select('nombre, rol, correo')
             .eq('id', uid)
             .single();
 
-        // Si el usuario fue eliminado de la tabla usuarios (aunque tenga sesión auth),
-        // cerrar sesión y redirigir al login
-        if (userError || !user) {
+        // 4. Usuario eliminado de la tabla → cerrar sesión
+        if (userError?.code === 'PGRST116' || (userError && !user)) {
             await supabaseClient.auth.signOut();
-            ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userFoto','userId']
+            ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userId']
                 .forEach(k => localStorage.removeItem(k));
             window.location.href = 'index.html';
             return null;
         }
 
-        const nombre  = user?.nombre   || localStorage.getItem('userName') || 'Usuario';
-        const fotoUrl = user?.foto_url  || localStorage.getItem('userFoto') || '';
-        const rol     = user?.rol       || localStorage.getItem('userRole') || 'cliente';
-
-        // Persistir en localStorage para offline / recarga rápida
-        if (user?.nombre)    localStorage.setItem('userName', user.nombre);
-        if (user?.rol)       localStorage.setItem('userRole', user.rol);
-        if (user?.foto_url)  localStorage.setItem('userFoto', user.foto_url);
-        localStorage.setItem('userId', uid);
-        localStorage.setItem('isLoggedIn', 'true');
-
-        // Actualizar pill
-        renderPill(nombre, fotoUrl);
-
-        // Mostrar botón admin si corresponde
-        const btnAdmin = document.getElementById('btnAdmin');
-        if (btnAdmin) {
-            btnAdmin.style.display = (rol === 'admin' || rol === 'vendedor') ? 'block' : 'none';
+        // 5. Error de red genérico → fallback sin redirigir
+        if (userError || !user) {
+            const nombre = localStorage.getItem('userName') || 'Usuario';
+            const rol    = localStorage.getItem('userRole')  || 'cliente';
+            renderPill(nombre, null);
+            mostrarBtnAdmin(rol);
+            return { nombre, rol, uid };
         }
 
-        return { nombre, fotoUrl, rol, uid };
+        // 6. Todo bien
+        const nombre    = user.nombre || localStorage.getItem('userName') || 'Usuario';
+        const rol       = user.rol    || localStorage.getItem('userRole')  || 'cliente';
+        const avatarUrl = getAvatarUrl(uid);
+
+        localStorage.setItem('userName',   nombre);
+        localStorage.setItem('userRole',   rol);
+        localStorage.setItem('userId',     uid);
+        localStorage.setItem('isLoggedIn', 'true');
+
+        renderPill(nombre, avatarUrl);
+        mostrarBtnAdmin(rol);
+
+        return { nombre, rol, uid, avatarUrl };
+
     } catch (err) {
         console.error('Error en initHeader:', err);
-        // Fallback localStorage
-        const nombre  = localStorage.getItem('userName') || 'Usuario';
-        const fotoUrl = localStorage.getItem('userFoto') || '';
-        renderPill(nombre, fotoUrl);
+        const nombre = localStorage.getItem('userName') || 'Usuario';
+        const rol    = localStorage.getItem('userRole')  || 'cliente';
+        renderPill(nombre, null);
+        mostrarBtnAdmin(rol);
         return null;
     }
 }
 
-function renderPill(nombre, fotoUrl) {
+// ── Renderizar pill ─────────────────────────────────────────────────────────
+function renderPill(nombre, avatarUrl) {
     const avatarEl = document.getElementById('pillAvatar');
     const nombreEl = document.getElementById('pillNombre');
+    const inicial  = primerNombre(nombre)[0].toUpperCase();
 
     if (nombreEl) nombreEl.textContent = primerNombre(nombre);
 
     if (avatarEl) {
-        if (fotoUrl && fotoUrl !== 'null' && fotoUrl !== '') {
-            // Agregar cache-buster para que recargue la imagen al volver a iniciar sesión
-            const src = fotoUrl.includes('?') ? fotoUrl : fotoUrl + '?t=' + Date.now();
-            avatarEl.innerHTML = `<img src="${src}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.textContent='${primerNombre(nombre)[0].toUpperCase()}'">`;
+        if (avatarUrl) {
+            avatarEl.innerHTML = `<img
+                src="${avatarUrl}"
+                alt="avatar"
+                style="width:100%;height:100%;object-fit:cover;border-radius:50%"
+                onerror="this.parentElement.textContent='${inicial}'"
+            >`;
         } else {
-            avatarEl.textContent = primerNombre(nombre)[0].toUpperCase();
+            avatarEl.textContent = inicial;
         }
+    }
+}
+
+// ── Mostrar / ocultar botón admin ───────────────────────────────────────────
+function mostrarBtnAdmin(rol) {
+    const btnAdmin = document.getElementById('btnAdmin');
+    if (btnAdmin) {
+        btnAdmin.style.display = (rol === 'admin' || rol === 'vendedor') ? 'block' : 'none';
     }
 }
 
@@ -98,7 +140,6 @@ function toggleMenu() {
     m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
 }
 
-// Cerrar al click fuera
 document.addEventListener('click', e => {
     const um = document.querySelector('.user-menu');
     const m  = document.getElementById('menuUsuario');
@@ -115,14 +156,13 @@ function irHistorial() { window.location.href = 'historial.html'; }
 // ── Logout ───────────────────────────────────────────────────────────────────
 async function logout() {
     await supabaseClient.auth.signOut();
-    ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userFoto','userId']
+    ['carrito','userRole','userName','isLoggedIn','userRoleNormalized','userId']
         .forEach(k => localStorage.removeItem(k));
     window.location.href = 'index.html';
 }
 
-// ── Redes sociales HTML (para footer y secciones) ────────────────────────────
-// Cambia estos valores por tus URLs reales
+// ── URLs de redes sociales ───────────────────────────────────────────────────
 const REDES = {
-    instagram: 'https://instagram.com/TU_USUARIO_IG',
-    facebook:  'https://facebook.com/TU_PAGINA_FB'
+    instagram: 'https://www.instagram.com/sinfoniadegranos00/',
+    facebook:  'https://www.facebook.com/profile.php?id=61555563284916'
 };

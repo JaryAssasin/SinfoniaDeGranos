@@ -8,11 +8,11 @@
     <script src="js/header.js"></script>
     <style>
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f4f1ee,#e8e2dc); min-height:100vh; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#F5EDD5,#EDE0B8); min-height:100vh; }
 
         /* ── HEADER ── */
         .header {
-            background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            background:linear-gradient(to right,#735B1F,#3D3010);
             color:white; display:flex; justify-content:space-between;
             align-items:center; padding:18px 30px; font-size:20px; position:sticky; top:0; z-index:100;
         }
@@ -25,7 +25,7 @@
         }
         .user-pill:hover { background:rgba(255,255,255,.22); }
         .pill-avatar {
-            width:32px; height:32px; border-radius:50%; background:#a0632a; color:white;
+            width:32px; height:32px; border-radius:50%; background:#8F7228; color:white;
             display:flex; align-items:center; justify-content:center;
             font-weight:700; font-size:14px; overflow:hidden; flex-shrink:0;
         }
@@ -41,8 +41,8 @@
 
         /* ── CONTENIDO ── */
         .container { max-width:940px; margin:0 auto; padding:30px 20px; }
-        .page-title { font-size:28px; color:#3b2a1e; margin-bottom:6px; }
-        .page-sub   { color:#7a5c47; font-style:italic; margin-bottom:28px; }
+        .page-title { font-size:28px; color:#5A4718; margin-bottom:6px; }
+        .page-sub   { color:#8F7228; font-style:italic; margin-bottom:28px; }
 
         /* ── FILTROS ── */
         .filtros { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; align-items:center; }
@@ -51,7 +51,7 @@
             font-size:14px; background:white; min-width:160px;
         }
         .btn-filtrar {
-            padding:9px 20px; background:#4b2e2e; color:white;
+            padding:9px 20px; background:#735B1F; color:white;
             border:none; border-radius:8px; cursor:pointer; font-size:14px; transition:opacity .2s;
         }
         .btn-filtrar:hover { opacity:.85; }
@@ -63,7 +63,7 @@
         }
         .pedido-card:hover { box-shadow:0 6px 22px rgba(0,0,0,.12); }
         .pedido-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
-        .pedido-id { font-size:18px; font-weight:700; color:#3b2a1e; }
+        .pedido-id { font-size:18px; font-weight:700; color:#5A4718; }
         .pedido-fecha { font-size:13px; color:#999; margin-top:3px; }
 
         /* ── BADGES ESTADO ── */
@@ -112,23 +112,23 @@
         .incidente-nota-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
 
         /* Items del pedido */
-        .pedido-items { border-top:1px solid #f0e8df; padding-top:14px; margin-bottom:14px; }
+        .pedido-items { border-top:1px solid #EDE0B8; padding-top:14px; margin-bottom:14px; }
         .item-row { display:flex; align-items:center; gap:14px; padding:8px 0; border-bottom:1px solid #f9f4ef; }
         .item-row:last-child { border-bottom:none; }
         .item-img {
             width:56px; height:56px; border-radius:8px; object-fit:cover;
-            background:linear-gradient(135deg,#f5ede4,#e8d5c0);
+            background:linear-gradient(135deg,#F5EDD5,#E8D9A0);
             display:flex; align-items:center; justify-content:center; font-size:22px;
             flex-shrink:0; overflow:hidden;
         }
         .item-img img { width:100%; height:100%; object-fit:cover; }
         .item-info { flex:1; }
-        .item-nombre { font-size:15px; font-weight:600; color:#3b2a1e; }
+        .item-nombre { font-size:15px; font-weight:600; color:#5A4718; }
         .item-cant   { font-size:13px; color:#888; }
         .item-precio { font-size:15px; font-weight:700; color:#2e7d32; }
 
         /* Footer del pedido */
-        .pedido-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid #f0e8df; padding-top:14px; }
+        .pedido-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid #EDE0B8; padding-top:14px; }
         .pedido-total { font-size:18px; font-weight:700; color:#2e7d32; }
         .pedido-metodo { font-size:13px; color:#888; }
         .pedido-acciones { display:flex; gap:8px; flex-wrap:wrap; }
@@ -147,20 +147,20 @@
             border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,.06);
         }
         .vacio-icon { font-size:52px; margin-bottom:16px; }
-        .vacio h3 { color:#3b2a1e; margin-bottom:8px; }
+        .vacio h3 { color:#5A4718; margin-bottom:8px; }
         .vacio p  { color:#999; font-size:14px; margin-bottom:20px; }
         .btn-ir-tienda {
-            padding:12px 24px; background:linear-gradient(to right,#4b2e2e,#2e1b1b);
+            padding:12px 24px; background:linear-gradient(to right,#735B1F,#3D3010);
             color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px;
         }
 
         /* Loading */
         .loading { text-align:center; padding:40px; color:#888; font-size:15px; }
-        .spinner { display:inline-block; width:30px; height:30px; border:3px solid #ddd; border-top-color:#4b2e2e; border-radius:50%; animation:spin .7s linear infinite; margin-bottom:10px; }
+        .spinner { display:inline-block; width:30px; height:30px; border:3px solid #ddd; border-top-color:#735B1F; border-radius:50%; animation:spin .7s linear infinite; margin-bottom:10px; }
         @keyframes spin { to { transform:rotate(360deg); } }
 
         /* Footer */
-        .footer-bar { margin-top:50px; background:#2e1b1b; padding:30px; text-align:center; color:white; }
+        .footer-bar { margin-top:50px; background:#3D3010; padding:30px; text-align:center; color:white; }
         .footer-redes { display:flex; justify-content:center; gap:15px; margin-top:10px; }
         .footer-red { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; transition:color .2s; }
         .footer-red:hover { color:white; }
@@ -177,10 +177,10 @@
             max-width:100%; animation:popIn .2s ease; max-height:90vh; overflow-y:auto;
         }
         @keyframes popIn { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
-        .modal-box h3 { color:#3b2a1e; margin-bottom:8px; font-size:20px; }
+        .modal-box h3 { color:#5A4718; margin-bottom:8px; font-size:20px; }
         .modal-box p  { color:#666; font-size:14px; margin-bottom:16px; line-height:1.5; }
-        .modal-items  { background:#fdf6ec; border-radius:10px; padding:14px; margin-bottom:14px; max-height:200px; overflow-y:auto; }
-        .modal-item   { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0e8df; font-size:14px; }
+        .modal-items  { background:#FDF5E0; border-radius:10px; padding:14px; margin-bottom:14px; max-height:200px; overflow-y:auto; }
+        .modal-item   { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #EDE0B8; font-size:14px; }
         .modal-item:last-child { border-bottom:none; }
         .modal-total  { font-weight:700; color:#2e7d32; font-size:16px; margin-bottom:18px; }
         .modal-actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
@@ -202,7 +202,7 @@
             width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px;
             font-size:14px; transition:border-color .2s;
         }
-        .form-group-modal input:focus, .form-group-modal select:focus { outline:none; border-color:#4b2e2e; }
+        .form-group-modal input:focus, .form-group-modal select:focus { outline:none; border-color:#735B1F; }
         .form-group-modal input.error-input { border-color:#dc2626; }
         .error-msg { font-size:12px; color:#dc2626; margin-top:3px; display:none; }
         .error-msg.show { display:block; }
@@ -264,8 +264,8 @@
 <div class="footer-bar">
     <p>&copy; 2024 Sinfonía de Granos. Todos los derechos reservados.</p>
     <div class="footer-redes">
-        <a href="https://instagram.com/TU_USUARIO_IG" target="_blank" class="footer-red">📸 Instagram</a>
-        <a href="https://facebook.com/TU_PAGINA_FB"  target="_blank" class="footer-red">👍 Facebook</a>
+        <a href="https://www.instagram.com/sinfoniadegranos00/" target="_blank" class="footer-red">📸 Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61555563284916"  target="_blank" class="footer-red">👍 Facebook</a>
     </div>
 </div>
 
@@ -742,7 +742,7 @@ async function confirmarCancelacion() {
 // ── Toast ────────────────────────────────────────────────────────────────────
 function mostrarToast(msg) {
     const t = document.createElement('div');
-    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:#2e1b1b;color:white;padding:14px 20px;border-radius:10px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)`;
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:#3D3010;color:white;padding:14px 20px;border-radius:10px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)`;
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 4000);

@@ -676,10 +676,31 @@ async function guardarUsuario() {
 
 async function deleteUsuario(id) {
   if (!esAdmin) { alert("⚠️ Solo los administradores pueden eliminar usuarios."); return; }
-  if (!confirm("¿Eliminar este usuario?")) return;
+  if (!confirm("¿Eliminar este usuario? El usuario perderá el acceso de inmediato.")) return;
+
+  // 1. Eliminar de la tabla usuarios
+  //    Nota: Supabase Auth (auth.users) requiere service_role para borrarse desde frontend.
+  //    Al borrar de la tabla "usuarios", header.js detecta que no existe y fuerza el logout
+  //    automáticamente la próxima vez que el usuario cargue cualquier página.
   const { error } = await supabaseClient.from("usuarios").delete().eq("id", id);
   if (error) { console.error(error); alert("Error al eliminar: " + error.message); return; }
+
+  // 2. Si el usuario eliminado tiene sesión activa en ESTE navegador, cerrarla
+  const { data: mySession } = await supabaseClient.auth.getSession();
+  if (mySession?.session?.user?.id === id) {
+    await supabaseClient.auth.signOut();
+    localStorage.clear();
+    window.location.href = "index.html";
+    return;
+  }
+
   loadUsuariosData();
+  // Mostrar aviso de que el usuario quedará bloqueado
+  const aviso = document.createElement("div");
+  aviso.style.cssText = "position:fixed;top:20px;right:20px;padding:14px 20px;background:#6ee7b7;color:#065f46;border-radius:8px;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15)";
+  aviso.textContent = "✅ Usuario eliminado. Perderá el acceso en su próxima carga de página.";
+  document.body.appendChild(aviso);
+  setTimeout(() => aviso.remove(), 4000);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
